@@ -1,0 +1,16 @@
+{
+  "name": "Klarschiff – Der Kreuzfahrt-Planer",
+  "short_name": "Klarschiff",
+  "description": "Der Kreuzfahrt-Planer von @wolken.wanderer. Offline nutzbar.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F5FAFD",
+  "theme_color": "#F5FAFD",
+  "lang": "de",
+  "icons": [
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
