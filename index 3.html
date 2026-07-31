@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0B2338" />
+    <meta name="description" content="Klarschiff – der Kreuzfahrt-Planer von @wolken.wanderer. Offline nutzbar." />
+    <title>Klarschiff</title>
+
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icon-192.png" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Klarschiff" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..600;1,6..96,400&family=Questrial&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+    <style>
+      html, body, #root { margin: 0; padding: 0; background: #E7EDEC; }
+      * { -webkit-tap-highlight-color: transparent; }
+      button { font: inherit; }
+      input { -webkit-appearance: none; appearance: none; }
+      input:focus-visible, button:focus-visible {
+        outline: 2px solid #C8A055; outline-offset: 2px;
+      }
+      input:focus { border-color: #C8A055 !important; }
+      ::selection { background: #C8A055; color: #0B2338; }
+
+      @keyframes auftauchen {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: .001ms !important;
+          transition-duration: .001ms !important;
+        }
+      }
+
+      #laden {
+        min-height: 100vh; display: grid; place-items: center; background: #0B2338;
+      }
+      #laden span {
+        font-family: 'Bodoni Moda', Georgia, serif; font-size: 30px; color: #F5F8F7;
+        letter-spacing: -0.01em;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"><div id="laden"><span>Klarschiff</span></div></div>
+
+    <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js" crossorigin></script>
+    <script type="text/babel" data-presets="react" src="./app.jsx?v=5"></script>
+
+    <script>
+      /* Offline-Betrieb einschalten */
+      if ("serviceWorker" in navigator && location.protocol === "https:") {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("./sw.js").then(function (reg) {
+            reg.update();
+          }).catch(function () {});
+        });
+      }
+    </script>
+  </body>
+</html>
