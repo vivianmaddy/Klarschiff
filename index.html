@@ -47,6 +47,11 @@
         font-family: 'Bodoni Moda', Georgia, serif; font-size: 30px; color: #F5F8F7;
         letter-spacing: -0.01em;
       }
+
+      @media print {
+        nav, button, .no-print { display: none !important; }
+        body, #root { background: #fff !important; }
+      }
     </style>
   </head>
   <body>
@@ -55,7 +60,7 @@
     <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js" crossorigin></script>
-    <script type="text/babel" data-presets="react" src="./app.jsx?v=5"></script>
+    <script type="text/babel" data-presets="react" src="./app.jsx?v=7"></script>
 
     <script>
       /* Offline-Betrieb einschalten */
