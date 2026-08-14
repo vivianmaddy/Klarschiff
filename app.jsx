@@ -24,6 +24,12 @@ const Alert = (p) => (
   <Svg {...p}><path d="M12 9v4" /><path d="M12 17h.01" />
     <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /></Svg>
 );
+const Home = (p) => <Svg {...p}><path d="M3 11.5 12 4l9 7.5" /><path d="M5.5 10v9.5h13V10" /></Svg>;
+const Search = (p) => <Svg {...p}><circle cx="11" cy="11" r="7" /><line x1="20" y1="20" x2="16.2" y2="16.2" /></Svg>;
+const MapPin = (p) => (
+  <Svg {...p}><path d="M19.5 10.5c0 6-7.5 11-7.5 11s-7.5-5-7.5-11a7.5 7.5 0 0 1 15 0z" /><circle cx="12" cy="10.5" r="2.6" /></Svg>
+);
+const Menu = (p) => <Svg {...p}><line x1="4" y1="7" x2="20" y2="7" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="17" x2="20" y2="17" /></Svg>;
 
 /* =========================================================
    DESIGNSYSTEM – Logbuch an Bord
@@ -71,7 +77,8 @@ const SERIF = "'Bodoni Moda', 'Playfair Display', Georgia, serif";
 const SANS = "'Questrial', 'Helvetica Neue', Arial, sans-serif";
 const MONO = "'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace";
 
-const RUND = 6;
+const RUND = 16;
+const RUND_KLEIN = 10;
 
 const STORAGE_KEY = "klarschiff-kreuzfahrtplaner";
 
@@ -390,7 +397,6 @@ const MODULE = [
   { id: 2, titel: "Der Kabinen-Check", teaser: "Was euch in eurer gebuchten Kabine erwartet — und was ihr jetzt noch erledigen könnt." },
   { id: 3, titel: "Die Packliste", teaser: "Passt sich eurer Route und Familiengröße an, samt der Dinge, die fast alle vergessen." },
   { id: 4, titel: "Der Bordkonto-Rechner", teaser: "Was an Bord noch dazukommt, bevor es euch die Endabrechnung sagt." },
-  { id: 5, titel: "Route & Landgang-Planer", teaser: "Eure Route auf der Karte, plus Währung, Infos und Ausflugsideen zu jedem einzelnen Hafen." },
   { id: 6, titel: "Der erste Tag an Bord", teaser: "Die Reihenfolge, die über entspannt oder hinterherlaufen entscheidet." },
   { id: 7, titel: "Dokumente und Notfall", teaser: "Alle wichtigen Zahlen offline griffbereit, weil offline an Bord der Normalzustand ist." },
   { id: 8, titel: "Das Fahrtenbuch", teaser: "Jede gefahrene Reise, jeder Hafen, jede Notiz — und was sich über die Jahre summiert." },
@@ -491,8 +497,8 @@ function Card({ children, tone, style }) {
     : tone === "green" ? C.greenSoft : tone === "sand" ? C.sand : C.sky;
   return (
     <section style={{
-      background: bg, borderRadius: RUND, padding: "24px 20px 26px", marginBottom: 20,
-      border: `1px solid ${tone === "warn" ? "rgba(166,58,46,0.22)" : C.line}`, ...style,
+      background: bg, borderRadius: RUND, padding: "22px 20px", marginBottom: 14,
+      boxShadow: "0 1px 2px rgba(11,35,56,0.05)", ...style,
     }}>{children}</section>
   );
 }
@@ -516,13 +522,13 @@ function Btn({ children, onClick, variant = "solid", small, full, style, title }
     ? { background: C.tiefsee, color: C.white, borderColor: C.tiefsee,
         boxShadow: `inset 0 0 0 1px ${C.messingLeise}` }
     : variant === "quiet"
-      ? { background: "transparent", color: C.body, borderColor: C.line }
+      ? { background: "transparent", color: C.body, borderColor: "transparent" }
       : { background: C.white, color: C.navy, borderColor: C.line };
   return (
     <button type="button" onClick={onClick} title={title} style={{
-      fontFamily: SANS, fontSize: small ? 13.5 : 15, letterSpacing: 0.2,
-      padding: small ? "11px 17px" : "15px 26px", minHeight: 46,
-      borderWidth: 1, borderStyle: "solid", borderRadius: 3, cursor: "pointer",
+      fontFamily: SANS, fontSize: small ? 13.5 : 15, letterSpacing: 0.1,
+      padding: small ? "11px 18px" : "15px 26px", minHeight: 46,
+      borderWidth: 1, borderStyle: "solid", borderRadius: 999, cursor: "pointer",
       display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
       width: full ? "100%" : "auto", ...skin, ...style,
     }}>{children}</button>
@@ -1689,12 +1695,12 @@ function normText(s) {
     .replace(/ß/g, "ss").replace(/[^a-z0-9]/g, "");
 }
 
-function hafenVorschlaege(q) {
+function hafenVorschlaege(q, limit) {
   const s = normText(q);
   if (s.length < 2) return [];
   const treffer = HAFENLISTE.filter((h) => normText(h.n).indexOf(s) >= 0);
   treffer.sort((a, b) => normText(a.n).indexOf(s) - normText(b.n).indexOf(s));
-  return treffer.slice(0, 6);
+  return treffer.slice(0, limit || 6);
 }
 
 /* =========================================================
@@ -3281,6 +3287,7 @@ function HafenFeld({ eintrag, onAendern }) {
 
 function Steckbrief({ info }) {
   const zeilen = [
+    info.waehrung && ["Währung", `${info.waehrung[1]} (${info.waehrung[0]})`],
     info.sprache && ["Sprache", info.sprache],
     info.steckdose && ["Steckdose", info.steckdose],
     info.trinkgeldTipp && ["Trinkgeld", info.trinkgeldTipp],
@@ -3302,81 +3309,67 @@ function Steckbrief({ info }) {
   );
 }
 
-function HafenInfoKarte({ info, interessen, notiz, onNotizChange }) {
-  const [auf, setAuf] = useState(false);
-  if (!info) return null;
+/* Der eigentliche Inhalt eines Hafenprofils — wird sowohl in der
+   aufklappbaren Karte im Route-Tab als auch auf der vollen
+   Hafen-Lexikon-Seite verwendet. */
+function HafenInfoInhalt({ info, interessen, notiz, onNotizChange }) {
   const passt = (interessen || []).filter((i) => (INTERESSEN_ZU_TYP[i] || []).indexOf(info.typ) >= 0);
   const passtLabels = passt.map((v) => (INTERESSEN_OPTIONEN.find((o) => o.v === v) || {}).l).filter(Boolean);
   const gygUrl = "https://www.getyourguide.com/s/?q=" + encodeURIComponent(info.name);
   const viatorUrl = "https://www.viator.com/searchResults/all?text=" + encodeURIComponent(info.name);
   return (
-    <div style={{
-      background: C.sky, borderRadius: 3, marginBottom: 18,
-      border: `1px solid ${C.line}`, overflow: "hidden",
-    }}>
-      <button type="button" onClick={() => setAuf(!auf)} aria-expanded={auf} style={{
-        display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%",
-        textAlign: "left", background: "transparent", border: "none", cursor: "pointer",
-        padding: "14px 16px", minHeight: 46, gap: 10,
-      }}>
-        <span style={{ fontFamily: SANS, fontSize: 15, color: C.navy }}>
-          Hafen-Info{info.land ? ` · ${info.land}` : ""}
-          {info.waehrung ? ` · ${info.waehrung[1]} (${info.waehrung[0]})` : ""}
-        </span>
-        <ChevronRight size={15} color={C.messing}
-          style={{ flexShrink: 0, transform: auf ? "rotate(90deg)" : "none", transition: "transform .2s" }} />
-      </button>
-      {auf && (
-        <div style={{ padding: "0 16px 20px" }}>
-          {passtLabels.length > 0 && (
-            <div style={{
-              display: "inline-flex", alignItems: "center", gap: 7, background: C.greenSoft,
-              borderRadius: 3, padding: "7px 12px", marginBottom: 14,
-            }}>
-              <Check size={13} color={C.green} />
-              <span style={{ fontFamily: SANS, fontSize: 12.5, color: C.green }}>
-                Passt zu euren Interessen: {passtLabels.join(", ")}
-              </span>
-            </div>
-          )}
-          <P style={{ fontSize: 14.5, marginBottom: 16 }}>{info.kurz}</P>
-          {info.tipp && (
-            <div style={{
-              background: C.sand, borderRadius: 3, padding: "13px 14px", marginBottom: 18,
-              borderLeft: `2px solid ${C.messing}`,
-            }}>
-              <div style={{ fontFamily: SANS, fontSize: 13.5, lineHeight: 1.62, color: C.navy }}>{info.tipp}</div>
-            </div>
-          )}
-          <Steckbrief info={info} />
-          <div style={{
-            fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.4, textTransform: "uppercase",
-            color: C.muted, marginBottom: 9,
-          }}>Auf eigene Faust</div>
-          {info.zuFuss.map((t, i) => (
-            <div key={"z" + i} style={{ display: "flex", gap: 9, marginBottom: 9 }}>
-              <span style={{ color: C.messing, flexShrink: 0 }} aria-hidden="true">·</span>
-              <span style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.6, color: C.body }}>{t}</span>
-            </div>
-          ))}
-          <div style={{
-            fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.4, textTransform: "uppercase",
-            color: C.muted, margin: "16px 0 9px",
-          }}>Gebuchte Ausflüge — Reederei oder GetYourGuide/Viator</div>
-          {info.gefuehrt.map((t, i) => (
-            <div key={"g" + i} style={{ display: "flex", gap: 9, marginBottom: 9 }}>
-              <span style={{ color: C.messing, flexShrink: 0 }} aria-hidden="true">·</span>
-              <span style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.6, color: C.body }}>{t}</span>
-            </div>
-          ))}
-          <div style={{ display: "flex", gap: 10, marginTop: 14, marginBottom: 20, flexWrap: "wrap" }}>
-            <a href={gygUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
-              <Btn small variant="outline">{info.name} auf GetYourGuide</Btn>
-            </a>
-            <a href={viatorUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
-              <Btn small variant="outline">{info.name} auf Viator</Btn>
-            </a>
-          </div>
+    <div>
+      {passtLabels.length > 0 && (
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 7, background: C.greenSoft,
+          borderRadius: 999, padding: "7px 12px", marginBottom: 14,
+        }}>
+          <Check size={13} color={C.green} />
+          <span style={{ fontFamily: SANS, fontSize: 12.5, color: C.green }}>
+            Passt zu euren Interessen: {passtLabels.join(", ")}
+          </span>
+        </div>
+      )}
+      <P style={{ fontSize: 15, marginBottom: 16 }}>{info.kurz}</P>
+      {info.tipp && (
+        <div style={{
+          background: C.sand, borderRadius: RUND_KLEIN, padding: "13px 14px", marginBottom: 18,
+          borderLeft: `2px solid ${C.messing}`,
+        }}>
+          <div style={{ fontFamily: SANS, fontSize: 13.5, lineHeight: 1.62, color: C.navy }}>{info.tipp}</div>
+        </div>
+      )}
+      <Steckbrief info={info} />
+      <div style={{
+        fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.4, textTransform: "uppercase",
+        color: C.muted, marginBottom: 9,
+      }}>Auf eigene Faust</div>
+      {info.zuFuss.map((t, i) => (
+        <div key={"z" + i} style={{ display: "flex", gap: 9, marginBottom: 9 }}>
+          <span style={{ color: C.messing, flexShrink: 0 }} aria-hidden="true">·</span>
+          <span style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.6, color: C.body }}>{t}</span>
+        </div>
+      ))}
+      <div style={{
+        fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.4, textTransform: "uppercase",
+        color: C.muted, margin: "16px 0 9px",
+      }}>Gebuchte Ausflüge — Reederei oder GetYourGuide/Viator</div>
+      {info.gefuehrt.map((t, i) => (
+        <div key={"g" + i} style={{ display: "flex", gap: 9, marginBottom: 9 }}>
+          <span style={{ color: C.messing, flexShrink: 0 }} aria-hidden="true">·</span>
+          <span style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.6, color: C.body }}>{t}</span>
+        </div>
+      ))}
+      <div style={{ display: "flex", gap: 10, marginTop: 14, marginBottom: 20, flexWrap: "wrap" }}>
+        <a href={gygUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+          <Btn small variant="outline">{info.name} auf GetYourGuide</Btn>
+        </a>
+        <a href={viatorUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+          <Btn small variant="outline">{info.name} auf Viator</Btn>
+        </a>
+      </div>
+      {onNotizChange && (
+        <div>
           <div style={{
             fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.4, textTransform: "uppercase",
             color: C.muted, marginBottom: 8,
@@ -3384,6 +3377,131 @@ function HafenInfoKarte({ info, interessen, notiz, onNotizChange }) {
           <textarea value={notiz || ""} rows={2} onChange={(e) => onNotizChange(e.target.value)}
             placeholder="Bleibt dauerhaft im Hafen-Lexikon, egal welche Reise gerade läuft."
             style={{ ...eingabeStil, fontFamily: SANS, resize: "vertical", lineHeight: 1.6 }} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* =========================================================
+   HÄFEN – das globale Hafen-Lexikon, das Hauptfeature der App
+========================================================= */
+const BELIEBTE_HAEFEN = [
+  "Barcelona", "Civitavecchia (Rom)", "Venedig", "Santorini", "Dubrovnik", "Kopenhagen", "Bergen",
+  "Reykjavík", "Cape Liberty (Bayonne)", "Miami", "Nassau", "Cozumel", "Castries (St. Lucia)",
+  "Singapur", "Dubai", "Sydney",
+];
+
+function HafenSucheZeile({ eintrag, onClick }) {
+  return (
+    <button type="button" onClick={onClick} style={{
+      display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%",
+      textAlign: "left", background: C.white, border: "none", cursor: "pointer",
+      padding: "15px 16px", minHeight: 46, borderRadius: RUND_KLEIN, marginBottom: 8,
+      boxShadow: "0 1px 2px rgba(11,35,56,0.05)",
+    }}>
+      <span style={{ minWidth: 0 }}>
+        <div style={{ fontFamily: SANS, fontSize: 15.5, color: C.navy }}>{eintrag.n}</div>
+        {eintrag.land && (
+          <div style={{ fontFamily: SANS, fontSize: 12.5, color: C.muted, marginTop: 2 }}>{eintrag.land}</div>
+        )}
+      </span>
+      <ChevronRight size={16} color={C.messing} style={{ flexShrink: 0 }} />
+    </button>
+  );
+}
+
+function HafenDetailSeite({ daten, setze, name, onZurueck }) {
+  const info = hafenInfo(name);
+  const inRoute = (daten.haefen || []).some((h) => normText(h.name) === normText(name));
+
+  function zurRouteHinzufuegen() {
+    if (inRoute) return;
+    const eintrag = HAFENLISTE.find((h) => normText(h.n) === normText(name));
+    setze("haefen", [...(daten.haefen || []), {
+      id: "h" + Date.now(), name: eintrag ? eintrag.n : name,
+      lon: eintrag ? eintrag.lon : null, lat: eintrag ? eintrag.lat : null,
+      an: "08:00", ab: "18:00", puffer: "45", weg: "", note: "", sterne: 0,
+      gebucht: false, treffpunkt: "", budgetGeplant: "", budgetIst: "",
+    }]);
+  }
+
+  return (
+    <div>
+      <button type="button" onClick={onZurueck} style={{
+        display: "inline-flex", alignItems: "center", gap: 7, background: "transparent", border: "none",
+        cursor: "pointer", fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.8, textTransform: "uppercase",
+        color: C.muted, padding: "6px 0", minHeight: 44, marginBottom: 8,
+      }}><ChevronLeft size={14} color={C.messing} /> Alle Häfen</button>
+      {!info ? (
+        <Card><P style={{ margin: 0 }}>Diesen Hafen kennen wir noch nicht.</P></Card>
+      ) : (
+        <div>
+          <Kicker>{info.land}{info.kontinent ? ` · ${info.kontinent}` : ""}</Kicker>
+          <H2 style={{ marginBottom: 18 }}>{info.name}</H2>
+          <Btn small variant={inRoute ? "outline" : "solid"} onClick={zurRouteHinzufuegen} style={{ marginBottom: 24 }}>
+            {inRoute ? "✓ Schon in eurer Route" : "Zur Route hinzufügen"}
+          </Btn>
+          <HafenInfoInhalt info={info} interessen={daten.setup.interessen}
+            notiz={(daten.hafenNotizen || {})[normText(info.name)]}
+            onNotizChange={(v) => setze("hafenNotizen", { ...(daten.hafenNotizen || {}), [normText(info.name)]: v })} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ModulHaefen({ daten, setze, anfangsHafen, onAnfangVerbraucht }) {
+  const [suche, setSuche] = useState("");
+  const [gewaehlt, setGewaehlt] = useState(anfangsHafen || null);
+
+  useEffect(() => {
+    if (anfangsHafen) { setGewaehlt(anfangsHafen); onAnfangVerbraucht(); }
+    // eslint-disable-next-line
+  }, [anfangsHafen]);
+
+  if (gewaehlt) {
+    return <HafenDetailSeite daten={daten} setze={setze} name={gewaehlt} onZurueck={() => setGewaehlt(null)} />;
+  }
+
+  const ergebnisse = suche.trim().length >= 2 ? hafenVorschlaege(suche, 40) : [];
+  const meineRoute = (daten.haefen || []).filter((h) => h.name);
+
+  return (
+    <div>
+      <Kicker>Hafen-Lexikon</Kicker>
+      <H2 style={{ marginBottom: 10 }}>Alle Häfen</H2>
+      <P style={{ marginBottom: 20 }}>
+        {HAFENLISTE.length} Häfen weltweit — sucht nach einem Namen und findet Währung, Landgänge auf
+        eigene Faust und Ausflugsideen.
+      </P>
+      <input value={suche} onChange={(e) => setSuche(e.target.value)} type="search"
+        placeholder="Hafen suchen, z. B. Hamburg"
+        style={{ ...eingabeStil, marginBottom: 22, fontSize: 17, borderRadius: 999, padding: "14px 20px" }} />
+
+      {suche.trim().length >= 2 ? (
+        ergebnisse.length === 0 ? (
+          <P style={{ color: C.muted }}>Keinen Hafen mit diesem Namen gefunden.</P>
+        ) : ergebnisse.map((h) => (
+          <HafenSucheZeile key={h.n} eintrag={h} onClick={() => setGewaehlt(h.n)} />
+        ))
+      ) : (
+        <div>
+          {meineRoute.length > 0 && (
+            <div style={{ marginBottom: 12 }}>
+              <Kicker>Eure Route</Kicker>
+              {meineRoute.map((h) => (
+                <HafenSucheZeile key={h.id} eintrag={{ n: h.name, land: (hafenInfo(h.name) || {}).land }}
+                  onClick={() => setGewaehlt(h.name)} />
+              ))}
+            </div>
+          )}
+          <Kicker>Beliebte Häfen</Kicker>
+          {BELIEBTE_HAEFEN.map((n) => {
+            const eintrag = HAFENLISTE.find((h) => h.n === n);
+            if (!eintrag) return null;
+            return <HafenSucheZeile key={n} eintrag={eintrag} onClick={() => setGewaehlt(n)} />;
+          })}
         </div>
       )}
     </div>
@@ -3441,7 +3559,27 @@ function TagebuchEingabe({ eintraege, onAdd, onLoeschen }) {
   );
 }
 
-function ModulLandgang({ daten, setze }) {
+function Aufklappbar({ titel, children }) {
+  const [auf, setAuf] = useState(false);
+  return (
+    <div style={{ marginTop: 10, borderTop: `1px solid ${C.line}`, paddingTop: 10 }}>
+      <button type="button" onClick={() => setAuf(!auf)} aria-expanded={auf} style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%",
+        textAlign: "left", background: "transparent", border: "none", cursor: "pointer",
+        padding: "6px 0", minHeight: 44, gap: 10,
+      }}>
+        <span style={{
+          fontFamily: MONO, fontSize: 11, letterSpacing: 1.4, textTransform: "uppercase", color: C.muted,
+        }}>{titel}</span>
+        <ChevronRight size={14} color={C.messing}
+          style={{ transform: auf ? "rotate(90deg)" : "none", transition: "transform .2s" }} />
+      </button>
+      {auf && <div style={{ paddingTop: 6 }}>{children}</div>}
+    </div>
+  );
+}
+
+function ModulLandgang({ daten, setze, onZeigeHafen }) {
   const h = daten.haefen;
   const notizen = useMemo(() => notizArchiv(daten.archiv || []), [daten.archiv]);
   const reederei = reedereiFinden(daten.setup.reederei);
@@ -3465,12 +3603,12 @@ function ModulLandgang({ daten, setze }) {
 
   return (
     <div>
-      <Kicker>Modul 5</Kicker>
-      <H2>Route & Landgang-Planer</H2>
-      <Lead>
-        <span>Tragt eure komplette Route ein — von jedem Hafen weltweit finden wir Land, Währung und Ausflugsideen für euch, egal ob großer Klassiker oder kleine Insel.</span>
-        <span>Ein Hafentag fühlt sich lang an, ist aber kürzer als gedacht, weil Ausschiffung, Weg zum Zentrum und Rückweg schnell drei Stunden fressen.</span>
-      </Lead>
+      <Kicker>Eure Route</Kicker>
+      <H2 style={{ marginBottom: 14 }}>Route & Zeitplan</H2>
+      <P style={{ marginBottom: 20 }}>
+        Reihenfolge, Uhrzeiten und wie viel Zeit ihr an Land wirklich habt. Alles zum Hafen selbst — Ausflüge,
+        Währung, Ausflugsideen — steht drüben im Hafen-Lexikon.
+      </P>
 
       <Karte haefen={h} route={daten.setup.route} />
 
@@ -3557,9 +3695,9 @@ function ModulLandgang({ daten, setze }) {
             <HafenFeld eintrag={x} onAendern={(teil) => upd(x.id, teil)} />
 
             {typeof x.lon === "number" && (
-              <HafenInfoKarte info={hafenInfo(x.name)} interessen={daten.setup.interessen}
-                notiz={(daten.hafenNotizen || {})[normText(x.name)]}
-                onNotizChange={(v) => setze("hafenNotizen", { ...(daten.hafenNotizen || {}), [normText(x.name)]: v })} />
+              <Btn small variant="outline" onClick={() => onZeigeHafen(x.name)} style={{ marginBottom: 18 }}>
+                Hafen-Infos & Ausflüge ansehen
+              </Btn>
             )}
 
             {notizen[normText(x.name)] && (
@@ -3617,23 +3755,22 @@ function ModulLandgang({ daten, setze }) {
               </div>
             )}
 
-            <Schalter label="Ausflug ist gebucht" an={!!x.gebucht} onChange={(v) => upd(x.id, { gebucht: v })} />
-            {x.gebucht && (
-              <Feld label="Treffpunkt" wert={x.treffpunkt || ""} onChange={(v) => upd(x.id, { treffpunkt: v })}
-                placeholder="z. B. Pier 3, 08:45 Uhr" />
-            )}
-            <div style={{ display: "flex", gap: 10 }}>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <Feld label="Budget geplant" type="number" wert={x.budgetGeplant || ""}
-                  onChange={(v) => upd(x.id, { budgetGeplant: v })} />
+            <Aufklappbar titel="Buchung, Budget & Notiz">
+              <Schalter label="Ausflug ist gebucht" an={!!x.gebucht} onChange={(v) => upd(x.id, { gebucht: v })} />
+              {x.gebucht && (
+                <Feld label="Treffpunkt" wert={x.treffpunkt || ""} onChange={(v) => upd(x.id, { treffpunkt: v })}
+                  placeholder="z. B. Pier 3, 08:45 Uhr" />
+              )}
+              <div style={{ display: "flex", gap: 10 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <Feld label="Budget geplant" type="number" wert={x.budgetGeplant || ""}
+                    onChange={(v) => upd(x.id, { budgetGeplant: v })} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <Feld label="Tatsächlich ausgegeben" type="number" wert={x.budgetIst || ""}
+                    onChange={(v) => upd(x.id, { budgetIst: v })} />
+                </div>
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <Feld label="Tatsächlich ausgegeben" type="number" wert={x.budgetIst || ""}
-                  onChange={(v) => upd(x.id, { budgetIst: v })} />
-              </div>
-            </div>
-
-            <div style={{ marginTop: 18, paddingTop: 16, borderTop: `1px solid ${C.line}` }}>
               <div style={{
                 fontFamily: MONO, fontSize: 11, letterSpacing: 1.4, textTransform: "uppercase",
                 color: C.muted, marginBottom: 8,
@@ -3648,7 +3785,7 @@ function ModulLandgang({ daten, setze }) {
                 }}>Hafen</span>
                 <Sterne wert={x.sterne} onChange={(v) => upd(x.id, { sterne: v })} />
               </div>
-            </div>
+            </Aufklappbar>
           </Card>
         );
       })}
@@ -4300,7 +4437,24 @@ function GeplantKarte({ eintrag, onAktivieren, onLoeschen }) {
   );
 }
 
-function Start({ daten, gehe, fortschritt, onAbschliessen, onAktivieren, onGeplantLoeschen }) {
+function KachelLink({ Icon, titel, unter, onClick }) {
+  return (
+    <button type="button" onClick={onClick} style={{
+      flex: 1, minWidth: 0, textAlign: "left", cursor: "pointer",
+      background: C.white, border: "none", borderRadius: RUND, padding: "18px 16px",
+      boxShadow: "0 1px 2px rgba(11,35,56,0.05)",
+      display: "flex", flexDirection: "column", gap: 10,
+    }}>
+      <Icon size={20} color={C.messing} />
+      <div>
+        <div style={{ fontFamily: SERIF, fontSize: 18, color: C.navy }}>{titel}</div>
+        <div style={{ fontFamily: SANS, fontSize: 12.5, color: C.muted, marginTop: 3 }}>{unter}</div>
+      </div>
+    </button>
+  );
+}
+
+function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, onNeu, onAktivieren, onGeplantLoeschen }) {
   const s = daten.setup;
   const bilanz = archivStatistik(daten.archiv || []);
   const ab = alsDatum(s.abfahrt);
@@ -4394,40 +4548,28 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onAktivieren, onGepla
         </div>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-        <span aria-hidden="true" style={{ width: 20, height: 1, background: C.messing }} />
-        <span style={{
-          fontFamily: MONO, fontSize: 10.5, letterSpacing: 2.4, textTransform: "uppercase", color: C.muted,
-        }}>Die sieben Kapitel</span>
-        <span aria-hidden="true" style={{ flex: 1, height: 1, background: C.line }} />
-      </div>
+      <button type="button" onClick={() => gehe("haefen")} style={{
+        width: "100%", textAlign: "left", cursor: "pointer", marginBottom: 14,
+        background: C.tiefsee, border: "none", borderRadius: RUND, padding: "22px 20px",
+        boxShadow: `inset 0 0 0 1px ${C.messingLeise}`,
+        display: "flex", alignItems: "center", gap: 16,
+      }}>
+        <Search size={26} color={C.messingHell} style={{ flexShrink: 0 }} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: SERIF, fontSize: 21, color: C.white }}>Alle Häfen durchsuchen</div>
+          <div style={{ fontFamily: SANS, fontSize: 13, color: "#A9C0CE", marginTop: 3 }}>
+            {HAFENLISTE.length} Häfen weltweit — Währung, Landgänge, Ausflugsideen
+          </div>
+        </div>
+        <ChevronRight size={18} color={C.messing} style={{ flexShrink: 0 }} />
+      </button>
 
-      {MODULE.map((m) => {
-        const f = fortschritt[m.id];
-        return (
-          <button key={m.id} type="button" onClick={() => gehe(m.id)} style={{
-            width: "100%", textAlign: "left", cursor: "pointer", marginBottom: 10,
-            background: C.white, border: `1px solid ${C.line}`, borderLeft: `2px solid ${C.messing}`,
-            borderRadius: RUND, padding: "18px 18px 20px",
-          }}>
-            <div style={{
-              display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, marginBottom: 8,
-            }}>
-              <span style={{
-                fontFamily: MONO, fontSize: 10, letterSpacing: 1.8, textTransform: "uppercase", color: C.muted,
-              }}>{PHASE[m.id]}</span>
-              <ChevronRight size={16} color={C.messing} />
-            </div>
-            <div style={{
-              fontFamily: SERIF, fontSize: 22, lineHeight: 1.2, color: C.navy, marginBottom: 7,
-            }}>{m.titel}</div>
-            <div style={{
-              fontFamily: SANS, fontSize: 13.8, lineHeight: 1.6, color: C.muted, marginBottom: f ? 13 : 0,
-            }}>{m.teaser}</div>
-            {f && <Balken wert={f.wert} gesamt={f.gesamt} />}
-          </button>
-        );
-      })}
+      <div style={{ display: "flex", gap: 12, marginBottom: 26 }}>
+        <KachelLink Icon={MapPin} titel="Route" onClick={() => gehe("route")}
+          unter={daten.haefen.length > 0 ? `${daten.haefen.length} ${daten.haefen.length === 1 ? "Hafen" : "Häfen"} geplant` : "Eure Route eintragen"} />
+        <KachelLink Icon={Menu} titel="Mehr" onClick={() => gehe("mehr")}
+          unter="Packliste, Kabine, Bordkonto, Logbuch" />
+      </div>
 
       {daten.geplant && daten.geplant.length > 0 && (
         <div>
@@ -4446,7 +4588,7 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onAktivieren, onGepla
       )}
 
       {(daten.haefen.length > 0 || s.schiff || s.reederei) && (
-        <div style={{ textAlign: "center", padding: "18px 0 4px" }}>
+        <div style={{ textAlign: "center", padding: "8px 0 4px" }}>
           <Btn small variant="outline" onClick={onAbschliessen} full>
             Reise ins Fahrtenbuch legen
           </Btn>
@@ -4456,9 +4598,19 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onAktivieren, onGepla
         </div>
       )}
 
+      <div style={{ textAlign: "center", padding: "20px 0 4px", display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
+        {daten.haefen.length > 0 && (
+          <Btn small variant="quiet" onClick={onTeilen}>Route als Postkarte teilen</Btn>
+        )}
+        {(s.reederei || s.schiff || daten.haefen.length > 0) && (
+          <Btn small variant="quiet" onClick={onParken}><Plus size={14} /> Weitere Reise parken und neue anlegen</Btn>
+        )}
+        <Btn small variant="quiet" onClick={onNeu}><RotateCcw size={14} /> Neue Reise anlegen</Btn>
+      </div>
+
       <div style={{
         fontFamily: SANS, fontSize: 12.5, lineHeight: 1.75, color: C.muted,
-        textAlign: "center", padding: "26px 8px 8px",
+        textAlign: "center", padding: "22px 8px 8px",
       }}>
         Alle Eingaben bleiben auf eurem Gerät. Klarschiff läuft offline — legt es euch auf den
         Startbildschirm, dann habt ihr es an Bord auch ohne WLAN dabei.
@@ -4546,6 +4698,84 @@ function TeilenPostkarte({ daten, onClose }) {
   );
 }
 
+/* =========================================================
+   TAB-LEISTE – die vier Hauptbereiche der App
+========================================================= */
+const TABS = [
+  { id: "start", label: "Start", Icon: Home },
+  { id: "haefen", label: "Häfen", Icon: Search },
+  { id: "route", label: "Route", Icon: MapPin },
+  { id: "mehr", label: "Mehr", Icon: Menu },
+];
+function gehoertZuTab(screen, tabId) {
+  if (tabId === "mehr") return screen === "mehr" || screen === "setup" || typeof screen === "number";
+  return screen === tabId;
+}
+function TabBar({ screen, gehe }) {
+  return (
+    <nav className="no-print" style={{
+      position: "fixed", left: 0, right: 0, bottom: 0, background: C.tiefsee, zIndex: 40,
+      borderTop: `1px solid ${C.messingLeise}`,
+      padding: "6px 10px calc(6px + env(safe-area-inset-bottom))",
+    }}>
+      <div style={{ maxWidth: 640, margin: "0 auto", display: "flex" }}>
+        {TABS.map((t) => {
+          const aktiv = gehoertZuTab(screen, t.id);
+          const farbe = aktiv ? C.messingHell : "#7C93A2";
+          return (
+            <button key={t.id} type="button" onClick={() => gehe(t.id)} aria-current={aktiv ? "page" : undefined}
+              style={{
+                flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+                background: "transparent", border: "none", cursor: "pointer", padding: "9px 4px",
+                minHeight: 54,
+              }}>
+              <t.Icon size={20} color={farbe} />
+              <span style={{
+                fontFamily: MONO, fontSize: 9.5, letterSpacing: 1, textTransform: "uppercase", color: farbe,
+              }}>{t.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+
+function ModulMehr({ gehe, fortschritt }) {
+  return (
+    <div>
+      <Kicker>Mehr</Kicker>
+      <H2 style={{ marginBottom: 20 }}>Vorbereitung & Logbuch</H2>
+      {MODULE.map((m) => {
+        const f = fortschritt[m.id];
+        return (
+          <button key={m.id} type="button" onClick={() => gehe(m.id)} style={{
+            width: "100%", textAlign: "left", cursor: "pointer", marginBottom: 10,
+            background: C.white, border: "none", borderRadius: RUND, padding: "18px 18px 20px",
+            boxShadow: "0 1px 2px rgba(11,35,56,0.05)",
+          }}>
+            <div style={{
+              display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, marginBottom: 8,
+            }}>
+              <span style={{
+                fontFamily: MONO, fontSize: 10, letterSpacing: 1.8, textTransform: "uppercase", color: C.muted,
+              }}>{PHASE[m.id]}</span>
+              <ChevronRight size={16} color={C.messing} />
+            </div>
+            <div style={{
+              fontFamily: SERIF, fontSize: 21, lineHeight: 1.2, color: C.navy, marginBottom: 7,
+            }}>{m.titel}</div>
+            <div style={{
+              fontFamily: SANS, fontSize: 13.8, lineHeight: 1.6, color: C.muted, marginBottom: f ? 13 : 0,
+            }}>{m.teaser}</div>
+            {f && <Balken wert={f.wert} gesamt={f.gesamt} />}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 function App() {
   const [daten, setDaten] = useState(LEER);
   const [screen, setScreen] = useState("start");
@@ -4555,6 +4785,7 @@ function App() {
   const [abschluss, setAbschluss] = useState(false);
   const [bewertung, setBewertung] = useState({ essen: 0, service: 0, kabine: 0, preis: 0 });
   const [teilen, setTeilen] = useState(false);
+  const [haefenAnfang, setHaefenAnfang] = useState(null);
   const timer = useRef(null);
 
   useEffect(() => {
@@ -4684,100 +4915,60 @@ function App() {
     setScreen(8);
   }
 
+  function zeigeHafen(name) {
+    setHaefenAnfang(name);
+    setScreen("haefen");
+  }
+
   if (!geladen) return null;
 
-  const istModul = typeof screen === "number";
-  const titel = istModul ? (MODULE.find((m) => m.id === screen) || {}).titel : "";
+  const zeigeKopf = screen === "setup" || typeof screen === "number";
+  const zurueckZiel = screen === "setup" ? "start" : "mehr";
+  const titel = typeof screen === "number" ? (MODULE.find((m) => m.id === screen) || {}).titel
+    : screen === "setup" ? "Reise-Setup" : "";
 
   return (
-    <div style={{
-      minHeight: "100vh", background: C.paper,
-      paddingBottom: istModul || screen === "setup" ? 104 : 40,
-    }}>
+    <div style={{ minHeight: "100vh", background: C.paper, paddingBottom: 92 }}>
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "22px 20px 0" }}>
-        {(istModul || screen === "setup") && (
+        {zeigeKopf && (
           <div className="no-print" style={{
             display: "flex", alignItems: "center", gap: 10, marginBottom: 22,
-            paddingBottom: 14, borderBottom: `1px solid ${C.line}`,
           }}>
-            <button type="button" onClick={() => setScreen("start")} style={{
+            <button type="button" onClick={() => setScreen(zurueckZiel)} style={{
               display: "inline-flex", alignItems: "center", gap: 7,
               background: "transparent", border: "none", cursor: "pointer",
               fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.8, textTransform: "uppercase",
               color: C.muted, padding: "6px 10px 6px 0", minHeight: 44,
-            }}><ChevronLeft size={14} color={C.messing} /> Logbuch</button>
+            }}><ChevronLeft size={14} color={C.messing} /> Zurück</button>
             <span style={{ flex: 1 }} />
-            {istModul && (
-              <span style={{
-                fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.8, textTransform: "uppercase",
-                color: C.muted,
-              }}>{screen} von 8</span>
-            )}
+            <span style={{
+              fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.8, textTransform: "uppercase",
+              color: C.muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+            }}>{titel}</span>
           </div>
         )}
 
         <div key={String(screen)} style={{ animation: "auftauchen .32s ease both" }}>
           {screen === "start" && <Start daten={daten} gehe={setScreen} fortschritt={fortschritt}
-            onAbschliessen={() => setAbschluss(true)}
+            onAbschliessen={() => setAbschluss(true)} onTeilen={() => setTeilen(true)}
+            onParken={reiseParken} onNeu={() => setFrage(true)}
             onAktivieren={reiseAktivieren} onGeplantLoeschen={geplantLoeschen} />}
+          {screen === "haefen" && <ModulHaefen daten={daten} setze={setze}
+            anfangsHafen={haefenAnfang} onAnfangVerbraucht={() => setHaefenAnfang(null)} />}
+          {screen === "route" && <ModulLandgang daten={daten} setze={setze} onZeigeHafen={zeigeHafen} />}
+          {screen === "mehr" && <ModulMehr gehe={setScreen} fortschritt={fortschritt} />}
           {screen === "setup" && <Setup daten={daten} setze={setze} />}
           {screen === 1 && <ModulCountdown daten={daten} setzeHaken={setzeHaken} />}
           {screen === 2 && <ModulKabine daten={daten} setze={setze} />}
           {screen === 3 && <ModulPack daten={daten} setze={setze} setzeHaken={setzeHaken} />}
           {screen === 4 && <ModulBord daten={daten} setze={setze} />}
-          {screen === 5 && <ModulLandgang daten={daten} setze={setze} />}
           {screen === 6 && <ModulTag1 daten={daten} setzeHaken={setzeHaken} />}
           {screen === 7 && <ModulDoks daten={daten} setze={setze} />}
           {screen === 8 && <ModulFahrtenbuch daten={daten} setze={setze} />}
         </div>
-
-        {screen === "start" && (
-          <div style={{ textAlign: "center", padding: "4px 0 30px", display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
-            {daten.haefen.length > 0 && (
-              <Btn small variant="quiet" onClick={() => setTeilen(true)}>
-                Route als Postkarte teilen
-              </Btn>
-            )}
-            {(daten.setup.reederei || daten.setup.schiff || daten.haefen.length > 0) && (
-              <Btn small variant="quiet" onClick={reiseParken}>
-                <Plus size={14} /> Weitere Reise parken und neue anlegen
-              </Btn>
-            )}
-            <Btn small variant="quiet" onClick={() => setFrage(true)}>
-              <RotateCcw size={14} /> Neue Reise anlegen
-            </Btn>
-          </div>
-        )}
       </div>
 
-      {istModul && (
-        <nav style={{
-          position: "fixed", left: 0, right: 0, bottom: 0, background: C.tiefsee,
-          borderTop: `1px solid ${C.messingLeise}`,
-          padding: "12px 20px calc(12px + env(safe-area-inset-bottom))",
-        }}>
-          <div style={{ maxWidth: 640, margin: "0 auto", display: "flex", gap: 10, alignItems: "center" }}>
-            <button type="button" onClick={() => setScreen(screen > 1 ? screen - 1 : "start")}
-              aria-label="Zurück" style={{
-                background: "transparent", border: `1px solid ${C.messingLeise}`, borderRadius: 3,
-                color: C.messingHell, cursor: "pointer", width: 46, height: 46,
-                display: "grid", placeItems: "center", flexShrink: 0,
-              }}><ChevronLeft size={16} /></button>
-            <div style={{
-              flex: 1, minWidth: 0, fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.6,
-              textTransform: "uppercase", color: "#8FA9B8", overflow: "hidden",
-              textOverflow: "ellipsis", whiteSpace: "nowrap",
-            }}>{titel}</div>
-            <button type="button" onClick={() => setScreen(screen < 8 ? screen + 1 : "start")}
-              style={{
-                background: "transparent", border: `1px solid ${C.messingLeise}`, borderRadius: 3,
-                color: C.messingHell, cursor: "pointer", minHeight: 46, padding: "0 18px",
-                fontFamily: MONO, fontSize: 11, letterSpacing: 1.6, textTransform: "uppercase",
-                display: "inline-flex", alignItems: "center", gap: 8, flexShrink: 0,
-              }}>{screen < 8 ? "Weiter" : "Logbuch"} <ChevronRight size={15} /></button>
-          </div>
-        </nav>
-      )}
+      <TabBar screen={screen} gehe={setScreen} />
 
       {abschluss && (
         <div role="dialog" aria-modal="true" onClick={() => setAbschluss(false)} style={{
