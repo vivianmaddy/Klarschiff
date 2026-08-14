@@ -757,14 +757,14 @@ function Windrose({ prozent, oben, unten, groesse = 260 }) {
       <circle cx={M} cy={M} r={R + 4} fill="none" stroke={C.messing} strokeWidth="0.8" opacity="0.45" />
       {striche}
       {punkte}
-      <circle cx={M} cy={M} r="47" fill="#0B2338" stroke={C.messing} strokeWidth="1" opacity="0.97" />
-      <text x={M} y={oben ? M + 2 : M + 8} textAnchor="middle" fill="#F5F8F7"
-        fontFamily={SERIF} fontSize={oben && String(oben).length > 3 ? 27 : 34} fontWeight="500">
+      <circle cx={M} cy={M} r="52" fill="#0B2338" stroke={C.messing} strokeWidth="1" opacity="0.97" />
+      <text x={M} y={oben ? M - 2 : M + 4} textAnchor="middle" fill="#F5F8F7"
+        fontFamily={SERIF} fontSize={oben && String(oben).length > 3 ? 26 : 33} fontWeight="500">
         {oben}
       </text>
       {unten && (
-        <text x={M} y={M + 24} textAnchor="middle" fill={C.messingHell}
-          fontFamily={MONO} fontSize="9.5" letterSpacing="1.6">{unten}</text>
+        <text x={M} y={M + 26} textAnchor="middle" fill={C.messingHell}
+          fontFamily={MONO} fontSize="8" letterSpacing="1.1">{unten}</text>
       )}
       <text x={M} y={M - R - 22} textAnchor="middle" fill={C.messingHell}
         fontFamily={MONO} fontSize="11" letterSpacing="2">N</text>
@@ -1577,6 +1577,9 @@ const HAFENLISTE_ROH = [
   ["Lissabon", -9.14, 38.71, "Portugal", "HK"], ["Porto (Leixões)", -8.7, 41.19, "Portugal", "AS"],
   ["Cádiz", -6.29, 36.53, "Spanien", "AS"], ["Casablanca", -7.62, 33.6, "Marokko", "HK"],
   ["Agadir", -9.6, 30.42, "Marokko", "SI"],
+  ["Menorca (Mahón)", 4.27, 39.89, "Spanien", "AS"], ["Alicante", -0.48, 38.35, "Spanien", "AS"],
+  ["La Coruña", -8.4, 43.37, "Spanien", "AS"], ["Vigo", -8.72, 42.24, "Spanien", "AS"],
+  ["Bilbao", -3.02, 43.32, "Spanien", "HK"], ["Koper", 13.73, 45.55, "Slowenien", "AS"],
 
   /* ---- US-Ostküste & Golfküste ---- */
   ["Cape Liberty (Bayonne)", -74.09, 40.66, "USA", "GM"], ["New York", -74.02, 40.7, "USA", "GM"],
@@ -1593,6 +1596,7 @@ const HAFENLISTE_ROH = [
   ["Ketchikan", -131.65, 55.34, "USA", "NA"], ["Juneau", -134.42, 58.3, "USA", "NA"],
   ["Skagway", -135.33, 59.46, "USA", "NA"], ["Sitka", -135.33, 57.05, "USA", "NA"],
   ["Icy Strait Point", -135.45, 58.11, "USA", "NA"], ["Whittier (Anchorage)", -148.68, 60.77, "USA", "NA"],
+  ["Astoria", -123.83, 46.19, "USA", "AS"],
 
   /* ---- Mexiko Pazifik & Mittelamerika ---- */
   ["Cabo San Lucas", -109.91, 22.89, "Mexiko", "SI"], ["Puerto Vallarta", -105.23, 20.62, "Mexiko", "SI"],
@@ -1604,6 +1608,7 @@ const HAFENLISTE_ROH = [
 
   /* ---- Karibik & Bahamas ---- */
   ["Cozumel", -86.95, 20.51, "Mexiko", "SI"], ["Costa Maya", -87.72, 18.73, "Mexiko", "DJ"],
+  ["Progreso", -89.66, 21.28, "Mexiko", "RU"], ["Bimini", -79.29, 25.73, "Bahamas", "SI"],
   ["Roatán", -86.53, 16.32, "Honduras", "SI"], ["Belize City", -88.19, 17.5, "Belize", "DJ"],
   ["Cartagena (Kolumbien)", -75.51, 10.4, "Kolumbien", "AS"],
   ["Oranjestad (Aruba)", -70.03, 12.52, "Aruba", "SI"], ["Willemstad (Curaçao)", -68.93, 12.11, "Curaçao", "AS"],
@@ -1636,13 +1641,20 @@ const HAFENLISTE_ROH = [
   ["Geiranger", 7.21, 62.1, "Norwegen", "FJ"], ["Flåm", 7.11, 60.86, "Norwegen", "FJ"],
   ["Trondheim", 10.4, 63.43, "Norwegen", "AS"], ["Bodø", 14.4, 67.28, "Norwegen", "NA"],
   ["Tromsø", 18.96, 69.65, "Norwegen", "NA"], ["Honningsvåg (Nordkap)", 25.97, 70.98, "Norwegen", "NA"],
+  ["Eidfjord", 7.07, 60.47, "Norwegen", "FJ"], ["Molde", 7.09, 62.74, "Norwegen", "FJ"],
+  ["Narvik", 17.42, 68.44, "Norwegen", "NA"],
   ["Stockholm", 18.07, 59.33, "Schweden", "HK"], ["Helsinki", 24.94, 60.17, "Finnland", "HK"],
   ["Tallinn", 24.75, 59.44, "Estland", "AS"], ["Riga", 24.11, 56.95, "Lettland", "AS"],
   ["Klaipėda", 21.13, 55.7, "Litauen", "AS"], ["Gdynia", 18.55, 54.52, "Polen", "AS"],
-  ["Danzig", 18.65, 54.35, "Polen", "AS"], ["Visby", 18.3, 57.64, "Schweden", "AS"],
+  ["Danzig", 18.65, 54.35, "Polen", "AS"], ["Świnoujście", 14.27, 53.91, "Polen", "AS"],
+  ["Visby", 18.3, 57.64, "Schweden", "AS"], ["Aarhus", 10.21, 56.15, "Dänemark", "AS"],
+  ["Rønne (Bornholm)", 14.7, 55.1, "Dänemark", "AS"],
   ["Göteborg", 11.97, 57.71, "Schweden", "AS"], ["IJmuiden (Amsterdam)", 4.6, 52.46, "Niederlande", "HK"],
   ["Rotterdam", 4.48, 51.92, "Niederlande", "HK"], ["Zeebrügge", 3.2, 51.33, "Belgien", "AS"],
-  ["Le Havre", 0.11, 49.49, "Frankreich", "AS"], ["Southampton", -1.4, 50.9, "Vereinigtes Königreich", "HK"],
+  ["Le Havre", 0.11, 49.49, "Frankreich", "AS"], ["Saint-Malo", -2.03, 48.65, "Frankreich", "AS"],
+  ["Guernsey (St. Peter Port)", -2.54, 49.46, "Vereinigtes Königreich", "AS"],
+  ["Jersey (St. Helier)", -2.11, 49.19, "Vereinigtes Königreich", "AS"],
+  ["Southampton", -1.4, 50.9, "Vereinigtes Königreich", "HK"],
   ["Dover", 1.31, 51.13, "Vereinigtes Königreich", "AS"], ["Leith (Edinburgh)", -3.17, 55.99, "Vereinigtes Königreich", "HK"],
   ["Invergordon", -4.17, 57.69, "Vereinigtes Königreich", "NA"], ["Kirkwall (Orkney)", -2.96, 58.98, "Vereinigtes Königreich", "NA"],
   ["Lerwick (Shetland)", -1.15, 60.16, "Vereinigtes Königreich", "NA"], ["Reykjavík", -21.94, 64.15, "Island", "NA"],
@@ -1671,7 +1683,9 @@ const HAFENLISTE_ROH = [
   ["Singapur", 103.85, 1.29, "Singapur", "GM"], ["Penang", 100.35, 5.41, "Malaysia", "TK"],
   ["Phuket", 98.39, 7.89, "Thailand", "SI"], ["Bangkok (Laem Chabang)", 100.89, 13.09, "Thailand", "TK"],
   ["Ho-Chi-Minh-Stadt (Phu My)", 107.02, 10.58, "Vietnam", "TK"], ["Da Nang", 108.22, 16.07, "Vietnam", "TK"],
+  ["Nha Trang", 109.19, 12.24, "Vietnam", "SI"],
   ["Halong-Bucht (Haiphong)", 106.68, 20.87, "Vietnam", "NA"], ["Hongkong", 114.16, 22.28, "Hongkong", "GM"],
+  ["Manila", 120.98, 14.6, "Philippinen", "GM"],
   ["Shanghai", 121.65, 31.36, "China", "GM"], ["Xiamen", 118.08, 24.48, "China", "AS"],
   ["Kaohsiung", 120.28, 22.61, "Taiwan", "GM"], ["Keelung (Taipeh)", 121.74, 25.13, "Taiwan", "HK"],
   ["Busan", 129.08, 35.1, "Südkorea", "GM"], ["Jeju", 126.53, 33.51, "Südkorea", "SI"],
@@ -1711,7 +1725,7 @@ function hafenVorschlaege(q, limit) {
 ========================================================= */
 const WAEHRUNG = {
   "Spanien": ["EUR", "Euro"], "Frankreich": ["EUR", "Euro"], "Monaco": ["EUR", "Euro"],
-  "Italien": ["EUR", "Euro"], "Malta": ["EUR", "Euro"], "Kroatien": ["EUR", "Euro"],
+  "Italien": ["EUR", "Euro"], "Malta": ["EUR", "Euro"], "Kroatien": ["EUR", "Euro"], "Slowenien": ["EUR", "Euro"],
   "Montenegro": ["EUR", "Euro"], "Griechenland": ["EUR", "Euro"], "Zypern": ["EUR", "Euro"],
   "Portugal": ["EUR", "Euro"], "Deutschland": ["EUR", "Euro"], "Finnland": ["EUR", "Euro"],
   "Estland": ["EUR", "Euro"], "Lettland": ["EUR", "Euro"], "Litauen": ["EUR", "Euro"],
@@ -1745,6 +1759,7 @@ const WAEHRUNG = {
   "Indien": ["INR", "Rupie"], "Sri Lanka": ["LKR", "Rupie"],
   "Singapur": ["SGD", "Singapur-Dollar"], "Malaysia": ["MYR", "Ringgit"], "Thailand": ["THB", "Baht"],
   "Vietnam": ["VND", "Dong"], "Indonesien": ["IDR", "Rupiah"], "China": ["CNY", "Renminbi"],
+  "Philippinen": ["PHP", "Philippinischer Peso"],
   "Hongkong": ["HKD", "Hongkong-Dollar"], "Taiwan": ["TWD", "Neuer Taiwan-Dollar"],
   "Südkorea": ["KRW", "Won"], "Japan": ["JPY", "Yen"],
   "Australien": ["AUD", "Australischer Dollar"], "Neuseeland": ["NZD", "Neuseeland-Dollar"],
@@ -1752,7 +1767,7 @@ const WAEHRUNG = {
 
 const SPRACHE = {
   "Spanien": "Spanisch", "Frankreich": "Französisch", "Monaco": "Französisch", "Italien": "Italienisch",
-  "Malta": "Maltesisch/Englisch", "Kroatien": "Kroatisch", "Montenegro": "Montenegrinisch",
+  "Malta": "Maltesisch/Englisch", "Kroatien": "Kroatisch", "Slowenien": "Slowenisch", "Montenegro": "Montenegrinisch",
   "Griechenland": "Griechisch", "Zypern": "Griechisch/Englisch", "Portugal": "Portugiesisch",
   "Deutschland": "Deutsch", "Finnland": "Finnisch", "Estland": "Estnisch", "Lettland": "Lettisch",
   "Litauen": "Litauisch", "Niederlande": "Niederländisch", "Belgien": "Niederländisch/Französisch",
@@ -1776,7 +1791,7 @@ const SPRACHE = {
   "Brasilien": "Portugiesisch", "Uruguay": "Spanisch", "Argentinien": "Spanisch", "Chile": "Spanisch",
   "Peru": "Spanisch", "Vereinigte Arabische Emirate": "Arabisch", "Oman": "Arabisch", "Katar": "Arabisch",
   "Indien": "Hindi/Englisch", "Sri Lanka": "Singhalesisch/Tamil", "Singapur": "Englisch/Mandarin/Malaiisch",
-  "Malaysia": "Malaiisch/Englisch", "Thailand": "Thai", "Vietnam": "Vietnamesisch",
+  "Malaysia": "Malaiisch/Englisch", "Thailand": "Thai", "Vietnam": "Vietnamesisch", "Philippinen": "Filipino/Englisch",
   "Indonesien": "Indonesisch", "China": "Mandarin", "Hongkong": "Kantonesisch/Englisch",
   "Taiwan": "Mandarin", "Südkorea": "Koreanisch", "Japan": "Japanisch",
   "Australien": "Englisch", "Neuseeland": "Englisch",
@@ -1789,10 +1804,10 @@ const STECKDOSE_GRUPPEN = [
   [["USA", "Kanada", "Mexiko", "Bahamas", "Bermuda", "Kuba", "Kaimaninseln", "Jamaika", "Haiti",
     "Dominikanische Republik", "Puerto Rico", "US Virgin Islands", "Britische Jungferninseln",
     "St. Maarten (niederl.)", "Trinidad und Tobago", "Barbados", "Kolumbien", "Panama", "Costa Rica",
-    "Nicaragua", "Guatemala", "Belize", "Honduras", "Aruba", "Curaçao", "Bonaire", "Japan"],
+    "Nicaragua", "Guatemala", "Belize", "Honduras", "Aruba", "Curaçao", "Bonaire", "Japan", "Philippinen"],
     "Typ A/B (US-Flachstecker), 110–120V"],
   [["Guadeloupe", "Martinique", "Frankreich", "Monaco"], "Typ C/E (Europa-Rundstecker), 220–230V"],
-  [["Spanien", "Italien", "Malta", "Kroatien", "Montenegro", "Griechenland", "Portugal", "Deutschland",
+  [["Spanien", "Italien", "Malta", "Kroatien", "Slowenien", "Montenegro", "Griechenland", "Portugal", "Deutschland",
     "Finnland", "Estland", "Lettland", "Litauen", "Niederlande", "Belgien", "Türkei", "Israel",
     "Ägypten", "Tunesien", "Marokko", "Dänemark", "Norwegen", "Schweden", "Polen", "Südkorea"],
     "Europlug (Typ C/F), 220–230V"],
@@ -1807,7 +1822,7 @@ function steckdoseFuer(land) {
 
 /* Kontinent/Region je Land, Grundlage für die Fahrtenbuch-Abzeichen. */
 const KONTINENT = {
-  Europa: ["Spanien", "Frankreich", "Monaco", "Italien", "Malta", "Kroatien", "Montenegro", "Griechenland",
+  Europa: ["Spanien", "Frankreich", "Monaco", "Italien", "Malta", "Kroatien", "Slowenien", "Montenegro", "Griechenland",
     "Zypern", "Portugal", "Deutschland", "Finnland", "Estland", "Lettland", "Litauen", "Niederlande",
     "Belgien", "Irland", "Gibraltar", "Dänemark", "Norwegen", "Schweden", "Polen",
     "Vereinigtes Königreich", "Island", "Färöer", "Türkei"],
@@ -1821,7 +1836,8 @@ const KONTINENT = {
     "Costa Rica", "Nicaragua", "Guatemala", "Belize", "Honduras"],
   Südamerika: ["Kolumbien", "Brasilien", "Uruguay", "Argentinien", "Chile", "Peru"],
   Asien: ["Vereinigte Arabische Emirate", "Oman", "Katar", "Indien", "Sri Lanka", "Singapur", "Malaysia",
-    "Thailand", "Vietnam", "Indonesien", "China", "Hongkong", "Taiwan", "Südkorea", "Japan", "Israel"],
+    "Thailand", "Vietnam", "Indonesien", "China", "Hongkong", "Taiwan", "Südkorea", "Japan", "Israel",
+    "Philippinen"],
   Ozeanien: ["Australien", "Neuseeland"],
 };
 function kontinentFuer(land) {
@@ -3285,9 +3301,9 @@ function HafenFeld({ eintrag, onAendern }) {
   );
 }
 
+const STECKBRIEF_ICONS = { "Sprache": "🗣️", "Steckdose": "🔌", "Trinkgeld": "💵", "Beste Reisezeit": "🌤️" };
 function Steckbrief({ info }) {
   const zeilen = [
-    info.waehrung && ["Währung", `${info.waehrung[1]} (${info.waehrung[0]})`],
     info.sprache && ["Sprache", info.sprache],
     info.steckdose && ["Steckdose", info.steckdose],
     info.trinkgeldTipp && ["Trinkgeld", info.trinkgeldTipp],
@@ -3295,14 +3311,15 @@ function Steckbrief({ info }) {
   ].filter(Boolean);
   if (!zeilen.length) return null;
   return (
-    <div style={{ display: "grid", gap: 12, marginBottom: 18 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
       {zeilen.map(([label, text]) => (
-        <div key={label}>
+        <div key={label} style={{ background: C.sky, borderRadius: RUND_KLEIN, padding: "13px 14px" }}>
+          <div style={{ fontSize: 18, marginBottom: 7 }} aria-hidden="true">{STECKBRIEF_ICONS[label]}</div>
           <div style={{
-            fontFamily: MONO, fontSize: 10, letterSpacing: 1.4, textTransform: "uppercase",
+            fontFamily: MONO, fontSize: 9.5, letterSpacing: 1, textTransform: "uppercase",
             color: C.muted, marginBottom: 3,
           }}>{label}</div>
-          <div style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.55, color: C.navy }}>{text}</div>
+          <div style={{ fontFamily: SANS, fontSize: 13, lineHeight: 1.45, color: C.navy }}>{text}</div>
         </div>
       ))}
     </div>
@@ -3340,34 +3357,49 @@ function HafenInfoInhalt({ info, interessen, notiz, onNotizChange }) {
         </div>
       )}
       <Steckbrief info={info} />
+
       <div style={{
-        fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.4, textTransform: "uppercase",
-        color: C.muted, marginBottom: 9,
-      }}>Auf eigene Faust</div>
-      {info.zuFuss.map((t, i) => (
-        <div key={"z" + i} style={{ display: "flex", gap: 9, marginBottom: 9 }}>
-          <span style={{ color: C.messing, flexShrink: 0 }} aria-hidden="true">·</span>
-          <span style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.6, color: C.body }}>{t}</span>
+        background: C.white, borderRadius: RUND, padding: "18px 18px 14px", marginBottom: 14,
+        boxShadow: "0 1px 2px rgba(11,35,56,0.05)",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
+          <span style={{ fontSize: 19 }} aria-hidden="true">🥾</span>
+          <H3 style={{ margin: 0, fontSize: 18 }}>Auf eigene Faust</H3>
         </div>
-      ))}
-      <div style={{
-        fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.4, textTransform: "uppercase",
-        color: C.muted, margin: "16px 0 9px",
-      }}>Gebuchte Ausflüge — Reederei oder GetYourGuide/Viator</div>
-      {info.gefuehrt.map((t, i) => (
-        <div key={"g" + i} style={{ display: "flex", gap: 9, marginBottom: 9 }}>
-          <span style={{ color: C.messing, flexShrink: 0 }} aria-hidden="true">·</span>
-          <span style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.6, color: C.body }}>{t}</span>
-        </div>
-      ))}
-      <div style={{ display: "flex", gap: 10, marginTop: 14, marginBottom: 20, flexWrap: "wrap" }}>
-        <a href={gygUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
-          <Btn small variant="outline">{info.name} auf GetYourGuide</Btn>
-        </a>
-        <a href={viatorUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
-          <Btn small variant="outline">{info.name} auf Viator</Btn>
-        </a>
+        {info.zuFuss.map((t, i) => (
+          <div key={"z" + i} style={{ display: "flex", gap: 9, marginBottom: 9 }}>
+            <span style={{ color: C.messing, flexShrink: 0 }} aria-hidden="true">·</span>
+            <span style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.6, color: C.body }}>{t}</span>
+          </div>
+        ))}
       </div>
+
+      <div style={{
+        background: C.greenSoft, borderRadius: RUND, padding: "18px 18px 20px", marginBottom: 20,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 3 }}>
+          <span style={{ fontSize: 19 }} aria-hidden="true">🎟️</span>
+          <H3 style={{ margin: 0, fontSize: 18 }}>Gebuchte Ausflüge</H3>
+        </div>
+        <div style={{ fontFamily: SANS, fontSize: 12, color: C.muted, marginBottom: 13 }}>
+          Reederei oder GetYourGuide/Viator
+        </div>
+        {info.gefuehrt.map((t, i) => (
+          <div key={"g" + i} style={{ display: "flex", gap: 9, marginBottom: 9 }}>
+            <span style={{ color: C.messing, flexShrink: 0 }} aria-hidden="true">·</span>
+            <span style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.6, color: C.body }}>{t}</span>
+          </div>
+        ))}
+        <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
+          <a href={gygUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+            <Btn small variant="outline">{info.name} auf GetYourGuide</Btn>
+          </a>
+          <a href={viatorUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+            <Btn small variant="outline">{info.name} auf Viator</Btn>
+          </a>
+        </div>
+      </div>
+
       {onNotizChange && (
         <div>
           <div style={{
@@ -3438,10 +3470,23 @@ function HafenDetailSeite({ daten, setze, name, onZurueck }) {
       ) : (
         <div>
           <Kicker>{info.land}{info.kontinent ? ` · ${info.kontinent}` : ""}</Kicker>
-          <H2 style={{ marginBottom: 18 }}>{info.name}</H2>
-          <Btn small variant={inRoute ? "outline" : "solid"} onClick={zurRouteHinzufuegen} style={{ marginBottom: 24 }}>
-            {inRoute ? "✓ Schon in eurer Route" : "Zur Route hinzufügen"}
-          </Btn>
+          <H2 style={{ marginBottom: 12 }}>{info.name}</H2>
+          {info.waehrung && (
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: 7, background: C.sand,
+              borderRadius: 999, padding: "7px 14px", marginBottom: 20,
+            }}>
+              <span aria-hidden="true">💱</span>
+              <span style={{ fontFamily: MONO, fontSize: 12, color: C.navy }}>
+                {info.waehrung[1]} · {info.waehrung[0]}
+              </span>
+            </div>
+          )}
+          <div>
+            <Btn small variant={inRoute ? "outline" : "solid"} onClick={zurRouteHinzufuegen} style={{ marginBottom: 24 }}>
+              {inRoute ? "✓ Schon in eurer Route" : "Zur Route hinzufügen"}
+            </Btn>
+          </div>
           <HafenInfoInhalt info={info} interessen={daten.setup.interessen}
             notiz={(daten.hafenNotizen || {})[normText(info.name)]}
             onNotizChange={(v) => setze("hafenNotizen", { ...(daten.hafenNotizen || {}), [normText(info.name)]: v })} />
@@ -4465,103 +4510,90 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
   const prozent = gesamt ? (wert / gesamt) * 100 : 0;
 
   const mitte = tage !== null && tage > 0 ? String(tage) : `${Math.round(prozent)}%`;
-  const unterMitte = tage !== null && tage > 0
-    ? (tage === 1 ? "TAG BIS ABFAHRT" : "TAGE BIS ABFAHRT")
-    : "VORBEREITET";
+  const unterMitte = tage !== null && tage > 0 ? "BIS ABFAHRT" : "VORBEREITET";
 
   const schiffszeile = [s.reederei, s.schiff].filter(Boolean).join(" · ");
 
   return (
     <div>
       <div style={{
-        background: `radial-gradient(circle at 50% 58%, ${C.nachtblau} 0%, ${C.tiefsee} 64%)`,
-        margin: "-22px -20px 26px", padding: "16px 16px 30px",
-        position: "relative",
+        background: `linear-gradient(180deg, ${C.tiefsee} 0%, ${C.nachtblau} 100%)`,
+        margin: "-22px -20px 24px", padding: "34px 20px 30px",
       }}>
-        <div style={{
-          border: `1px solid ${C.messingLeise}`, padding: "26px 18px 24px",
-          position: "relative",
-        }}>
-          <div aria-hidden="true" style={{
-            position: "absolute", inset: 4, border: `1px solid rgba(200,160,85,0.18)`, pointerEvents: "none",
-          }} />
+        <div style={{ textAlign: "center" }}>
+          <h1 style={{
+            fontFamily: SERIF, fontWeight: 500, fontSize: "clamp(42px, 12vw, 58px)",
+            lineHeight: 0.98, letterSpacing: "-0.015em", color: C.white, margin: "0 0 8px",
+          }}>Klarschiff</h1>
 
-          <div style={{ textAlign: "center", position: "relative" }}>
+          <p style={{
+            fontFamily: SANS, fontSize: 14.5, lineHeight: 1.55, color: "#A9C0CE",
+            margin: "0 auto 28px", maxWidth: 300,
+          }}>
+            Landausflüge, Route und Countdown für eure nächste Kreuzfahrt
+          </p>
+
+          <Windrose prozent={prozent} oben={mitte} unten={unterMitte} groesse={240} />
+
+          {(schiffszeile || ab) && (
             <div style={{
-              fontFamily: MONO, fontSize: 10, letterSpacing: 3.2, color: C.messing,
-              textTransform: "uppercase", marginBottom: 16,
-            }}>Logbuch · @wolken.wanderer</div>
-
-            <h1 style={{
-              fontFamily: SERIF, fontWeight: 500, fontSize: "clamp(46px, 13vw, 66px)",
-              lineHeight: 0.98, letterSpacing: "-0.015em", color: C.white, margin: "0 0 14px",
-            }}>Klarschiff</h1>
-
-            <div style={{
-              display: "flex", alignItems: "center", gap: 12, justifyContent: "center",
-              margin: "0 auto 14px", maxWidth: 320,
+              fontFamily: MONO, fontSize: 11, letterSpacing: 1.4, color: C.messingHell,
+              textTransform: "uppercase", marginTop: 22, lineHeight: 1.9,
             }}>
-              <span style={{ flex: 1, height: 1, background: C.messingLeise }} />
-              <span style={{ color: C.messing, fontSize: 11 }} aria-hidden="true">✦</span>
-              <span style={{ flex: 1, height: 1, background: C.messingLeise }} />
+              {schiffszeile && <div>{schiffszeile}</div>}
+              {ab && <div style={{ color: "#8FA9B8" }}>Auslaufen {kurz(ab)} · {s.naechte} Nächte</div>}
             </div>
+          )}
 
-            <p style={{
-              fontFamily: SANS, fontSize: 14.5, lineHeight: 1.6, color: "#A9C0CE",
-              margin: "0 auto 22px", maxWidth: 330,
+          {bilanz.reisen > 0 && (
+            <div style={{
+              marginTop: 16, paddingTop: 14, borderTop: `1px solid rgba(200,160,85,0.22)`,
+              fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.6, textTransform: "uppercase",
+              color: C.messingHell, lineHeight: 1.9,
             }}>
-              Der Kreuzfahrt-Planer von einem Crew-Paar, das weiß, wie der Laden von innen läuft
-            </p>
+              {bilanz.reisen} {bilanz.reisen === 1 ? "Reise" : "Reisen"} · {bilanz.naechte} Nächte · {bilanz.einzigartig} Häfen
+              {bilanz.sm > 0 && <div style={{ color: "#8FA9B8" }}>{bilanz.sm.toLocaleString("de-DE")} Seemeilen im Kielwasser</div>}
+            </div>
+          )}
 
-            <Windrose prozent={prozent} oben={mitte} unten={unterMitte} groesse={252} />
-
-            {(schiffszeile || ab) && (
-              <div style={{
-                fontFamily: MONO, fontSize: 11, letterSpacing: 1.4, color: C.messingHell,
-                textTransform: "uppercase", marginTop: 20, lineHeight: 1.9,
-              }}>
-                {schiffszeile && <div>{schiffszeile}</div>}
-                {ab && <div style={{ color: "#8FA9B8" }}>Auslaufen {kurz(ab)} · {s.naechte} Nächte</div>}
-              </div>
-            )}
-
-            {bilanz.reisen > 0 && (
-              <div style={{
-                marginTop: 18, paddingTop: 16, borderTop: `1px solid ${C.messingLeise}`,
-                fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.6, textTransform: "uppercase",
-                color: C.messingHell, lineHeight: 1.9,
-              }}>
-                {bilanz.reisen} {bilanz.reisen === 1 ? "Reise" : "Reisen"} · {bilanz.naechte} Nächte · {bilanz.einzigartig} Häfen
-                {bilanz.sm > 0 && <div style={{ color: "#8FA9B8" }}>{bilanz.sm.toLocaleString("de-DE")} Seemeilen im Kielwasser</div>}
-              </div>
-            )}
-
-            <button type="button" onClick={() => gehe("setup")} style={{
-              marginTop: 22, background: "transparent", border: `1px solid ${C.messingLeise}`,
-              borderRadius: 3, color: C.messingHell, fontFamily: MONO, fontSize: 11.5,
-              letterSpacing: 1.6, textTransform: "uppercase", padding: "13px 22px",
-              minHeight: 46, cursor: "pointer",
-            }}>
-              {schiffszeile || ab ? "Reise bearbeiten" : "Reise eintragen"}
-            </button>
-          </div>
+          <button type="button" onClick={() => gehe("setup")} style={{
+            marginTop: 22, background: "transparent", border: `1px solid ${C.messingLeise}`,
+            borderRadius: 999, color: C.messingHell, fontFamily: MONO, fontSize: 11.5,
+            letterSpacing: 1.6, textTransform: "uppercase", padding: "13px 22px",
+            minHeight: 46, cursor: "pointer",
+          }}>
+            {schiffszeile || ab ? "Reise bearbeiten" : "Reise eintragen"}
+          </button>
         </div>
       </div>
 
       <button type="button" onClick={() => gehe("haefen")} style={{
         width: "100%", textAlign: "left", cursor: "pointer", marginBottom: 14,
-        background: C.tiefsee, border: "none", borderRadius: RUND, padding: "22px 20px",
+        background: C.tiefsee, border: "none", borderRadius: RUND, padding: "26px 22px",
         boxShadow: `inset 0 0 0 1px ${C.messingLeise}`,
         display: "flex", alignItems: "center", gap: 16,
       }}>
-        <Search size={26} color={C.messingHell} style={{ flexShrink: 0 }} />
+        <Search size={30} color={C.messingHell} style={{ flexShrink: 0 }} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: SERIF, fontSize: 21, color: C.white }}>Alle Häfen durchsuchen</div>
-          <div style={{ fontFamily: SANS, fontSize: 13, color: "#A9C0CE", marginTop: 3 }}>
-            {HAFENLISTE.length} Häfen weltweit — Währung, Landgänge, Ausflugsideen
+          <div style={{ fontFamily: SERIF, fontSize: 25, color: C.white, lineHeight: 1.15 }}>Landausflüge & Häfen</div>
+          <div style={{ fontFamily: SANS, fontSize: 13.5, color: "#A9C0CE", marginTop: 4 }}>
+            {HAFENLISTE.length} Häfen weltweit durchsuchen — Währung, Landgänge, Ausflugsideen
           </div>
         </div>
-        <ChevronRight size={18} color={C.messing} style={{ flexShrink: 0 }} />
+        <ChevronRight size={20} color={C.messing} style={{ flexShrink: 0 }} />
+      </button>
+
+      <button type="button" onClick={onTeilen} style={{
+        width: "100%", textAlign: "left", cursor: "pointer", marginBottom: 14,
+        background: C.sand, border: "none", borderRadius: RUND, padding: "16px 18px",
+        display: "flex", alignItems: "center", gap: 14,
+      }}>
+        <span style={{ fontSize: 24, lineHeight: 1, flexShrink: 0 }} aria-hidden="true">📸</span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: SERIF, fontSize: 17, color: C.navy }}>Route als Postkarte teilen</div>
+          <div style={{ fontFamily: SANS, fontSize: 12.5, color: C.muted, marginTop: 2 }}>Perfekt für Insta Stories</div>
+        </div>
+        <ChevronRight size={16} color={C.messing} style={{ flexShrink: 0 }} />
       </button>
 
       <div style={{ display: "flex", gap: 12, marginBottom: 26 }}>
@@ -4598,10 +4630,7 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
         </div>
       )}
 
-      <div style={{ textAlign: "center", padding: "20px 0 4px", display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
-        {daten.haefen.length > 0 && (
-          <Btn small variant="quiet" onClick={onTeilen}>Route als Postkarte teilen</Btn>
-        )}
+      <div style={{ textAlign: "center", padding: "6px 0 4px", display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
         {(s.reederei || s.schiff || daten.haefen.length > 0) && (
           <Btn small variant="quiet" onClick={onParken}><Plus size={14} /> Weitere Reise parken und neue anlegen</Btn>
         )}
