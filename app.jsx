@@ -355,7 +355,7 @@ const MODULE = [
   { id: 2, titel: "Der Kabinen-Check", teaser: "Was euch in eurer gebuchten Kabine erwartet — und was ihr jetzt noch erledigen könnt." },
   { id: 3, titel: "Die Packliste", teaser: "Passt sich eurer Route und Familiengröße an, samt der Dinge, die fast alle vergessen." },
   { id: 4, titel: "Der Bordkonto-Rechner", teaser: "Was an Bord noch dazukommt, bevor es euch die Endabrechnung sagt." },
-  { id: 5, titel: "Der Landgang-Planer", teaser: "Wie viel Zeit ihr wirklich habt, und wann ihr die Reederei nehmen solltet." },
+  { id: 5, titel: "Route & Landgang-Planer", teaser: "Eure Route auf der Karte, plus Währung, Infos und Ausflugsideen zu jedem einzelnen Hafen." },
   { id: 6, titel: "Der erste Tag an Bord", teaser: "Die Reihenfolge, die über entspannt oder hinterherlaufen entscheidet." },
   { id: 7, titel: "Dokumente und Notfall", teaser: "Alle wichtigen Zahlen offline griffbereit, weil offline an Bord der Normalzustand ist." },
   { id: 8, titel: "Das Fahrtenbuch", teaser: "Jede gefahrene Reise, jeder Hafen, jede Notiz — und was sich über die Jahre summiert." },
@@ -1345,68 +1345,266 @@ const REGIONEN = {
              [-16.6, 28.3, 4], [-13.6, 29.0, 3], [-64.8, 32.3, 3], [-77.5, 25.0, 4], [-66.1, 18.4, 4],
              [-61.5, 16.0, 4], [-61.0, 14.0, 4], [-59.6, 13.1, 3], [-81.4, 19.3, 3]],
   },
+
+  karibikOst: {
+    name: "US-Ostküste & Karibik",
+    box: [-98, 8, -58, 43],
+    land: [
+      /* US-Ostküste, von Maine bis Florida */
+      [[-98, 43.6], [-70.2, 43.6], [-71.4, 41.3], [-73.9, 40.8], [-74.1, 40.6], [-75.5, 39.0],
+       [-76.3, 36.9], [-77.9, 34.7], [-79.9, 32.8], [-80.9, 32.0], [-81.4, 30.4], [-81.0, 29.4],
+       [-80.6, 28.2], [-80.1, 27.0], [-80.1, 26.0], [-80.4, 25.2], [-81.1, 25.2], [-81.5, 25.8],
+       [-82.0, 26.7], [-82.7, 28.0], [-83.0, 29.2], [-84.0, 30.0], [-90.1, 29.2], [-94.8, 29.5],
+       [-98, 28], [-98, 43.6]],
+      /* Kuba & Bahamas */
+      [[-84.95, 21.9], [-83.0, 22.2], [-81.5, 23.2], [-80.0, 23.2], [-78.5, 22.5], [-77.0, 21.6],
+       [-75.6, 21.1], [-74.1, 20.3], [-74.8, 19.9], [-76.5, 19.9], [-77.7, 20.7], [-79.5, 21.6],
+       [-82.0, 21.9], [-83.5, 21.85]],
+      [[-78.4, 18.5], [-76.2, 18.5], [-76.2, 17.8], [-78.4, 18.1]],
+      [[-74.5, 20.0], [-71.7, 19.9], [-69.9, 19.9], [-68.3, 18.6], [-70.0, 18.2], [-71.7, 17.9],
+       [-73.4, 18.2], [-74.5, 18.6]],
+      [[-67.3, 18.5], [-65.6, 18.5], [-65.6, 17.9], [-67.2, 17.9]],
+      [[-78.9, 26.7], [-77.6, 26.9], [-77.0, 26.5], [-78.5, 26.3]],
+      [[-77.9, 25.15], [-77.3, 25.2], [-77.3, 24.7], [-77.9, 24.9]],
+      [[-76.5, 23.7], [-75.6, 24.2], [-75.3, 23.6], [-76.2, 23.2]],
+      [[-71.6, 21.6], [-71.0, 21.6], [-71.0, 21.3], [-71.6, 21.3]],
+      /* Mittelamerika & Nordküste Südamerika */
+      [[-90, 21.5], [-88.5, 21.6], [-86.8, 21.5], [-86.75, 20.5], [-87.5, 19.5], [-87.8, 18.2],
+       [-88.3, 18.5], [-88.9, 15.9], [-88.0, 15.7], [-86.0, 15.9], [-83.9, 15.8], [-83.2, 14.9],
+       [-83.4, 13.0], [-83.7, 11.0], [-82.9, 9.6], [-82.2, 9.0], [-81.0, 8.9], [-79.5, 9.6],
+       [-78.5, 9.4], [-77.4, 8.6], [-76.9, 8.2], [-75.5, 10.4], [-74.8, 11.0], [-74.2, 11.25],
+       [-72.9, 11.5], [-71.3, 12.4], [-71.6, 11.6], [-71.0, 10.5], [-70.2, 11.4], [-68.4, 10.5],
+       [-67.0, 10.6], [-65.9, 10.3], [-64.7, 10.6], [-63.9, 10.7], [-62.9, 10.7], [-62.0, 9.9],
+       [-60.9, 9.4], [-60.0, 8.5], [-58, 8.0], [-90, 8.0]],
+      [[-61.9, 10.85], [-60.9, 10.85], [-60.9, 10.05], [-61.9, 10.1]],
+    ],
+    inseln: [[-63.05, 18.05, 4], [-62.72, 17.3, 4], [-61.85, 17.1, 5], [-61.55, 16.25, 5],
+             [-61.38, 15.4, 4], [-61.02, 14.65, 5], [-60.97, 13.9, 4], [-59.55, 13.15, 4],
+             [-61.2, 13.25, 4], [-61.7, 12.1, 4], [-70.03, 12.5, 4], [-68.93, 12.15, 4],
+             [-68.28, 12.15, 3], [-64.93, 18.34, 3], [-64.6, 18.45, 3], [-81.38, 19.3, 4],
+             [-83.05, 21.55, 4], [-64.0, 11.0, 4], [-77.91, 25.82, 2], [-75.92, 23.99, 2],
+             [-77.95, 25.83, 2], [-76.14, 24.85, 2]],
+  },
+
+  suedamerika: {
+    name: "Südamerika",
+    box: [-80, -57, -33, 13],
+    land: [
+      [[-33, 13], [-40, 3], [-51, -1], [-48.5, -5], [-44, -3], [-38, -4], [-34.9, -8], [-35, -9.5],
+       [-37.1, -11], [-38.5, -13], [-39.0, -17], [-39.2, -19.5], [-40.9, -22], [-42, -22.9],
+       [-43.2, -22.9], [-44.9, -23.4], [-46.3, -24], [-48.5, -25.5], [-48.6, -27], [-48.5, -28.6],
+       [-49.3, -29.5], [-50.1, -32], [-52.1, -32.1], [-53, -33.7], [-55, -34.8], [-56.2, -34.9],
+       [-58.4, -34.6], [-57.5, -36], [-62, -39.8], [-64.5, -41], [-65.1, -43.3], [-65.3, -45],
+       [-67.6, -46], [-67, -47.8], [-65.9, -49.9], [-67.7, -50.1], [-68.6, -52.6], [-68.3, -54.8],
+       [-71.5, -52.9], [-73.8, -52.5], [-74.7, -51.5], [-73.7, -50], [-73.4, -47.7], [-74.5, -46],
+       [-73.7, -44.5], [-73.3, -42], [-73.1, -39.5], [-73.2, -37], [-73.4, -33.6], [-71.6, -33.05],
+       [-71.4, -30.5], [-71.0, -27], [-70.6, -23.6], [-70.4, -20.5], [-70.2, -18.3], [-72.9, -13.5],
+       [-76.3, -13.8], [-77.15, -12.05], [-79.9, -8], [-80.4, -5.8], [-80.0, -4.3], [-79.9, -2],
+       [-80.0, 0], [-78.9, 1], [-78, 2], [-77.3, 4], [-77.5, 6], [-77.3, 7.2], [-75.5, 10.4],
+       [-73, 11], [-70, 11], [-66.9, 10.5], [-64.3, 10.6], [-62, 8.6], [-58.5, 6.5], [-57.2, 5.9],
+       [-54, 5], [-51.7, 4.6], [-49.9, 1.9], [-48.5, -0.5], [-44.3, -1.5], [-40, 0], [-35, 5],
+       [-33, 13]],
+    ],
+    inseln: [[-63.5, -42.0, 4], [-68.3, -54.8, 3]],
+  },
+
+  asien: {
+    name: "Naher Osten & Asien",
+    box: [48, -12, 143, 43],
+    land: [
+      /* Arabische Halbinsel & Indien */
+      [[48, 30], [48, 24.5], [51.5, 24.2], [51.8, 25.3], [54.3, 24.4], [56.2, 25.6], [56.4, 24.9],
+       [58.6, 23.6], [59.8, 22.5], [58.9, 20], [57.1, 17.9], [54, 16.9], [52.2, 15.6], [51.5, 12.6],
+       [48, 15], [45, 15], [43, 18], [42, 22], [41.5, 27], [43, 30], [48, 30]],
+      [[72.8, 21.7], [73.0, 19.0], [72.83, 18.95], [73.5, 15.5], [74.7, 12.9], [76.2, 10.0],
+       [77.5, 8.1], [79.8, 9.3], [80.2, 12.9], [80.3, 16.3], [82.3, 17.7], [83.9, 17.7],
+       [86.5, 20.3], [88.1, 21.6], [88.5, 22.0], [72.8, 21.7]],
+      [[79.6, 9.8], [81.9, 8.5], [81.6, 6.0], [79.9, 6.9], [79.6, 9.8]],
+      /* Südostasien */
+      [[97.3, 16], [98.4, 7.9], [99.5, 3], [103, 1.3], [104, 1.2], [104.5, 3.5], [105.8, 5],
+       [102, 6.5], [100.9, 13.1], [102.6, 16.4], [104.9, 20.9], [106.7, 20.9], [107, 16.1],
+       [109.2, 12.3], [104.5, 10.4], [98, 9.5], [97.3, 16]],
+      [[95, 20], [92, 22], [90, 22], [88.1, 21.6], [95, 20]],
+      /* Ostasien */
+      [[108, 22], [113, 22.3], [114.2, 22.3], [117, 24], [118.1, 24.5], [120.5, 23.5], [121.7, 25.1],
+       [121, 25.3], [119, 26], [120, 30], [121.6, 31.4], [120.5, 32.5], [122, 35], [121, 37],
+       [124, 39.9], [127, 39.4], [129, 35.1], [129.5, 37], [128, 38], [130, 42], [143, 43],
+       [140, 40], [139.7, 35.4], [135.2, 34.7], [131, 34], [130, 32], [129.9, 32.8], [108, 22]],
+    ],
+    inseln: [[115.2, -8.6, 4], [126.5, 33.5, 4], [127.7, 26.2, 4], [120.9, 14.6, 5], [123, 10, 5]],
+  },
+
+  australien: {
+    name: "Australien & Neuseeland",
+    box: [110, -47, 179, -10],
+    land: [
+      [[113, -22], [113.7, -26], [115.7, -32.1], [117.9, -35], [121, -34], [124, -32.6],
+       [129, -31.6], [132, -31.9], [136, -35], [137.8, -34.8], [138, -35], [139.8, -37.9],
+       [141, -38.3], [144.9, -38.4], [146.4, -38.7], [147.2, -38], [150, -37.5], [150.3, -35.6],
+       [151.2, -33.9], [152.9, -31], [153.1, -28], [153.5, -25.3], [152.9, -24.8], [151, -23.4],
+       [149.2, -21.1], [146.3, -18.3], [145.8, -16.9], [145.3, -14.9], [143.5, -14], [141.6, -12.4],
+       [136.8, -11.9], [133.6, -11.6], [130.8, -12.4], [129, -14.9], [126.2, -14], [123.6, -16.6],
+       [122, -18], [113.5, -21], [113, -22]],
+      [[172.6, -34.4], [174.4, -35.2], [174.8, -36.8], [175.8, -37], [177.9, -37.7], [178.3, -38.7],
+       [177.2, -39.1], [176.9, -40.4], [175, -41.3], [174.8, -41.3], [173.8, -41.7], [172.7, -40.5],
+       [172.1, -40.9], [171.2, -42.5], [169.3, -43.6], [166.5, -45.4], [167.8, -46.6], [169.8, -46.6],
+       [171, -44.5], [172.7, -43.6], [173.2, -41.3], [172.6, -34.4]],
+    ],
+    inseln: [],
+  },
 };
 
-/* Häfen mit Koordinaten – Grundlage für Karte und Suche */
-const HAFENLISTE = [
-  ["Barcelona", 2.17, 41.38], ["Palma de Mallorca", 2.65, 39.57], ["Ibiza", 1.43, 38.91],
-  ["Valencia", -0.32, 39.46], ["Málaga", -4.42, 36.72], ["Cartagena", -0.99, 37.6],
-  ["Marseille", 5.37, 43.3], ["Toulon", 5.93, 43.12], ["Nizza", 7.27, 43.7], ["Cannes", 7.02, 43.55],
-  ["Monaco", 7.42, 43.73], ["Genua", 8.93, 44.41], ["Savona", 8.48, 44.31], ["La Spezia", 9.83, 44.1],
-  ["Livorno", 10.31, 43.55], ["Civitavecchia (Rom)", 11.8, 42.09], ["Neapel", 14.26, 40.84],
-  ["Salerno", 14.76, 40.68], ["Messina", 15.55, 38.19], ["Palermo", 13.36, 38.12],
-  ["Catania", 15.09, 37.5], ["Valletta", 14.51, 35.9], ["Cagliari", 9.11, 39.22],
-  ["Olbia", 9.5, 40.92], ["Ajaccio", 8.74, 41.93], ["Bastia", 9.45, 42.7],
-  ["Venedig", 12.34, 45.44], ["Triest", 13.77, 45.65], ["Ravenna", 12.28, 44.49],
-  ["Ancona", 13.51, 43.62], ["Bari", 16.87, 41.13], ["Dubrovnik", 18.09, 42.65],
-  ["Split", 16.44, 43.51], ["Zadar", 15.23, 44.12], ["Kotor", 18.77, 42.42],
-  ["Korfu", 19.92, 39.62], ["Katakolon", 21.32, 37.65], ["Piräus (Athen)", 23.62, 37.94],
-  ["Mykonos", 25.33, 37.45], ["Santorini", 25.43, 36.42], ["Rhodos", 28.22, 36.45],
-  ["Heraklion (Kreta)", 25.14, 35.34], ["Thessaloniki", 22.94, 40.63], ["Istanbul", 28.98, 41.01],
-  ["Izmir", 27.14, 38.42], ["Kusadasi", 27.26, 37.86], ["Bodrum", 27.43, 37.03],
-  ["Antalya", 30.71, 36.89], ["Limassol", 33.04, 34.68], ["Haifa", 34.99, 32.82],
-  ["Ashdod", 34.65, 31.81], ["Alexandria", 29.92, 31.2], ["Tunis (La Goulette)", 10.3, 36.82],
-  ["Tanger", -5.8, 35.79], ["Gibraltar", -5.35, 36.14], ["Ceuta", -5.32, 35.89],
-  ["Las Palmas", -15.42, 28.14], ["Santa Cruz de Tenerife", -16.25, 28.47],
-  ["Arrecife (Lanzarote)", -13.55, 28.96], ["Puerto del Rosario", -13.86, 28.5],
-  ["Santa Cruz de La Palma", -17.76, 28.68], ["Funchal (Madeira)", -16.91, 32.65],
-  ["Lissabon", -9.14, 38.71], ["Porto (Leixões)", -8.7, 41.19], ["Cádiz", -6.29, 36.53],
-  ["Casablanca", -7.62, 33.6], ["Agadir", -9.6, 30.42],
-  ["Miami", -80.19, 25.77], ["Fort Lauderdale", -80.14, 26.12], ["Port Canaveral", -80.6, 28.41],
-  ["Tampa", -82.45, 27.95], ["Key West", -81.78, 24.56], ["Nassau", -77.34, 25.06],
-  ["Freeport", -78.7, 26.53], ["Havanna", -82.36, 23.13], ["Cozumel", -86.95, 20.51],
-  ["Costa Maya", -87.72, 18.73], ["Roatán", -86.53, 16.32], ["Belize City", -88.19, 17.5],
-  ["Colón (Panama)", -79.9, 9.36], ["Cartagena (Kolumbien)", -75.51, 10.4],
-  ["Oranjestad (Aruba)", -70.03, 12.52], ["Willemstad (Curaçao)", -68.93, 12.11],
-  ["Kralendijk (Bonaire)", -68.28, 12.15], ["Ocho Rios", -77.1, 18.41],
-  ["Montego Bay", -77.92, 18.47], ["George Town (Cayman)", -81.38, 19.3],
-  ["Labadee", -72.24, 19.75], ["Puerto Plata", -70.68, 19.8], ["La Romana", -68.95, 18.42],
-  ["San Juan", -66.11, 18.47], ["Charlotte Amalie (St. Thomas)", -64.93, 18.34],
-  ["Road Town (Tortola)", -64.62, 18.42], ["Philipsburg (St. Maarten)", -63.05, 18.02],
-  ["Basseterre (St. Kitts)", -62.72, 17.3], ["St. John's (Antigua)", -61.85, 17.12],
-  ["Pointe-à-Pitre", -61.53, 16.24], ["Roseau (Dominica)", -61.39, 15.3],
-  ["Fort-de-France", -61.07, 14.6], ["Castries (St. Lucia)", -60.99, 14.01],
-  ["Bridgetown (Barbados)", -59.62, 13.1], ["Kingstown (St. Vincent)", -61.22, 13.16],
-  ["St. George's (Grenada)", -61.75, 12.05], ["Port of Spain", -61.51, 10.65],
-  ["Kiel", 10.14, 54.32], ["Hamburg", 9.97, 53.54], ["Warnemünde", 12.09, 54.18],
-  ["Bremerhaven", 8.58, 53.54], ["Kopenhagen", 12.6, 55.68], ["Oslo", 10.73, 59.91],
-  ["Kristiansand", 8.0, 58.15], ["Stavanger", 5.73, 58.97], ["Bergen", 5.32, 60.39],
-  ["Ålesund", 6.16, 62.47], ["Geiranger", 7.21, 62.1], ["Flåm", 7.11, 60.86],
-  ["Trondheim", 10.4, 63.43], ["Bodø", 14.4, 67.28], ["Tromsø", 18.96, 69.65],
-  ["Honningsvåg (Nordkap)", 25.97, 70.98], ["Stockholm", 18.07, 59.33], ["Helsinki", 24.94, 60.17],
-  ["Tallinn", 24.75, 59.44], ["Riga", 24.11, 56.95], ["Klaipėda", 21.13, 55.7],
-  ["Gdynia", 18.55, 54.52], ["Danzig", 18.65, 54.35], ["Visby", 18.3, 57.64],
-  ["Göteborg", 11.97, 57.71], ["IJmuiden (Amsterdam)", 4.6, 52.46], ["Rotterdam", 4.48, 51.92],
-  ["Zeebrügge", 3.2, 51.33], ["Le Havre", 0.11, 49.49], ["Southampton", -1.4, 50.9],
-  ["Dover", 1.31, 51.13], ["Leith (Edinburgh)", -3.17, 55.99], ["Invergordon", -4.17, 57.69],
-  ["Kirkwall (Orkney)", -2.96, 58.98], ["Lerwick (Shetland)", -1.15, 60.16],
-  ["Reykjavík", -21.94, 64.15], ["Akureyri", -18.09, 65.68], ["Ísafjörður", -23.13, 66.07],
-  ["Tórshavn (Färöer)", -6.77, 62.01], ["Belfast", -5.93, 54.6], ["Dublin", -6.21, 53.35],
-  ["Cobh (Cork)", -8.3, 51.85],
-  ["Ponta Delgada (Azoren)", -25.67, 37.74], ["Horta (Azoren)", -28.63, 38.53],
-  ["Hamilton (Bermuda)", -64.78, 32.29], ["New York", -74.02, 40.7],
-  ["Halifax", -63.57, 44.65], ["Saint John's (Neufundland)", -52.71, 47.56],
-].map((h) => ({ n: h[0], lon: h[1], lat: h[2] }));
+/* =========================================================
+   HAFEN-DATENBANK – Koordinaten, Land, Ausflugstyp
+   Grundlage für Karte, Suche und das Hafen-Lexikon.
+   Format je Eintrag: [Name, Längengrad, Breitengrad, Land, Typ]
+========================================================= */
+const HAFENLISTE_ROH = [
+  /* ---- Mittelmeer & Atlantik-Spanien/Portugal ---- */
+  ["Barcelona", 2.17, 41.38, "Spanien", "AS"], ["Palma de Mallorca", 2.65, 39.57, "Spanien", "AS"],
+  ["Ibiza", 1.43, 38.91, "Spanien", "AS"], ["Valencia", -0.32, 39.46, "Spanien", "AS"],
+  ["Málaga", -4.42, 36.72, "Spanien", "AS"], ["Cartagena", -0.99, 37.6, "Spanien", "AS"],
+  ["Marseille", 5.37, 43.3, "Frankreich", "AS"], ["Toulon", 5.93, 43.12, "Frankreich", "AS"],
+  ["Nizza", 7.27, 43.7, "Frankreich", "AS"], ["Cannes", 7.02, 43.55, "Frankreich", "AS"],
+  ["Monaco", 7.42, 43.73, "Monaco", "AS"], ["Genua", 8.93, 44.41, "Italien", "AS"],
+  ["Savona", 8.48, 44.31, "Italien", "AS"], ["La Spezia", 9.83, 44.1, "Italien", "AS"],
+  ["Livorno", 10.31, 43.55, "Italien", "AS"], ["Civitavecchia (Rom)", 11.8, 42.09, "Italien", "HK"],
+  ["Neapel", 14.26, 40.84, "Italien", "RU"], ["Salerno", 14.76, 40.68, "Italien", "AS"],
+  ["Messina", 15.55, 38.19, "Italien", "AS"], ["Palermo", 13.36, 38.12, "Italien", "AS"],
+  ["Catania", 15.09, 37.5, "Italien", "RU"], ["Valletta", 14.51, 35.9, "Malta", "AS"],
+  ["Cagliari", 9.11, 39.22, "Italien", "AS"], ["Olbia", 9.5, 40.92, "Italien", "AS"],
+  ["Ajaccio", 8.74, 41.93, "Frankreich", "AS"], ["Bastia", 9.45, 42.7, "Frankreich", "AS"],
+  ["Venedig", 12.34, 45.44, "Italien", "AS"], ["Triest", 13.77, 45.65, "Italien", "AS"],
+  ["Ravenna", 12.28, 44.49, "Italien", "AS"], ["Ancona", 13.51, 43.62, "Italien", "AS"],
+  ["Bari", 16.87, 41.13, "Italien", "AS"], ["Dubrovnik", 18.09, 42.65, "Kroatien", "AS"],
+  ["Split", 16.44, 43.51, "Kroatien", "AS"], ["Zadar", 15.23, 44.12, "Kroatien", "AS"],
+  ["Kotor", 18.77, 42.42, "Montenegro", "AS"], ["Korfu", 19.92, 39.62, "Griechenland", "AS"],
+  ["Katakolon", 21.32, 37.65, "Griechenland", "RU"], ["Piräus (Athen)", 23.62, 37.94, "Griechenland", "HK"],
+  ["Mykonos", 25.33, 37.45, "Griechenland", "AS"], ["Santorini", 25.43, 36.42, "Griechenland", "AS"],
+  ["Rhodos", 28.22, 36.45, "Griechenland", "AS"], ["Heraklion (Kreta)", 25.14, 35.34, "Griechenland", "RU"],
+  ["Thessaloniki", 22.94, 40.63, "Griechenland", "AS"], ["Istanbul", 28.98, 41.01, "Türkei", "HK"],
+  ["Izmir", 27.14, 38.42, "Türkei", "RU"], ["Kusadasi", 27.26, 37.86, "Türkei", "RU"],
+  ["Bodrum", 27.43, 37.03, "Türkei", "AS"], ["Antalya", 30.71, 36.89, "Türkei", "AS"],
+  ["Limassol", 33.04, 34.68, "Zypern", "AS"], ["Haifa", 34.99, 32.82, "Israel", "HK"],
+  ["Ashdod", 34.65, 31.81, "Israel", "HK"], ["Alexandria", 29.92, 31.2, "Ägypten", "RU"],
+  ["Tunis (La Goulette)", 10.3, 36.82, "Tunesien", "RU"], ["Tanger", -5.8, 35.79, "Marokko", "AS"],
+  ["Gibraltar", -5.35, 36.14, "Gibraltar", "AS"], ["Ceuta", -5.32, 35.89, "Spanien", "AS"],
+  ["Las Palmas", -15.42, 28.14, "Spanien", "SI"], ["Santa Cruz de Tenerife", -16.25, 28.47, "Spanien", "SI"],
+  ["Arrecife (Lanzarote)", -13.55, 28.96, "Spanien", "SI"], ["Puerto del Rosario", -13.86, 28.5, "Spanien", "SI"],
+  ["Santa Cruz de La Palma", -17.76, 28.68, "Spanien", "SI"], ["Funchal (Madeira)", -16.91, 32.65, "Portugal", "SI"],
+  ["Lissabon", -9.14, 38.71, "Portugal", "HK"], ["Porto (Leixões)", -8.7, 41.19, "Portugal", "AS"],
+  ["Cádiz", -6.29, 36.53, "Spanien", "AS"], ["Casablanca", -7.62, 33.6, "Marokko", "HK"],
+  ["Agadir", -9.6, 30.42, "Marokko", "SI"],
+
+  /* ---- US-Ostküste & Golfküste ---- */
+  ["Cape Liberty (Bayonne)", -74.09, 40.66, "USA", "GM"], ["New York", -74.02, 40.7, "USA", "GM"],
+  ["Boston", -71.03, 42.35, "USA", "HK"], ["Baltimore", -76.58, 39.27, "USA", "HK"],
+  ["Charleston", -79.93, 32.78, "USA", "AS"], ["Miami", -80.19, 25.77, "USA", "GM"],
+  ["Fort Lauderdale", -80.14, 26.12, "USA", "GM"], ["Port Canaveral", -80.6, 28.41, "USA", "GM"],
+  ["Tampa", -82.45, 27.95, "USA", "GM"], ["Key West", -81.78, 24.56, "USA", "SI"],
+  ["New Orleans", -90.07, 29.95, "USA", "AS"], ["Galveston", -94.8, 29.3, "USA", "GM"],
+
+  /* ---- US-Westküste & Alaska ---- */
+  ["Los Angeles (San Pedro)", -118.29, 33.74, "USA", "GM"], ["San Diego", -117.17, 32.72, "USA", "GM"],
+  ["San Francisco", -122.42, 37.81, "USA", "GM"], ["Seattle", -122.34, 47.6, "USA", "GM"],
+  ["Vancouver", -123.11, 49.29, "Kanada", "GM"], ["Victoria (Vancouver Island)", -123.37, 48.43, "Kanada", "AS"],
+  ["Ketchikan", -131.65, 55.34, "USA", "NA"], ["Juneau", -134.42, 58.3, "USA", "NA"],
+  ["Skagway", -135.33, 59.46, "USA", "NA"], ["Sitka", -135.33, 57.05, "USA", "NA"],
+  ["Icy Strait Point", -135.45, 58.11, "USA", "NA"], ["Whittier (Anchorage)", -148.68, 60.77, "USA", "NA"],
+
+  /* ---- Mexiko Pazifik & Mittelamerika ---- */
+  ["Cabo San Lucas", -109.91, 22.89, "Mexiko", "SI"], ["Puerto Vallarta", -105.23, 20.62, "Mexiko", "SI"],
+  ["Mazatlán", -106.41, 23.22, "Mexiko", "SI"], ["Ensenada", -116.6, 31.86, "Mexiko", "AS"],
+  ["Huatulco", -96.12, 15.77, "Mexiko", "DJ"], ["Puerto Chiapas", -92.4, 14.71, "Mexiko", "DJ"],
+  ["Puerto Quetzal", -90.79, 13.92, "Guatemala", "DJ"], ["Corinto", -87.17, 12.48, "Nicaragua", "DJ"],
+  ["Puntarenas", -84.83, 9.98, "Costa Rica", "DJ"], ["Puerto Limón", -83.03, 9.99, "Costa Rica", "DJ"],
+  ["Colón (Panama)", -79.9, 9.36, "Panama", "DJ"],
+
+  /* ---- Karibik & Bahamas ---- */
+  ["Cozumel", -86.95, 20.51, "Mexiko", "SI"], ["Costa Maya", -87.72, 18.73, "Mexiko", "DJ"],
+  ["Roatán", -86.53, 16.32, "Honduras", "SI"], ["Belize City", -88.19, 17.5, "Belize", "DJ"],
+  ["Cartagena (Kolumbien)", -75.51, 10.4, "Kolumbien", "AS"],
+  ["Oranjestad (Aruba)", -70.03, 12.52, "Aruba", "SI"], ["Willemstad (Curaçao)", -68.93, 12.11, "Curaçao", "AS"],
+  ["Kralendijk (Bonaire)", -68.28, 12.15, "Bonaire", "SI"], ["Ocho Rios", -77.1, 18.41, "Jamaika", "DJ"],
+  ["Montego Bay", -77.92, 18.47, "Jamaika", "SI"], ["Falmouth (Jamaika)", -77.65, 18.49, "Jamaika", "AS"],
+  ["George Town (Cayman)", -81.38, 19.3, "Kaimaninseln", "SI"], ["Labadee", -72.24, 19.75, "Haiti", "PI"],
+  ["Puerto Plata", -70.68, 19.8, "Dominikanische Republik", "AS"], ["Amber Cove", -70.69, 19.76, "Dominikanische Republik", "SI"],
+  ["La Romana", -68.95, 18.42, "Dominikanische Republik", "SI"], ["Samaná", -69.33, 19.2, "Dominikanische Republik", "DJ"],
+  ["Havanna", -82.36, 23.13, "Kuba", "HK"], ["Nassau", -77.34, 25.06, "Bahamas", "SI"],
+  ["Freeport", -78.7, 26.53, "Bahamas", "SI"], ["Grand Turk", -71.14, 21.47, "Turks- und Caicosinseln", "SI"],
+  ["Great Stirrup Cay", -77.91, 25.82, "Bahamas", "PI"], ["Half Moon Cay", -75.92, 23.99, "Bahamas", "PI"],
+  ["Perfect Day at CocoCay", -77.95, 25.83, "Bahamas", "PI"], ["Princess Cays", -76.14, 24.85, "Bahamas", "PI"],
+  ["San Juan", -66.11, 18.47, "Puerto Rico", "HK"], ["Charlotte Amalie (St. Thomas)", -64.93, 18.34, "US Virgin Islands", "SI"],
+  ["Road Town (Tortola)", -64.62, 18.42, "Britische Jungferninseln", "SI"],
+  ["Philipsburg (St. Maarten)", -63.05, 18.02, "St. Maarten (niederl.)", "SI"],
+  ["Basseterre (St. Kitts)", -62.72, 17.3, "St. Kitts und Nevis", "AS"],
+  ["St. John's (Antigua)", -61.85, 17.12, "Antigua und Barbuda", "SI"],
+  ["Pointe-à-Pitre", -61.53, 16.24, "Guadeloupe", "SI"], ["Roseau (Dominica)", -61.39, 15.3, "Dominica", "DJ"],
+  ["Fort-de-France", -61.07, 14.6, "Martinique", "SI"], ["Castries (St. Lucia)", -60.99, 14.01, "St. Lucia", "SI"],
+  ["Bridgetown (Barbados)", -59.62, 13.1, "Barbados", "SI"],
+  ["Kingstown (St. Vincent)", -61.22, 13.16, "St. Vincent und die Grenadinen", "SI"],
+  ["St. George's (Grenada)", -61.75, 12.05, "Grenada", "AS"], ["Port of Spain", -61.51, 10.65, "Trinidad und Tobago", "HK"],
+
+  /* ---- Nordeuropa, Ostsee & Fjorde ---- */
+  ["Kiel", 10.14, 54.32, "Deutschland", "AS"], ["Hamburg", 9.97, 53.54, "Deutschland", "HK"],
+  ["Warnemünde", 12.09, 54.18, "Deutschland", "AS"], ["Bremerhaven", 8.58, 53.54, "Deutschland", "AS"],
+  ["Kopenhagen", 12.6, 55.68, "Dänemark", "HK"], ["Oslo", 10.73, 59.91, "Norwegen", "HK"],
+  ["Kristiansand", 8.0, 58.15, "Norwegen", "AS"], ["Stavanger", 5.73, 58.97, "Norwegen", "FJ"],
+  ["Bergen", 5.32, 60.39, "Norwegen", "FJ"], ["Ålesund", 6.16, 62.47, "Norwegen", "FJ"],
+  ["Geiranger", 7.21, 62.1, "Norwegen", "FJ"], ["Flåm", 7.11, 60.86, "Norwegen", "FJ"],
+  ["Trondheim", 10.4, 63.43, "Norwegen", "AS"], ["Bodø", 14.4, 67.28, "Norwegen", "NA"],
+  ["Tromsø", 18.96, 69.65, "Norwegen", "NA"], ["Honningsvåg (Nordkap)", 25.97, 70.98, "Norwegen", "NA"],
+  ["Stockholm", 18.07, 59.33, "Schweden", "HK"], ["Helsinki", 24.94, 60.17, "Finnland", "HK"],
+  ["Tallinn", 24.75, 59.44, "Estland", "AS"], ["Riga", 24.11, 56.95, "Lettland", "AS"],
+  ["Klaipėda", 21.13, 55.7, "Litauen", "AS"], ["Gdynia", 18.55, 54.52, "Polen", "AS"],
+  ["Danzig", 18.65, 54.35, "Polen", "AS"], ["Visby", 18.3, 57.64, "Schweden", "AS"],
+  ["Göteborg", 11.97, 57.71, "Schweden", "AS"], ["IJmuiden (Amsterdam)", 4.6, 52.46, "Niederlande", "HK"],
+  ["Rotterdam", 4.48, 51.92, "Niederlande", "HK"], ["Zeebrügge", 3.2, 51.33, "Belgien", "AS"],
+  ["Le Havre", 0.11, 49.49, "Frankreich", "AS"], ["Southampton", -1.4, 50.9, "Vereinigtes Königreich", "HK"],
+  ["Dover", 1.31, 51.13, "Vereinigtes Königreich", "AS"], ["Leith (Edinburgh)", -3.17, 55.99, "Vereinigtes Königreich", "HK"],
+  ["Invergordon", -4.17, 57.69, "Vereinigtes Königreich", "NA"], ["Kirkwall (Orkney)", -2.96, 58.98, "Vereinigtes Königreich", "NA"],
+  ["Lerwick (Shetland)", -1.15, 60.16, "Vereinigtes Königreich", "NA"], ["Reykjavík", -21.94, 64.15, "Island", "NA"],
+  ["Akureyri", -18.09, 65.68, "Island", "NA"], ["Ísafjörður", -23.13, 66.07, "Island", "NA"],
+  ["Tórshavn (Färöer)", -6.77, 62.01, "Färöer", "NA"], ["Belfast", -5.93, 54.6, "Vereinigtes Königreich", "AS"],
+  ["Dublin", -6.21, 53.35, "Irland", "HK"], ["Cobh (Cork)", -8.3, 51.85, "Irland", "AS"],
+
+  /* ---- Atlantik-Inseln & Kanada-Ost ---- */
+  ["Ponta Delgada (Azoren)", -25.67, 37.74, "Portugal", "NA"], ["Horta (Azoren)", -28.63, 38.53, "Portugal", "NA"],
+  ["Hamilton (Bermuda)", -64.78, 32.29, "Bermuda", "SI"], ["Halifax", -63.57, 44.65, "Kanada", "AS"],
+  ["Saint John's (Neufundland)", -52.71, 47.56, "Kanada", "NA"],
+
+  /* ---- Südamerika ---- */
+  ["Rio de Janeiro", -43.18, -22.9, "Brasilien", "SA"], ["Santos (São Paulo)", -46.33, -23.96, "Brasilien", "SA"],
+  ["Salvador da Bahia", -38.51, -12.97, "Brasilien", "SA"], ["Recife", -34.87, -8.05, "Brasilien", "SA"],
+  ["Buenos Aires", -58.37, -34.6, "Argentinien", "SA"], ["Montevideo", -56.19, -34.9, "Uruguay", "SA"],
+  ["Punta del Este", -54.95, -34.97, "Uruguay", "SI"], ["Valparaíso", -71.63, -33.05, "Chile", "SA"],
+  ["Puerto Montt", -72.94, -41.47, "Chile", "NA"], ["Ushuaia", -68.3, -54.8, "Argentinien", "NA"],
+  ["Puerto Madryn", -65.03, -42.77, "Argentinien", "NA"], ["Callao (Lima)", -77.15, -12.05, "Peru", "SA"],
+
+  /* ---- Naher Osten & Asien ---- */
+  ["Dubai", 55.27, 25.2, "Vereinigte Arabische Emirate", "WU"], ["Abu Dhabi", 54.37, 24.47, "Vereinigte Arabische Emirate", "WU"],
+  ["Muscat", 58.59, 23.62, "Oman", "WU"], ["Doha", 51.53, 25.29, "Katar", "WU"],
+  ["Mumbai", 72.83, 18.95, "Indien", "TK"], ["Kochi (Cochin)", 76.24, 9.97, "Indien", "TK"],
+  ["Goa", 73.81, 15.48, "Indien", "TK"], ["Colombo", 79.84, 6.93, "Sri Lanka", "TK"],
+  ["Singapur", 103.85, 1.29, "Singapur", "GM"], ["Penang", 100.35, 5.41, "Malaysia", "TK"],
+  ["Phuket", 98.39, 7.89, "Thailand", "SI"], ["Bangkok (Laem Chabang)", 100.89, 13.09, "Thailand", "TK"],
+  ["Ho-Chi-Minh-Stadt (Phu My)", 107.02, 10.58, "Vietnam", "TK"], ["Da Nang", 108.22, 16.07, "Vietnam", "TK"],
+  ["Halong-Bucht (Haiphong)", 106.68, 20.87, "Vietnam", "NA"], ["Hongkong", 114.16, 22.28, "Hongkong", "GM"],
+  ["Shanghai", 121.65, 31.36, "China", "GM"], ["Xiamen", 118.08, 24.48, "China", "AS"],
+  ["Kaohsiung", 120.28, 22.61, "Taiwan", "GM"], ["Keelung (Taipeh)", 121.74, 25.13, "Taiwan", "HK"],
+  ["Busan", 129.08, 35.1, "Südkorea", "GM"], ["Jeju", 126.53, 33.51, "Südkorea", "SI"],
+  ["Tokyo (Yokohama)", 139.65, 35.44, "Japan", "GM"], ["Kobe (Osaka)", 135.18, 34.68, "Japan", "GM"],
+  ["Nagasaki", 129.87, 32.75, "Japan", "AS"], ["Naha (Okinawa)", 127.68, 26.21, "Japan", "SI"],
+  ["Bali (Benoa)", 115.21, -8.75, "Indonesien", "TK"],
+
+  /* ---- Australien & Neuseeland ---- */
+  ["Sydney", 151.21, -33.87, "Australien", "AU"], ["Melbourne", 144.96, -37.84, "Australien", "AU"],
+  ["Brisbane", 153.03, -27.47, "Australien", "AU"], ["Cairns", 145.77, -16.92, "Australien", "SI"],
+  ["Fremantle (Perth)", 115.74, -32.06, "Australien", "AU"], ["Auckland", 174.76, -36.84, "Neuseeland", "AU"],
+  ["Wellington", 174.78, -41.29, "Neuseeland", "HK"], ["Bay of Islands", 174.09, -35.28, "Neuseeland", "NA"],
+  ["Tauranga", 176.17, -37.68, "Neuseeland", "AS"],
+];
+const HAFENLISTE = HAFENLISTE_ROH.map((h) => ({ n: h[0], lon: h[1], lat: h[2], land: h[3], typ: h[4] }));
 
 function normText(s) {
   return (s || "").toLowerCase()
@@ -1423,6 +1621,1150 @@ function hafenVorschlaege(q) {
   return treffer.slice(0, 6);
 }
 
+/* =========================================================
+   HAFEN-LEXIKON – Währung, Kurzinfo, Landgang auf eigene
+   Faust und gebuchte Ausflüge, für jeden Hafen der Liste.
+   Jeder Hafen bekommt mindestens die Vorlage seines Typs,
+   die wichtigsten Häfen zusätzlich eigene, geprüfte Inhalte.
+========================================================= */
+const WAEHRUNG = {
+  "Spanien": ["EUR", "Euro"], "Frankreich": ["EUR", "Euro"], "Monaco": ["EUR", "Euro"],
+  "Italien": ["EUR", "Euro"], "Malta": ["EUR", "Euro"], "Kroatien": ["EUR", "Euro"],
+  "Montenegro": ["EUR", "Euro"], "Griechenland": ["EUR", "Euro"], "Zypern": ["EUR", "Euro"],
+  "Portugal": ["EUR", "Euro"], "Deutschland": ["EUR", "Euro"], "Finnland": ["EUR", "Euro"],
+  "Estland": ["EUR", "Euro"], "Lettland": ["EUR", "Euro"], "Litauen": ["EUR", "Euro"],
+  "Niederlande": ["EUR", "Euro"], "Belgien": ["EUR", "Euro"], "Irland": ["EUR", "Euro"],
+  "Guadeloupe": ["EUR", "Euro"], "Martinique": ["EUR", "Euro"],
+  "Türkei": ["TRY", "Türkische Lira"], "Israel": ["ILS", "Schekel"], "Ägypten": ["EGP", "Ägyptisches Pfund"],
+  "Tunesien": ["TND", "Tunesischer Dinar"], "Marokko": ["MAD", "Marokkanischer Dirham"],
+  "Gibraltar": ["GIP", "Gibraltar-Pfund"], "Dänemark": ["DKK", "Dänische Krone"],
+  "Norwegen": ["NOK", "Norwegische Krone"], "Schweden": ["SEK", "Schwedische Krone"],
+  "Polen": ["PLN", "Złoty"], "Vereinigtes Königreich": ["GBP", "Pfund Sterling"],
+  "Island": ["ISK", "Isländische Krone"], "Färöer": ["DKK", "Dänische Krone"],
+  "USA": ["USD", "US-Dollar"], "Bahamas": ["BSD", "Bahama-Dollar (1:1 zum USD)"],
+  "Kuba": ["CUP", "Kubanischer Peso"], "Mexiko": ["MXN", "Mexikanischer Peso"],
+  "Kaimaninseln": ["KYD", "Kaiman-Dollar"], "Jamaika": ["JMD", "Jamaika-Dollar"],
+  "Haiti": ["HTG", "Gourde"], "Dominikanische Republik": ["DOP", "Dominikanischer Peso"],
+  "Puerto Rico": ["USD", "US-Dollar"], "US Virgin Islands": ["USD", "US-Dollar"],
+  "Britische Jungferninseln": ["USD", "US-Dollar"], "St. Maarten (niederl.)": ["ANG", "Antillen-Gulden"],
+  "St. Kitts und Nevis": ["XCD", "Ostkaribischer Dollar"], "Antigua und Barbuda": ["XCD", "Ostkaribischer Dollar"],
+  "Dominica": ["XCD", "Ostkaribischer Dollar"], "St. Lucia": ["XCD", "Ostkaribischer Dollar"],
+  "Barbados": ["BBD", "Barbados-Dollar"], "St. Vincent und die Grenadinen": ["XCD", "Ostkaribischer Dollar"],
+  "Grenada": ["XCD", "Ostkaribischer Dollar"], "Trinidad und Tobago": ["TTD", "Trinidad-Dollar"],
+  "Turks- und Caicosinseln": ["USD", "US-Dollar"],
+  "Aruba": ["AWG", "Aruba-Florin"], "Curaçao": ["ANG", "Antillen-Gulden"], "Bonaire": ["USD", "US-Dollar"],
+  "Kolumbien": ["COP", "Kolumbianischer Peso"], "Panama": ["USD", "US-Dollar (Balboa 1:1)"],
+  "Costa Rica": ["CRC", "Costa-Rica-Colón"], "Nicaragua": ["NIO", "Córdoba"],
+  "Guatemala": ["GTQ", "Quetzal"], "Belize": ["BZD", "Belize-Dollar"], "Honduras": ["HNL", "Lempira"],
+  "Kanada": ["CAD", "Kanadischer Dollar"], "Bermuda": ["BMD", "Bermuda-Dollar (1:1 zum USD)"],
+  "Brasilien": ["BRL", "Real"], "Uruguay": ["UYU", "Uruguayischer Peso"],
+  "Argentinien": ["ARS", "Argentinischer Peso"], "Chile": ["CLP", "Chilenischer Peso"], "Peru": ["PEN", "Sol"],
+  "Vereinigte Arabische Emirate": ["AED", "Dirham"], "Oman": ["OMR", "Rial"], "Katar": ["QAR", "Riyal"],
+  "Indien": ["INR", "Rupie"], "Sri Lanka": ["LKR", "Rupie"],
+  "Singapur": ["SGD", "Singapur-Dollar"], "Malaysia": ["MYR", "Ringgit"], "Thailand": ["THB", "Baht"],
+  "Vietnam": ["VND", "Dong"], "Indonesien": ["IDR", "Rupiah"], "China": ["CNY", "Renminbi"],
+  "Hongkong": ["HKD", "Hongkong-Dollar"], "Taiwan": ["TWD", "Neuer Taiwan-Dollar"],
+  "Südkorea": ["KRW", "Won"], "Japan": ["JPY", "Yen"],
+  "Australien": ["AUD", "Australischer Dollar"], "Neuseeland": ["NZD", "Neuseeland-Dollar"],
+};
+
+/* Generische Vorlage je Hafentyp, greift überall dort, wo es noch keine
+   eigenen Inhalte gibt — damit hat wirklich jeder Hafen etwas Nützliches. */
+const TYP_VORLAGEN = {
+  AS: {
+    kurz: "Ein Hafenstädtchen mit einer Altstadt, die sich zu Fuß gut erkunden lässt — meistens reicht der Landgang genau dafür.",
+    zuFuss: [
+      "Vom Anleger direkt Richtung Altstadt oder Zentrum laufen, ein Ziel wie eine Kirche oder ein Marktplatz reicht als Orientierung.",
+      "Eine Gasse ohne festes Ziel entlanglaufen — in kleinen Hafenstädten ist genau das oft der beste Programmpunkt.",
+      "Rechtzeitig einen Kaffee oder ein Eis am Hafen einplanen, mit Blick auf das eigene Schiff.",
+    ],
+    gefuehrt: [
+      "Ein zwei- bis dreistündiger Altstadt- oder Food-Walk mit lokalem Guide.",
+      "Bei knapper Zeit oder wenn der Ort etwas außerhalb liegt: den Reederei-Bus ins Zentrum nehmen statt zu Fuß zu gehen.",
+      "Auf GetYourGuide oder Viator nach einer Altstadt-Tour suchen, oft günstiger als der gleiche Ausflug über die Reederei.",
+    ],
+  },
+  HK: {
+    kurz: "Eine große Stadt mit eigenem Nahverkehr — hier entscheidet sich der Tag daran, wie viele Ziele ihr wirklich anfahrt statt nur anzuvisieren.",
+    zuFuss: [
+      "Ein Ziel in Laufnähe zum Kai wählen und den Rest bewusst weglassen, statt drei Viertel der Stadt in vier Stunden abzuhaken.",
+      "Ein Tagesticket für Bus, Bahn oder Fähre kaufen, sobald ihr von Bord seid — meist die schnellste Art, Zeit zu sparen.",
+      "Eine Sehenswürdigkeit mit Warteschlangen direkt nach der Ausschiffung ansteuern, bevor die Busse mit Tagesausflüglern ankommen.",
+    ],
+    gefuehrt: [
+      "Ein Hop-on-Hop-off-Bus, wenn die Stadt groß und die Zeit knapp ist.",
+      "Eine Highlights-Tour mit Guide für die Orte, zu denen ihr sonst nicht rechtzeitig zurückfindet.",
+      "Auf GetYourGuide oder Viator nach „Skip the Line“-Tickets für die größte Sehenswürdigkeit suchen, das spart hier oft am meisten Zeit.",
+    ],
+  },
+  RU: {
+    kurz: "Der Hafen selbst ist meist unspektakulär, das eigentliche Ziel liegt außerhalb — eine antike Stätte, für die ihr Zeit und Transport braucht.",
+    zuFuss: [
+      "Prüfen, ob die Ruinenstätte wirklich fußläufig ist — meistens ist das nicht der Fall, und ein Taxi vom Kai spart euch Stunden.",
+      "Wasser und Sonnenschutz einpacken, antike Stätten liegen fast immer schattenlos in praller Sonne.",
+      "Feste Schuhe anziehen, der Untergrund auf Ausgrabungsstätten ist uneben.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug mit Guide zur Hauptstätte, weil die Geschichte dahinter den Unterschied macht zwischen Steinhaufen und Weltwunder.",
+      "Reederei-Bus, wenn die Distanz groß und die Rückfahrt zeitlich eng ist — dort wartet das Schiff notfalls auf euch.",
+      "Auf GetYourGuide oder Viator nach einer Tour mit Zeitfenster-Ticket suchen, das umgeht Warteschlangen am Einlass.",
+    ],
+  },
+  FJ: {
+    kurz: "Ein kleiner Ort, dessen eigentliche Attraktion die Landschaft drumherum ist — Fjord, Berge und Wasserfälle statt Sehenswürdigkeiten in der Stadt.",
+    zuFuss: [
+      "Den Ort selbst in 30 bis 60 Minuten ablaufen, das reicht meistens völlig für das Zentrum.",
+      "Zu einer nahen Aussichtsplattform oder einem Wasserfall am Ortsrand laufen, wenn die Zeit reicht — oft ausgeschildert.",
+      "Eine warme Schicht mitnehmen, im Fjord ist es selbst im Sommer kühler als erwartet.",
+    ],
+    gefuehrt: [
+      "Eine Fjord-Boots- oder Kajaktour, weil ihr die Landschaft vom Wasser aus am besten seht.",
+      "Eine Zahnradbahn- oder Panoramabus-Fahrt zu einem Aussichtspunkt, der zu Fuß zu weit wäre.",
+      "Bei GetYourGuide oder Viator nach kleinen Gruppentouren suchen, die sind in Fjorden oft persönlicher als der große Reederei-Bus.",
+    ],
+  },
+  NA: {
+    kurz: "Hier steht Natur im Vordergrund — Gletscher, Wale oder weite Landschaft statt Stadtprogramm, und die guten Plätze sind oft nur mit Tour erreichbar.",
+    zuFuss: [
+      "Den Ort selbst kurz ablaufen, aber nicht zu viel erwarten — das eigentliche Ziel liegt fast immer außerhalb.",
+      "Wetterfeste Kleidung im Schichtsystem mitnehmen, das Wetter kann sich hier binnen einer Stunde drehen.",
+      "Ein Fernglas einpacken, wenn Wale oder Vögel angekündigt sind.",
+    ],
+    gefuehrt: [
+      "Eine Natur- oder Wildlife-Tour mit lokalem Anbieter, das ist hier meistens der ganze Sinn des Landgangs.",
+      "Bei Gletschern oder abgelegenen Fjorden lieber die Reederei nehmen, weil Wetter und Wege unberechenbar sind und das Schiff sonst ohne euch fährt.",
+      "Auf GetYourGuide oder Viator nach kleinen Gruppen suchen — meist persönlicher und oft günstiger als der Bordausflug.",
+    ],
+  },
+  SI: {
+    kurz: "Ein kleines Inselziel, an dem der Tag meistens aus Strand, Wasser und vielleicht einem kurzen Ortsbummel besteht.",
+    zuFuss: [
+      "Wenn ein Strand in Laufnähe liegt, braucht es keinen Ausflug — Handtuch, Sonnencreme und los.",
+      "Den kleinen Ort am Hafen ablaufen, oft reicht das für Souvenirs und einen Cocktail zum Mittag.",
+      "Klar absprechen, wo genau ihr euch am Strand aufhaltet, falls ihr euch trennt — Handynetz ist hier oft schwach.",
+    ],
+    gefuehrt: [
+      "Ein Katamaran-, Schnorchel- oder Strandausflug, meist die klassische Wahl an diesen Zielen.",
+      "Wenn der beste Strand weiter draußen liegt, den Reederei-Bus oder -Katamaran nehmen statt Taxi auf gut Glück.",
+      "Auf GetYourGuide oder Viator nach einem Beach Day oder einer Katamaran-Tour suchen, oft günstiger als das Bordangebot mit identischem Strand.",
+    ],
+  },
+  PI: {
+    kurz: "Eine Privatinsel oder ein eingezäunter Strandabschnitt der Reederei — hier gibt es keine Stadt und keinen eigenen Landausflug-Markt, sondern ein festes Programm vor Ort.",
+    zuFuss: [
+      "Früh von Bord gehen, die besten Liegen und Cabanas sind an belebten Tagen schnell weg.",
+      "Die Insel ist überschaubar — ein Rundgang zu Fuß reicht, um alle Stationen zu finden.",
+      "Wasserschuhe mitnehmen, der Einstieg ins Wasser ist an manchen Stellen mit Korallen oder Kieseln nicht barfußfreundlich.",
+    ],
+    gefuehrt: [
+      "Cabana oder Wasserpark-Zugang vorab über die Reederei-App reservieren, das ist hier meist die einzige Buchungsart.",
+      "Wassersport wie Jetski, Parasailing oder Schnorcheln direkt am Strand der Insel buchen.",
+      "Externe Anbieter wie GetYourGuide gibt es hier in der Regel nicht — alles läuft über die Reederei selbst.",
+    ],
+  },
+  GM: {
+    kurz: "Eine moderne Großstadt mit gutem Nahverkehr — die Herausforderung ist hier weniger, etwas zu finden, sondern die Auswahl sinnvoll einzugrenzen.",
+    zuFuss: [
+      "Ein Viertel statt der ganzen Stadt auswählen und das dafür in Ruhe erkunden.",
+      "Öffentliche Verkehrsmittel oder eine Ride-Hailing-App nutzen, das ist in modernen Großstädten meist einfacher als gedacht.",
+      "Auf die Rückfahrzeit zum Hafen großzügig Puffer einplanen, Verkehr in Großstädten ist selten planbar.",
+    ],
+    gefuehrt: [
+      "Eine Highlights-Tour mit Guide, wenn ihr in kurzer Zeit viel sehen wollt.",
+      "Eine Hafenrundfahrt oder Skyline-Tour, die zeigt die Stadt oft besser als jeder Spaziergang.",
+      "Auf GetYourGuide oder Viator nach einer privaten Tour suchen, wenn ihr lieber flexibel unterwegs sein wollt als in der Gruppe.",
+    ],
+  },
+  DJ: {
+    kurz: "Ein Naturhafen, dessen Reiz im Umland liegt — Regenwald, Wasserfälle oder Riffe statt einer Stadt am Kai.",
+    zuFuss: [
+      "Den Hafenbereich selbst ablaufen, aber ohne große Erwartungen — hier ist meist wenig, das eigentliche Ziel liegt weiter draußen.",
+      "Insektenschutz und wasserfeste Sandalen einpacken, falls ihr zu Wasserfällen oder auf Wanderwege wollt.",
+      "Nur mit organisiertem Transport ins Landesinnere fahren, ein Taxi auf eigene Faust ist hier oft weder günstiger noch sicherer.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug zu Wasserfällen, Zipline oder Regenwald mit lokalem Anbieter — das ist hier meistens der ganze Grund für den Halt.",
+      "Bei größerer Entfernung ins Landesinnere die Reederei nehmen, damit das Schiff notfalls auf euch wartet.",
+      "Auf GetYourGuide oder Viator nach Naturausflügen mit kleiner Gruppengröße suchen, oft persönlicher als der große Bordbus.",
+    ],
+  },
+  WU: {
+    kurz: "Eine moderne Golf-Metropole, bei der Hitze und Distanzen den Tag mehr bestimmen als fehlende Ziele.",
+    zuFuss: [
+      "Wenn möglich früh oder spätnachmittags draußen unterwegs sein, mittags ist es hier oft zu heiß für längere Fußwege.",
+      "Leichte, bedeckende Kleidung mitnehmen — auch aus Respekt vor lokalen Gepflogenheiten sinnvoll.",
+      "Viel Wasser trinken, mehr als ihr für nötig haltet.",
+    ],
+    gefuehrt: [
+      "Eine Stadt- oder Skyline-Tour mit klimatisiertem Fahrzeug, weil zu Fuß hier oft keine Option ist.",
+      "Ein Wüstenausflug mit Dünenfahrt, wenn ihr auch abseits der Stadt etwas sehen wollt.",
+      "Auf GetYourGuide oder Viator nach klimatisierten Halbtagestouren suchen, das ist hier die angenehmste Art, viel zu sehen.",
+    ],
+  },
+  TK: {
+    kurz: "Ein Ziel mit eigener Kultur und oft eigenem Verkehrschaos — hier lohnt sich ein klarer Plan mehr als anderswo.",
+    zuFuss: [
+      "Ein einziges Tempel- oder Marktziel in Hafennähe auswählen, statt mehrere über die Stadt verteilte anzusteuern.",
+      "Kleidung mit bedeckten Schultern und Knien einpacken, an vielen Tempeln ist das Voraussetzung für den Einlass.",
+      "Bargeld in kleinen Scheinen mitnehmen, Karten werden abseits der Touristenzentren seltener akzeptiert.",
+    ],
+    gefuehrt: [
+      "Eine Tempel- oder Kulturtour mit Guide, der Kontext liefert, den ihr auf eigene Faust verpasst.",
+      "Bei großer Entfernung zwischen Hafen und Stadtzentrum den Reederei-Transfer einplanen.",
+      "Auf GetYourGuide oder Viator nach einer privaten Tour oder einem Kochkurs suchen, oft ein persönlicherer Einstieg als die große Gruppe.",
+    ],
+  },
+  SA: {
+    kurz: "Eine große südamerikanische Hafenstadt mit eigenem Rhythmus — hier lohnt sich ein organisierter erster Kontakt mehr als anderswo.",
+    zuFuss: [
+      "In direkter Hafennähe bleiben und Wertsachen unauffällig tragen, wie in jeder Großstadt dieser Größe.",
+      "Ein Viertel mit gutem Ruf gezielt ansteuern, statt einfach drauflos zu laufen.",
+      "Landeswährung in kleinen Scheinen dabeihaben, Karten werden nicht überall akzeptiert.",
+    ],
+    gefuehrt: [
+      "Eine Stadttour mit Guide für den ersten Überblick, gerade bei eurem ersten Besuch.",
+      "Ein Ausflug zum bekanntesten Wahrzeichen der Stadt, meist der Grund, warum das Schiff hier hält.",
+      "Auf GetYourGuide oder Viator nach Kleingruppentouren mit Abholung am Pier suchen, das nimmt die Unsicherheit beim ersten Schritt von Bord.",
+    ],
+  },
+  AU: {
+    kurz: "Entspannte Großstadt oder Naturhafen mit gutem Nahverkehr — hier ist meist mehr machbar, als die kurze Zeit vermuten lässt.",
+    zuFuss: [
+      "Die Uferpromenade am Hafen ablaufen, in Australien und Neuseeland liegt dort oft schon das Beste.",
+      "Öffentliche Fähren nutzen, wo es sie gibt — meist die günstigste und schönste Art, die Bucht zu sehen.",
+      "Sonnenschutz nicht unterschätzen, die Sonne ist hier stärker, als das Wetter vermuten lässt.",
+    ],
+    gefuehrt: [
+      "Eine Bootstour durch die Bucht oder den Hafen, der von See aus meist am schönsten ist.",
+      "Ein Ausflug in Nationalpark oder Weinregion außerhalb der Stadt, wenn Zeit und Reederei-Tour es hergeben.",
+      "Auf GetYourGuide oder Viator nach Halbtagestouren zu Naturzielen suchen, die per Bus allein schwer zu erreichen sind.",
+    ],
+  },
+};
+
+/* Eigene, geprüfte Inhalte für die meistangelaufenen Häfen —
+   überschreiben die generische Typ-Vorlage, wo es sie gibt. */
+const HAFEN_DETAILS = {
+  "Cape Liberty (Bayonne)": {
+    kurz: "Der Terminal liegt in Bayonne, New Jersey, direkt an der Bucht mit Blick auf die Skyline von Manhattan — aber nicht in Manhattan selbst, und das wird regelmäßig unterschätzt.",
+    zuFuss: [
+      "Zu Fuß ist hier nichts erreichbar, der Terminal liegt in einem Industriegebiet ohne Fußweg in die Stadt.",
+      "Wer selbst nach Manhattan will, braucht ein Taxi, Uber oder den Shuttle der Reederei zur nächsten Bahnstation — rechnet mit 45 bis 60 Minuten bis Midtown.",
+      "Am Einschiffungstag lohnt sich ein früher Flug oder eine Nacht vorher in der Nähe, weil New Yorker Verkehr sich nicht verlässlich planen lässt.",
+    ],
+    gefuehrt: [
+      "Ein Pre- oder Post-Cruise-Transfer der Reederei nach Manhattan, meist die stressfreieste Variante am An- oder Abreisetag.",
+      "Wer noch Zeit in New York hat, bucht das separat als eigenen City-Trip vor oder nach der Kreuzfahrt statt als Landausflug am Terminal.",
+      "Auf GetYourGuide oder Viator nach einem privaten Transfer Cape Liberty–Manhattan suchen, oft günstiger als ein Taxi vom Terminal.",
+    ],
+    tipp: "Der Terminal wird oft fälschlich mit „New York“ gleichgesetzt — es ist ein eigener Hafen in New Jersey. Prüft in euren Unterlagen genau, ob euer Schiff von hier oder vom Manhattan Cruise Terminal ablegt.",
+  },
+  "New York": {
+    kurz: "Das Manhattan Cruise Terminal liegt am Hudson River auf Höhe der 46th bis 54th Street — mitten in der Stadt, U-Bahn und Taxis direkt vor der Tür.",
+    zuFuss: [
+      "Der Times Square ist von hier aus in 20 bis 25 Minuten zu Fuß erreichbar.",
+      "Direkt am Terminal die U-Bahn Richtung Downtown nehmen, meist schneller als ein Taxi im New Yorker Verkehr.",
+      "Rechnet am Einschiffungstag mit langen Wartezeiten, New York gehört zu den meistfrequentierten Terminals der Welt.",
+    ],
+    gefuehrt: [
+      "Eine Sightseeing-Tour zu Freiheitsstatue und Ellis Island, dafür lohnt sich wirklich ein ganzer Tag.",
+      "Ein Hop-on-Hop-off-Bus, wenn ihr in kurzer Zeit viele Stadtteile sehen wollt.",
+      "Auf GetYourGuide oder Viator nach Skip-the-Line-Tickets für Empire State Building oder Top of the Rock suchen, spart hier besonders viel Wartezeit.",
+    ],
+  },
+  "Port Canaveral": {
+    kurz: "Der Hafen liegt an der Space Coast Floridas, gut 15 Autominuten von Cocoa Beach und knapp einer Stunde vom Kennedy Space Center entfernt — direkt am Terminal gibt es außer dem Hafengelände wenig.",
+    zuFuss: [
+      "Zu Fuß erreicht ihr vom Terminal aus praktisch nichts, es gibt keinen Ort in Laufnähe.",
+      "Wer einen freien Tag vor der Einschiffung hat, bleibt besser gleich in Cocoa Beach oder Orlando statt am Hafen selbst.",
+      "Cocoa Beach ist mit Taxi oder Uber in etwa 15 Minuten erreichbar, für einen entspannten Strandtag reicht das gut.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug zum Kennedy Space Center, der Klassiker an diesem Hafen und für Familien besonders lohnend.",
+      "Wer vor oder nach der Kreuzfahrt noch Zeit hat, verbindet den Hafen mit einem Abstecher nach Orlando zu den Themenparks.",
+      "Auf GetYourGuide oder Viator nach einem Transfer Port Canaveral–Orlando suchen, wenn ihr Flughafen oder Parks anbinden wollt.",
+    ],
+  },
+  "Miami": {
+    kurz: "PortMiami liegt auf einer eigenen Insel direkt vor der Skyline, South Beach ist rund 20 Autominuten entfernt.",
+    zuFuss: [
+      "Vom Terminal aus ist South Beach nicht fußläufig, aber ein kurzes Taxi oder Uber bringt euch in 15 bis 20 Minuten hin.",
+      "Wer vor der Einschiffung noch Zeit hat, bummelt am besten durch die Art-déco-Viertel von South Beach statt am Hafen selbst.",
+      "Bayside Marketplace liegt näher am Terminal, falls die Zeit für South Beach nicht reicht.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug nach South Beach mit Art-déco-Spaziergang, klassisch und meist auch auf eigene Faust gut machbar.",
+      "Eine Bootstour durch Biscayne Bay entlang der Promi-Villen.",
+      "Auf GetYourGuide oder Viator nach einer Everglades-Airboat-Tour suchen, wenn ihr vor oder nach der Reise noch einen Tag übrig habt.",
+    ],
+  },
+  "Fort Lauderdale": {
+    kurz: "Port Everglades liegt nur wenige Minuten vom Strand von Fort Lauderdale entfernt, deutlich ruhiger als Miami.",
+    zuFuss: [
+      "Der Strand von Fort Lauderdale ist mit Taxi oder Shuttle in 10 bis 15 Minuten erreichbar, zu Fuß ist es vom Terminal zu weit.",
+      "Las Olas Boulevard mit Geschäften und Restaurants liegt in ähnlicher Nähe wie der Strand.",
+      "Wer fliegt, hat den Flughafen fast vor der Tür — das macht Fort Lauderdale zu einem entspannten Ein- und Ausschiffungshafen.",
+    ],
+    gefuehrt: [
+      "Eine Bootstour durch die Kanäle von Fort Lauderdale, das „Venedig Amerikas“, wie es hier gerne genannt wird.",
+      "Ein Strandtag mit Shuttle, wenn ihr vor der Einschiffung noch Zeit habt.",
+      "Auf GetYourGuide oder Viator nach einem privaten Transfer zum Flughafen suchen, oft günstiger als ein klassisches Taxi.",
+    ],
+  },
+  "Tampa": {
+    kurz: "Der Hafen liegt direkt an der Riverwalk von Tampa, das Zentrum ist fußläufig erreichbar.",
+    zuFuss: [
+      "Die Tampa Riverwalk direkt am Terminal entlanglaufen, dort reihen sich Cafés und kleine Parks.",
+      "Das Viertel Ybor City mit kubanischem Flair ist mit kurzer Taxifahrt erreichbar.",
+      "Der Florida Aquarium liegt in Gehweite zum Terminal.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug in die Everglades oder nach Busch Gardens, wenn ihr vor der Reise noch Zeit habt.",
+      "Eine geführte Tour durch Ybor City mit Zigarrenfabrik-Besuch.",
+      "Auf GetYourGuide oder Viator nach Manatee-Touren suchen, je nach Saison eine der schöneren Optionen in der Gegend.",
+    ],
+  },
+  "Key West": {
+    kurz: "Ein kompaktes Inselstädtchen, in dem sich fast alles zu Fuß erledigen lässt — Duval Street und Mallory Square liegen direkt am Kai.",
+    zuFuss: [
+      "Die Duval Street mit Bars, Läden und Straßenmusik komplett zu Fuß ablaufen.",
+      "Zum südlichsten Punkt der kontinentalen USA laufen, ein beliebtes Fotomotiv nur wenige Gehminuten vom Zentrum.",
+      "Hemingways Haus mit den bekannten sechszehigen Katzen liegt ebenfalls in Laufnähe.",
+    ],
+    gefuehrt: [
+      "Eine Fahrt mit dem Conch Train oder Trolley, der euch die ganze Insel in gut einer Stunde zeigt.",
+      "Ein Schnorchel- oder Katamaranausflug zum einzigen lebenden Riff der USA vor der Küste.",
+      "Auf GetYourGuide oder Viator nach einer Sunset-Sail suchen, ein Klassiker in Key West.",
+    ],
+  },
+  "Nassau": {
+    kurz: "Downtown Nassau mit dem berühmten Straw Market liegt direkt gegenüber dem Kreuzfahrtterminal, Atlantis auf Paradise Island ist über eine kurze Brücke erreichbar.",
+    zuFuss: [
+      "Direkt vom Terminal ins Zentrum laufen, Straw Market und Bay Street liegen nur wenige Minuten entfernt.",
+      "Über die Brücke nach Paradise Island laufen, um von außen einen Blick auf das Atlantis-Resort zu werfen.",
+      "Queen's Staircase und Fort Fincastle sind ebenfalls fußläufig, wenn auch mit einigen Stufen.",
+    ],
+    gefuehrt: [
+      "Ein Tagesticket für die Wasserwelten des Atlantis-Resorts, wenn ihr das Budget dafür einplant.",
+      "Ein Katamaran- oder Schnorchelausflug zu den vorgelagerten Cays.",
+      "Auf GetYourGuide oder Viator nach Schweine-Insel-Touren (Exuma) suchen — die liegen zwar weiter weg, sind aber ein beliebter Tagesausflug ab Nassau.",
+    ],
+  },
+  "Freeport": {
+    kurz: "Ruhiger und touristisch weniger erschlossen als Nassau, mit Stränden und Naturparks statt großer Innenstadt.",
+    zuFuss: [
+      "Das Terminal liegt etwas außerhalb, für den Ort selbst braucht ihr meist ein Taxi.",
+      "Port Lucaya Marketplace mit Läden und Restaurants ist die naheliegende Anlaufstelle.",
+      "Taino Beach ist mit kurzer Taxifahrt gut erreichbar, für einen entspannten Strandtag.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug in den Lucayan National Park mit seinen Unterwasserhöhlen.",
+      "Ein Delfin- oder Schnorchelausflug ab Sanctuary Bay.",
+      "Auf GetYourGuide oder Viator nach Strandtagen mit Transfer suchen, da das Zentrum weniger fußläufig ist als in Nassau.",
+    ],
+  },
+  "Havanna": {
+    kurz: "Eine Stadt mit eigenem Tempo und eigenen Regeln — Internet ist selten und Kreditkarten funktionieren oft nicht, plant den Tag entsprechend bar und offline.",
+    zuFuss: [
+      "Die Altstadt Habana Vieja mit ihren Kolonialbauten ist gut zu Fuß erkundbar, ausgehend vom Kreuzfahrtterminal.",
+      "Der Malecón, die berühmte Uferpromenade, lässt sich stundenlang entlanglaufen.",
+      "Bargeld in Euro oder US-Dollar mitnehmen, Karten werden vielerorts nicht akzeptiert.",
+    ],
+    gefuehrt: [
+      "Eine Fahrt in einem der klassischen amerikanischen Oldtimer, ein Muss für die meisten Gäste.",
+      "Eine geführte Stadttour, weil politischer und historischer Kontext hier besonders viel erklärt.",
+      "Auf GetYourGuide oder Viator nach Oldtimer-Touren mit festem Preis suchen, das erspart Verhandlungen vor Ort.",
+    ],
+    tipp: "Prüft vor der Reise die Einreisebestimmungen gesondert, für Kuba gelten je nach Staatsangehörigkeit eigene Regeln.",
+  },
+  "Cozumel": {
+    kurz: "Eine der beliebtesten Tauch- und Schnorchelinseln der Karibik, das Riff liegt direkt vor der Küste.",
+    zuFuss: [
+      "San Miguel, der Hauptort, ist von manchen Piers aus fußläufig mit Läden und Restaurants direkt an der Uferpromenade.",
+      "Punta Langosta liegt zentral und ist gut zu Fuß vom Terminal erreichbar.",
+      "Wer selbst schnorcheln will, findet auch am Stadtstrand brauchbare Sicht, auch wenn die besten Riffe weiter draußen liegen.",
+    ],
+    gefuehrt: [
+      "Ein Tauch- oder Schnorchelausflug zum Palancar-Riff, einem der bekanntesten Riffe der Karibik.",
+      "Ein Ausflug zu den Maya-Ruinen von Tulum per Fähre und Bus, wenn ihr genug Zeit habt.",
+      "Auf GetYourGuide oder Viator nach Katamaran-Schnorcheltouren suchen, meist günstiger als das Bordangebot.",
+    ],
+  },
+  "Costa Maya": {
+    kurz: "Ein für Kreuzfahrer gebauter Terminal mit Pool- und Marktbereich direkt am Pier, das echte Mexiko liegt etwas außerhalb.",
+    zuFuss: [
+      "Der Terminalbereich mit Pools, Läden und Restaurants ist ohne Ausflug nutzbar und für einen entspannten Tag völlig ausreichend.",
+      "Der Ort Mahahual liegt in Gehweite und bietet einen ruhigeren, lokaleren Strand als der Terminalbereich.",
+      "Wer ins Hinterland will, braucht organisierten Transport, öffentliche Verkehrsmittel gibt es hier praktisch nicht.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug zu den Maya-Ruinen von Chacchoben, der nächsten bedeutenden Stätte.",
+      "Ein Schnorchelausflug zum vorgelagerten Riff, dem zweitgrößten der Welt.",
+      "Auf GetYourGuide oder Viator nach ATV- oder Zipline-Touren ins Hinterland suchen.",
+    ],
+  },
+  "Roatán": {
+    kurz: "Eine bewaldete Insel vor Honduras mit einigen der besten Tauchgründen der Karibik.",
+    zuFuss: [
+      "West Bay Beach ist einer der schönsten Strände der Karibik, je nach Terminal zu Fuß oder mit kurzem Taxi erreichbar.",
+      "Der Ort Coxen Hole am Terminal selbst ist überschaubar und schnell abgelaufen.",
+      "Wer selbst schnorcheln will, braucht dafür keinen Ausflug — vor West Bay Beach reicht die Sicht dafür meist aus.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug zum Affenwald- und Vogelpark, beliebt bei Familien.",
+      "Ein Tauch- oder Schnorchelausflug zu den vorgelagerten Riffen.",
+      "Auf GetYourGuide oder Viator nach Zipline-Touren durch den Regenwald suchen, einer der Klassiker der Insel.",
+    ],
+  },
+  "Belize City": {
+    kurz: "Die Stadt selbst ist meist nur Ausgangspunkt, das eigentliche Ziel liegt im Regenwald oder am Barrier Reef davor.",
+    zuFuss: [
+      "Von der Stadt selbst lohnt sich wenig, die meisten Gäste steigen direkt in einen organisierten Ausflug um.",
+      "Wer bleibt, findet am Hafen kleine Märkte mit Kunsthandwerk.",
+      "Bargeld in kleinen Scheinen mitnehmen, abseits der Touristenzentren wird es schnell knapp mit Kartenzahlung.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug zu den Maya-Ruinen von Altun Ha, gut in einem halben Tag zu schaffen.",
+      "Ein Schnorchelausflug zum Belize Barrier Reef, dem zweitgrößten Riffsystem der Welt.",
+      "Auf GetYourGuide oder Viator nach Cave-Tubing-Touren suchen, eine der bekanntesten Attraktionen der Region.",
+    ],
+  },
+  "Colón (Panama)": {
+    kurz: "Meist ist dieser Halt der Zugang zum Panamakanal selbst — entweder als Durchfahrt oder als Ausgangspunkt für einen Ausflug dorthin.",
+    zuFuss: [
+      "Von der Stadt Colón selbst wird abgeraten, sie gilt touristisch als wenig einladend für Alleingänge.",
+      "Bleibt in diesem Hafen besser bei organisierten Optionen statt auf eigene Faust loszuziehen.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug zu den Gatún-Schleusen, um die Kanaltechnik aus der Nähe zu sehen.",
+      "Eine Bootstour auf dem Gatún-See mit Blick auf tropischen Regenwald und teils Affen am Ufer.",
+      "Auf GetYourGuide oder Viator nach Kanaltouren mit Guide suchen, hier lohnt sich Fachwissen besonders.",
+    ],
+  },
+  "Cartagena (Kolumbien)": {
+    kurz: "Die ummauerte Altstadt Cartagenas gehört zu den schönsten Kolonialstädten Südamerikas und ist UNESCO-Welterbe.",
+    zuFuss: [
+      "Durch die bunte Altstadt Ciudad Amurallada mit ihren Balkonen und Plätzen schlendern, das Terminal liegt in guter Nähe.",
+      "Auf der Stadtmauer selbst entlanglaufen, von dort habt ihr einen schönen Blick über die Altstadt und aufs Meer.",
+      "Am frühen Nachmittag lohnt sich Schatten, Hitze und Luftfeuchtigkeit sind hier ganzjährig hoch.",
+    ],
+    gefuehrt: [
+      "Ein geführter Altstadt-Walk mit Blick auf Geschichte und Kolonialarchitektur.",
+      "Ein Ausflug zu den Islas del Rosario, kleinen Inseln mit karibischem Wasser vor der Küste.",
+      "Auf GetYourGuide oder Viator nach kostenlosen (nur trinkgeldbasierten) Free Walking Tours suchen, in Cartagena eine beliebte Option.",
+    ],
+  },
+  "Oranjestad (Aruba)": {
+    kurz: "Trockener und windiger als andere Karibikinseln, dafür mit türkisem Wasser und wenig Regen das ganze Jahr über.",
+    zuFuss: [
+      "Das Zentrum von Oranjestad mit niederländisch geprägter Architektur ist direkt vom Terminal aus zu Fuß erreichbar.",
+      "Eagle Beach, einer der besten Strände der Karibik, ist mit kurzer Taxifahrt erreichbar, für Fußläufige eher zu weit.",
+    ],
+    gefuehrt: [
+      "Eine Jeep- oder ATV-Tour durch den kargen Arikok-Nationalpark im Inselinneren.",
+      "Ein Katamaran-Schnorchelausflug entlang der Westküste.",
+      "Auf GetYourGuide oder Viator nach Strandtagen mit Transfer nach Eagle Beach oder Palm Beach suchen.",
+    ],
+  },
+  "Willemstad (Curaçao)": {
+    kurz: "Die farbenfrohen Fassaden von Handelskade direkt am Wasser gehören zu den meistfotografierten Ansichten der Karibik.",
+    zuFuss: [
+      "Direkt vom Terminal über die schwingende Königin-Emma-Brücke ins bunte Zentrum laufen.",
+      "Das Viertel Pietermaai mit Straßenkunst und kleinen Cafés ist ebenfalls fußläufig.",
+      "Fort Amsterdam direkt am Hafen ist frei zugänglich und schnell erkundet.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug zum Schnorcheln oder Tauchen an einem der Riffe, Curaçao zählt zu den besten Tauchzielen der Karibik.",
+      "Ein Besuch der Kura Hulanda oder einer der Aloe-Farmen im Inselinneren.",
+      "Auf GetYourGuide oder Viator nach Strand-Hopping-Touren zu Kenepa oder Cas Abao suchen, die ruhigeren Strände abseits der Stadt.",
+    ],
+  },
+  "Kralendijk (Bonaire)": {
+    kurz: "Eine der besten Tauch- und Schnorchelinseln der Welt, mit Riff, das direkt von der Küste aus beginnt.",
+    zuFuss: [
+      "Der kleine Ort Kralendijk ist in einer halben Stunde abgelaufen, bunte Häuser und ein paar Läden direkt am Wasser.",
+      "Direkt vom Ufer aus schnorcheln, an vielen Stellen der Insel beginnt das Riff nur wenige Meter vor der Küste.",
+    ],
+    gefuehrt: [
+      "Ein Tauch- oder Schnorchelausflug, das ist der Hauptgrund, warum die meisten Kreuzfahrer hier anlegen.",
+      "Eine Fahrradtour durch den Washington-Slagbaai-Nationalpark im Norden der Insel.",
+      "Auf GetYourGuide oder Viator nach geführten Schnorcheltouren mit Ausrüstung suchen, wenn ihr eure eigene nicht dabeihabt.",
+    ],
+  },
+  "Ocho Rios": {
+    kurz: "Bekannt vor allem für die Dunn's River Falls, einen begehbaren Wasserfall mitten im Grünen.",
+    zuFuss: [
+      "Der Ort selbst ist überschaubar, das Hauptziel Dunn's River Falls liegt aber außerhalb und braucht Transport.",
+      "Der Ocho-Rios-Craft-Market direkt in Hafennähe ist zu Fuß gut zu erreichen für Souvenirs.",
+    ],
+    gefuehrt: [
+      "Der Aufstieg an den Dunn's River Falls mit Guide, ein echter Klassiker in Jamaika, an dem ihr euch an den Händen die Kaskaden hochzieht.",
+      "Ein Ausflug zur Rastafari-Kultur oder zu einer Kaffeeplantage im Hochland.",
+      "Auf GetYourGuide oder Viator nach Dunn's-River-Falls-Tickets mit Guide suchen, ohne Guide ist der Zugang oft komplizierter zu organisieren.",
+    ],
+  },
+  "Montego Bay": {
+    kurz: "Jamaikas Touristenzentrum mit langen Sandstränden und guter touristischer Infrastruktur.",
+    zuFuss: [
+      "Doctor's Cave Beach ist einer der bekanntesten Strände Jamaikas und mit kurzer Taxifahrt vom Terminal erreichbar.",
+      "Das Zentrum von Montego Bay selbst ist überschaubar, für die Strände braucht ihr aber Transport.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug zum Martha Brae River mit Bambusfloß-Fahrt, entspannt und familienfreundlich.",
+      "Eine Fahrt zu den Rose Hall Great House, einer der bekanntesten Plantagen-Anwesen der Insel.",
+      "Auf GetYourGuide oder Viator nach Zipline- oder Wasserfall-Kombitouren suchen, beliebt bei aktiveren Gästen.",
+    ],
+  },
+  "Falmouth (Jamaika)": {
+    kurz: "Ein für Kreuzfahrer ausgebauter Hafen mit georgianischer Altstadt direkt am Terminal.",
+    zuFuss: [
+      "Die kleine Altstadt von Falmouth mit ihrer georgianischen Architektur liegt direkt am Terminal und ist gut zu Fuß erkundbar.",
+      "Für Strände braucht ihr Transport, in unmittelbarer Gehweite liegt keiner.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug zur Blue Hole oder zu den YS Falls, beides beliebte Wasserfall-Ziele in der Nähe.",
+      "Eine nächtliche Bootstour auf der Luminous Lagoon mit biolumineszentem Plankton, ein besonderes Erlebnis, das es an wenigen Orten der Welt gibt.",
+      "Auf GetYourGuide oder Viator nach der Luminous-Lagoon-Nachttour suchen, dafür müsst ihr abends an Bord zurück sein oder einen Abendliegeplatz haben.",
+    ],
+  },
+  "George Town (Cayman)": {
+    kurz: "Kein eigener Pier — das Schiff ankert vor der Küste, Tenderboote bringen euch an Land, plant dafür Zeit ein.",
+    zuFuss: [
+      "Seven Mile Beach ist einer der bekanntesten Strände der Karibik, aber mit Taxi statt zu Fuß erreichbar.",
+      "Das Zentrum von George Town direkt am Tenderanleger ist klein und schnell abgelaufen.",
+      "Rechnet mit Wartezeit für das Tenderboot, besonders wenn mehrere Schiffe gleichzeitig ankern.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug zur Stingray City, wo ihr im flachen Wasser mit wilden Rochen schwimmt — eines der bekanntesten Erlebnisse der Karibik.",
+      "Ein Schnorchelausflug entlang der Riffe vor Seven Mile Beach.",
+      "Auf GetYourGuide oder Viator nach Stingray-City-Kombitouren mit Schnorcheln suchen, meist günstiger als das identische Bordangebot.",
+    ],
+    tipp: "Da hier getendert wird, kann bei schlechtem Wetter der Landgang ganz ausfallen — bucht Ausflüge, die ihr stornieren könnt.",
+  },
+  "Labadee": {
+    kurz: "Eine eingezäunte Privathalbinsel der Reederei an der Nordküste Haitis, nicht das restliche Land dahinter.",
+    zuFuss: [
+      "Die Halbinsel ist überschaubar, ein Rundgang zu Fuß reicht, um Strände und Stationen zu finden.",
+      "Es gibt keinen Zugang zum restlichen Haiti von hier aus.",
+    ],
+    gefuehrt: [
+      "Die Zipline über die Bucht, eine der längsten Ziplines der Karibik, gehört zu den bekanntesten Attraktionen von Labadee.",
+      "Wassersport wie Kajak, Jetski oder ein schwimmender Wasserpark direkt am Strand.",
+      "Externe Anbieter gibt es hier nicht, alles läuft über die Reederei-App oder direkt vor Ort.",
+    ],
+  },
+  "Amber Cove": {
+    kurz: "Ein für Kreuzfahrer gebauter Terminalbereich mit Pool direkt am Pier, die dominikanische Kultur liegt im nahen Ort Puerto Plata.",
+    zuFuss: [
+      "Der Terminalbereich mit Pool, Bar und Läden ist ohne Ausflug voll nutzbar.",
+      "Für den echten Ort Puerto Plata braucht ihr ein Taxi oder einen Shuttle.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug zur Seilbahn auf den Isabel de Torres mit Panoramablick über die Küste.",
+      "Ein Strandtag am Playa Dorada, dem bekanntesten Strand der Region.",
+      "Auf GetYourGuide oder Viator nach ATV- oder Wasserfall-Touren ins Hinterland suchen.",
+    ],
+  },
+  "Puerto Plata": {
+    kurz: "Historisches Zentrum mit viktorianischer Architektur, ruhiger als die reinen Cruise-Terminals der Region.",
+    zuFuss: ["Der Malecón und das Zentrum mit dem Fort San Felipe sind je nach genauem Liegeplatz zu Fuß gut zu erreichen."],
+    gefuehrt: [
+      "Die Seilbahnfahrt auf den Isabel de Torres, einer der Klassiker der Region.",
+      "Ein Ausflug zu den 27 Wasserfällen von Damajagua.",
+      "Auf GetYourGuide oder Viator nach Wasserfall- oder Strandtouren suchen.",
+    ],
+  },
+  "La Romana": {
+    kurz: "Gateway zum Nobelresort Casa de Campo und zur nachgebauten Künstlerstadt Altos de Chavón.",
+    zuFuss: ["Vom Terminal selbst ist wenig fußläufig, die meisten Ziele liegen außerhalb."],
+    gefuehrt: [
+      "Ein Ausflug nach Altos de Chavón, einer aus Naturstein nachgebauten italienischen Künstlerstadt aus dem 16. Jahrhundert.",
+      "Ein Katamaran- oder Strandausflug zur Isla Saona, einem der bekanntesten Postkarten-Strände der Karibik.",
+      "Auf GetYourGuide oder Viator nach Isla-Saona-Tagestouren suchen, das ist der beliebteste Ausflug ab diesem Hafen.",
+    ],
+  },
+  "Samaná": {
+    kurz: "Naturreich und für Walbeobachtung bekannt, deutlich ruhiger als die großen Terminals der Insel.",
+    zuFuss: ["Der kleine Ort Samaná selbst ist überschaubar, größere Ziele liegen außerhalb."],
+    gefuehrt: [
+      "Zwischen Januar und März: eine Bootstour zur Buckelwal-Beobachtung in der Samaná-Bucht, eine der besten Regionen der Karibik dafür.",
+      "Ein Ausflug zum Wasserfall El Limón, teils zu Pferd erreichbar.",
+      "Auf GetYourGuide oder Viator nach Wal-Touren suchen (nur saisonal verfügbar).",
+    ],
+  },
+  "San Juan": {
+    kurz: "Old San Juan mit seinen bunten Kolonialhäusern und Kopfsteinpflaster liegt direkt am Kreuzfahrtterminal.",
+    zuFuss: [
+      "Old San Juan komplett zu Fuß erkunden, das Terminal liegt mitten in der historischen Altstadt.",
+      "Die Festungen El Morro und San Cristóbal sind beide fußläufig und einen Besuch wert.",
+      "US-Dollar ist hier die Währung, das vereinfacht die Reisekasse für die meisten europäischen Gäste.",
+    ],
+    gefuehrt: [
+      "Ein geführter Altstadt-Walk mit Blick auf die spanische Kolonialgeschichte.",
+      "Ein Ausflug zum Regenwald El Yunque, dem einzigen tropischen Regenwald im US-Forstsystem.",
+      "Auf GetYourGuide oder Viator nach Bio-Bay-Kajaktouren suchen (nur bei Abendliegezeit möglich), leuchtendes Plankton in der Bucht von Fajardo.",
+    ],
+  },
+  "Charlotte Amalie (St. Thomas)": {
+    kurz: "Duty-free-Shopping-Zentrum der Karibik, mit Magens Bay einem der schönsten Strände der Region.",
+    zuFuss: [
+      "Die Haupteinkaufsstraße direkt am Hafen ist bekannt für zollfreies Shopping, besonders Schmuck und Alkohol.",
+      "Für Magens Bay, den bekanntesten Strand der Insel, braucht ihr ein Taxi.",
+    ],
+    gefuehrt: [
+      "Ein Strandtag an Magens Bay mit Transfer, einer der meistfotografierten Strände der Karibik.",
+      "Eine Fahrt mit dem Skyride zur Aussichtsplattform über der Bucht.",
+      "Auf GetYourGuide oder Viator nach Katamaran- oder Segway-Touren suchen.",
+    ],
+  },
+  "Road Town (Tortola)": {
+    kurz: "Ruhiger als die US-Inseln, mit Cane Garden Bay als bekanntestem Strandziel.",
+    zuFuss: [
+      "Road Town selbst ist überschaubar und schnell abgelaufen.",
+      "Für Cane Garden Bay, den schönsten Strand der Insel, braucht ihr ein Taxi über die Berge.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug zur Cane Garden Bay, meist mit offenem Safari-Taxi über die kurvige Bergstraße.",
+      "Eine Insel-Hopping-Tour zu Nachbarinseln der Britischen Jungferninseln per Boot.",
+      "Auf GetYourGuide oder Viator nach Segeltouren durch die BVI suchen, das Seegebiet gilt als eines der schönsten der Karibik.",
+    ],
+  },
+  "Philipsburg (St. Maarten)": {
+    kurz: "Die Insel ist zweigeteilt — niederländisch St. Maarten mit Casinos und Shopping, französisch St. Martin ruhiger und mit besseren Stränden.",
+    zuFuss: [
+      "Front Street direkt am Hafen mit Shopping und Cafés ist gut zu Fuß erkundbar.",
+      "Maho Beach, berühmt für die tief landenden Flugzeuge direkt über den Köpfen der Strandgäste, braucht ein Taxi.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug zum Maho Beach, um die berühmten Flugzeuglandungen aus nächster Nähe zu erleben.",
+      "Ein Abstecher auf die französische Seite nach Marigot oder Grand Case, ruhiger und kulinarisch bekannt.",
+      "Auf GetYourGuide oder Viator nach Insel-Rundfahrten suchen, die beide Seiten der Insel zeigen.",
+    ],
+  },
+  "Basseterre (St. Kitts)": {
+    kurz: "Eine grüne Vulkaninsel mit einer historischen Zuckerrohrbahn, die heute Kreuzfahrtgäste durchs Umland fährt.",
+    zuFuss: [
+      "Das Zentrum von Basseterre mit dem Circus, dem zentralen Kreisverkehr, ist zu Fuß erkundbar.",
+      "Independence Square mit Kolonialarchitektur liegt ebenfalls in Gehweite.",
+    ],
+    gefuehrt: [
+      "Eine Fahrt mit der St. Kitts Scenic Railway, einer alten Zuckerrohrbahn mit Panoramablick.",
+      "Ein Ausflug zum Brimstone Hill Fortress, einer der beeindruckendsten Festungsanlagen der Karibik.",
+      "Auf GetYourGuide oder Viator nach Katamaran-Schnorcheltouren rund um die Nachbarinsel Nevis suchen.",
+    ],
+  },
+  "St. John's (Antigua)": {
+    kurz: "Eine Insel mit einem Strand für jeden Tag des Jahres, wie es hier oft heißt — 365 an der Zahl.",
+    zuFuss: [
+      "Das Zentrum von St. John's mit dem Redcliffe Quay direkt am Hafen ist gut zu Fuß erkundbar.",
+      "Für die schönsten Strände wie Half Moon Bay braucht ihr allerdings ein Taxi.",
+    ],
+    gefuehrt: [
+      "Ein Strandtag am Half Moon Bay oder Dickenson Bay mit Transfer.",
+      "Eine Katamaran-Tour rund um die Insel mit Schnorchelstopps.",
+      "Auf GetYourGuide oder Viator nach Nelson's-Dockyard-Touren suchen, einer historischen Marinewerft im Süden der Insel.",
+    ],
+  },
+  "Pointe-à-Pitre": {
+    kurz: "Französisches Übersee-Département mit Euro als Währung und deutlich französischerem Flair als die Nachbarinseln.",
+    zuFuss: ["Der Markt von Pointe-à-Pitre mit Gewürzen und tropischen Früchten ist zu Fuß vom Hafen erreichbar."],
+    gefuehrt: [
+      "Ein Ausflug in den Nationalpark rund um den Wasserfall Carbet, mit Regenwald und teils dem Vulkan La Soufrière.",
+      "Ein Katamaran-Tagesausflug zu den vorgelagerten Îles des Saintes.",
+      "Auf GetYourGuide oder Viator nach Wasserfall- und Regenwaldtouren suchen.",
+    ],
+  },
+  "Roseau (Dominica)": {
+    kurz: "Die „Naturinsel der Karibik“ — weniger Strand, dafür Regenwald, heiße Quellen und Wasserfälle satt.",
+    zuFuss: [
+      "Das kleine Zentrum von Roseau ist in einer halben Stunde abgelaufen.",
+      "Für die Natur-Highlights der Insel braucht ihr fast immer organisierten Transport.",
+    ],
+    gefuehrt: [
+      "Eine Wanderung zum Trafalgar Falls, einem der bekanntesten Wasserfälle der Insel.",
+      "Ein Bad in den heißen Quellen des Titou Gorge oder Ti Kwen Glo Cho.",
+      "Auf GetYourGuide oder Viator nach Wal-Beobachtungstouren suchen, Dominica gilt als eines der besten Whale-Watching-Ziele der Karibik.",
+    ],
+  },
+  "Fort-de-France": {
+    kurz: "Französisches Flair mitten in der Karibik, mit Euro als Währung.",
+    zuFuss: [
+      "Das Zentrum um die Kathedrale und das Fort-Saint-Louis ist zu Fuß gut erkundbar.",
+      "Der Große Markt mit lokalen Gewürzen und Rum liegt ebenfalls in Gehweite.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug zu den Jardins de Balata, einem tropischen Garten am Fuß des Vulkans Montagne Pelée.",
+      "Eine Rum-Verkostung auf einer der traditionsreichen Rhumeries der Insel.",
+      "Auf GetYourGuide oder Viator nach Katamarantouren entlang der Südküste suchen.",
+    ],
+  },
+  "Castries (St. Lucia)": {
+    kurz: "Die markanten Zwillingsberge Pitons sind das Wahrzeichen der Insel, liegen aber im Süden, gut zwei Autostunden vom Hafen entfernt.",
+    zuFuss: [
+      "Das Zentrum von Castries selbst ist eher unspektakulär, für die bekannten Ziele der Insel braucht ihr Transport.",
+      "Der Markt direkt am Hafen lohnt sich für einen kurzen Bummel.",
+    ],
+    gefuehrt: [
+      "Ein Ganztagesausflug zu den Pitons im Süden der Insel, meist der Hauptgrund für einen Besuch auf St. Lucia.",
+      "Ein Bad in den Schwefelquellen von Sulphur Springs, oft mit Schlammbad kombiniert.",
+      "Auf GetYourGuide oder Viator nach Piton-Tagestouren suchen, da die Distanz für einen Landgang ohne Guide knapp werden kann.",
+    ],
+  },
+  "Bridgetown (Barbados)": {
+    kurz: "Britisch geprägte Insel mit Rum-Tradition und einigen der besten Strände der Karibik an der Westküste.",
+    zuFuss: [
+      "Das Zentrum von Bridgetown mit dem UNESCO-gelisteten Garrison-Viertel ist zu Fuß erkundbar.",
+      "Für die Strände der Westküste braucht ihr ein Taxi.",
+    ],
+    gefuehrt: [
+      "Eine Rum-Tour zur Mount-Gay-Destillerie, einer der ältesten Rum-Marken der Welt.",
+      "Eine Katamaran-Tour mit Schildkröten-Schnorcheln an der Westküste.",
+      "Auf GetYourGuide oder Viator nach Schildkröten-Schnorcheltouren suchen, eines der beliebtesten Erlebnisse der Insel.",
+    ],
+  },
+  "Kingstown (St. Vincent)": {
+    kurz: "Weniger touristisch erschlossen als viele Nachbarinseln, mit ursprünglicher Natur und den vorgelagerten Grenadinen.",
+    zuFuss: ["Das Zentrum von Kingstown ist kompakt und zu Fuß erkundbar."],
+    gefuehrt: [
+      "Ein Ausflug zu den Botanischen Gärten, einer der ältesten tropischen Gärten der westlichen Hemisphäre.",
+      "Eine Bootstour zu den vorgelagerten Grenadinen wie Bequia oder Mustique.",
+      "Auf GetYourGuide oder Viator nach Wasserfall- oder Regenwaldtouren suchen.",
+    ],
+  },
+  "St. George's (Grenada)": {
+    kurz: "Die „Gewürzinsel“ der Karibik, bekannt für Muskat, Zimt und einen der schönsten Naturhäfen der Region.",
+    zuFuss: [
+      "Der Carenage, die geschwungene Hafenpromenade von St. George's, ist ein Spaziergang für sich.",
+      "Fort George über der Stadt ist zu Fuß erreichbar und bietet einen schönen Blick über den Hafen.",
+    ],
+    gefuehrt: [
+      "Ein Besuch einer Gewürzplantage, um zu sehen, wo Muskat und Kakao wirklich herkommen.",
+      "Ein Ausflug zum Unterwasser-Skulpturenpark, einem der ungewöhnlichsten Schnorchelziele der Karibik.",
+      "Auf GetYourGuide oder Viator nach Wasserfall-Touren zu den Annandale Falls suchen.",
+    ],
+  },
+  "Port of Spain": {
+    kurz: "Industrieller und weniger touristisch als andere Karibikziele, dafür mit einzigartiger Natur wie den Caroni-Sümpfen.",
+    zuFuss: ["Das Zentrum ist zu Fuß erkundbar, gilt aber als weniger klassisch karibisch als die Nachbarinseln."],
+    gefuehrt: [
+      "Eine Bootstour durch die Caroni-Sümpfe zur Vogelbeobachtung, berühmt für die Scharlachsichler bei Sonnenuntergang.",
+      "Ein Ausflug zu den Maracas-Bay-Stränden im Norden der Insel.",
+      "Auf GetYourGuide oder Viator nach Caroni-Bird-Sanctuary-Touren suchen.",
+    ],
+  },
+  "Grand Turk": {
+    kurz: "Ein für Kreuzfahrer gebauter Terminalbereich mit direktem Zugang zu einem der besten Riffe der Karibik.",
+    zuFuss: [
+      "Direkt am Terminal liegt ein Strandbereich mit Pool, von dem aus ihr auch selbst schnorcheln könnt.",
+      "Das kleine historische Zentrum von Cockburn Town ist mit kurzem Taxi erreichbar.",
+    ],
+    gefuehrt: [
+      "Ein Schnorchel- oder Tauchausflug an die Riffkante, die hier ungewöhnlich nah an der Küste abfällt.",
+      "Zwischen Januar und April: eine Bootstour zur Buckelwal-Beobachtung.",
+      "Auf GetYourGuide oder Viator nach Stingray- oder Schnorcheltouren suchen.",
+    ],
+  },
+  "Great Stirrup Cay": {
+    kurz: "Die private Insel von Norwegian Cruise Line auf den Bahamas, mit mehreren Strandabschnitten und eigenem Wasserpark-Bereich.",
+    zuFuss: ["Die Insel ist klein und komplett zu Fuß erkundbar.", "Früh von Bord gehen für die besten Liegen."],
+    gefuehrt: [
+      "Cabana-Miete über die Reederei-App vorab reservieren.",
+      "Wassersport wie Jetski oder Parasailing direkt am Strand buchen.",
+      "Externe Anbieter gibt es hier nicht.",
+    ],
+  },
+  "Half Moon Cay": {
+    kurz: "Die private Insel von Holland America und Carnival, gilt als eine der schönsten Privatinseln der Karibik mit besonders langem Sandstrand.",
+    zuFuss: [
+      "Der lange, geschwungene Sandstrand ist zu Fuß in beide Richtungen erkundbar.",
+      "Früh von Bord gehen, an vollen Tagen sind die schattigen Plätze schnell vergeben.",
+    ],
+    gefuehrt: [
+      "Cabana- oder Liegeplatz-Reservierung über die Reederei-App.",
+      "Pferdereiten am Strand, eines der bekannteren Angebote dieser Insel.",
+      "Externe Anbieter gibt es hier nicht.",
+    ],
+  },
+  "Perfect Day at CocoCay": {
+    kurz: "Die aufwendig ausgebaute Privatinsel von Royal Caribbean mit Wasserpark, Zipline und dem höchsten Wasserrutschenturm der Karibik.",
+    zuFuss: [
+      "Die Insel ist groß für eine Privatinsel, ein Wasser-Taxi oder eine kleine Bahn bringt euch zwischen den Bereichen hin und her.",
+      "Früh von Bord gehen, gerade der Wasserpark füllt sich schnell.",
+    ],
+    gefuehrt: [
+      "Zugang zum Thrill Waterpark vorab über die Reederei-App buchen, das lohnt sich fast immer.",
+      "Die Zipline über die Insel oder der Aufstieg auf den Aussichtsturm.",
+      "Cabana-Miete, wenn ihr einen festen Rückzugsort für den Tag wollt.",
+    ],
+  },
+  "Princess Cays": {
+    kurz: "Die private Strandinsel von Princess Cruises auf Eleuthera, ruhiger und kleiner als andere Reederei-Inseln.",
+    zuFuss: ["Der Strandbereich ist überschaubar und zu Fuß komplett erkundbar."],
+    gefuehrt: [
+      "Cabana- oder Liegeplatz-Reservierung über die Reederei-App.",
+      "Wassersport wie Kajak oder Schnorchelausrüstung direkt am Strand mieten.",
+      "Externe Anbieter gibt es hier nicht.",
+    ],
+  },
+
+  "Barcelona": {
+    kurz: "Eine der wenigen Kreuzfahrtstädte, die selbst schon das Ziel ist — die Sagrada Família allein braucht einen halben Tag.",
+    zuFuss: [
+      "Die Ramblas hinunterschlendern bis zum alten Hafen, ein Klassiker, der sich nie abnutzt.",
+      "Das Gotische Viertel zu Fuß erkunden, hier verläuft man sich am schönsten.",
+      "Vorab-Ticket für die Sagrada Família online buchen, ohne Ticket wartet ihr oft stundenlang.",
+    ],
+    gefuehrt: [
+      "Eine Gaudí-Tour mit Sagrada Família und Park Güell, beides mit Zeitfenster-Ticket.",
+      "Ein Tapas- und Markt-Walk durch die Boqueria und umliegende Gassen.",
+      "Auf GetYourGuide oder Viator nach Skip-the-Line-Tickets für die Sagrada Família suchen, das spart hier besonders viel Zeit.",
+    ],
+  },
+  "Civitavecchia (Rom)": {
+    kurz: "Der Hafen selbst ist unspektakulär, das Ziel ist Rom — eine gute Stunde entfernt, weshalb der Tag von der Anreise lebt.",
+    zuFuss: [
+      "In Civitavecchia selbst gibt es wenig zu sehen, fast alle Gäste fahren weiter nach Rom.",
+      "Zug oder Reederei-Bus früh nehmen, die Fahrt nach Rom dauert je nach Verbindung 45 bis 80 Minuten.",
+      "Kolosseum-Ticket vorab online buchen, die Warteschlangen vor Ort sind sonst lang.",
+    ],
+    gefuehrt: [
+      "Ein Ganztagesausflug nach Rom mit Kolosseum, Forum Romanum und Vatikan, klassisch über die Reederei wegen der garantierten Rückfahrt.",
+      "Ein privater Fahrer oder Zug auf eigene Faust, wenn ihr die Reihenfolge selbst bestimmen wollt.",
+      "Auf GetYourGuide oder Viator nach Kolosseum-Skip-the-Line mit Zugtransfer suchen, oft flexibler und günstiger als der Bordausflug.",
+    ],
+    tipp: "Die Rückfahrzeit ist hier der kritische Punkt — plant für die Rückfahrt nach Civitavecchia mindestens zwei Stunden Puffer vor der Bordzeit ein.",
+  },
+  "Neapel": {
+    kurz: "Tor zu Pompeji, Amalfiküste und dem Vesuv — die Stadt selbst ist laut und lebendig, aber die großen Ziele liegen außerhalb.",
+    zuFuss: [
+      "Das historische Zentrum von Neapel mit Spaccanapoli ist zu Fuß erkundbar, behaltet aber Wertsachen im Blick.",
+      "Für Pompeji, Amalfiküste oder Capri braucht ihr Zug, Boot oder organisierten Transport.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug zu den Ausgrabungen von Pompeji, einer der eindrücklichsten antiken Stätten Europas.",
+      "Eine Fahrt entlang der Amalfiküste, landschaftlich einer der schönsten Küstenabschnitte Italiens.",
+      "Auf GetYourGuide oder Viator nach Pompeji-Halbtagestouren mit Guide suchen, das erklärt die Ausgrabung deutlich besser als ein Alleingang.",
+    ],
+  },
+  "Venedig": {
+    kurz: "Eine Stadt, die sich am besten zu Fuß und mit dem Vaporetto erschließt — Autos gibt es hier ohnehin nicht.",
+    zuFuss: [
+      "Vom Anleger zum Markusplatz laufen und euch danach bewusst in den Gassen verlaufen, das ist hier Teil des Erlebnisses.",
+      "Die Rialtobrücke und den gleichnamigen Markt einplanen, meist ohnehin auf dem Weg.",
+      "Ein Vaporetto-Tagesticket kaufen, wenn ihr mehr als einen Stadtteil sehen wollt.",
+    ],
+    gefuehrt: [
+      "Eine Gondelfahrt durch die kleinen Kanäle, touristisch, aber zurecht ein Klassiker.",
+      "Ein Ausflug nach Murano und Burano zu den Glasbläsern und den bunten Häusern.",
+      "Auf GetYourGuide oder Viator nach Dogenpalast-Skip-the-Line suchen, das spart hier besonders viel Zeit.",
+    ],
+    tipp: "Venedig erhebt an bestimmten Tagen eine Tagesgebühr für Besucher — informiert euch vorab, ob euer Anlaufdatum betroffen ist.",
+  },
+  "Dubrovnik": {
+    kurz: "Die komplett von einer Stadtmauer umschlossene Altstadt gehört zu den fotogensten Zielen im Mittelmeer.",
+    zuFuss: [
+      "Die Stadtmauer einmal komplett umlaufen, rund zwei Kilometer mit immer neuen Ausblicken.",
+      "Die Placa, die Hauptstraße der Altstadt, entlangschlendern und in die Seitengassen abbiegen.",
+      "Früh am Tag starten, die Altstadt füllt sich ab Mittag schnell mit Tagesgästen mehrerer Schiffe.",
+    ],
+    gefuehrt: [
+      "Eine Seilbahnfahrt auf den Berg Srđ für den Panoramablick über die Altstadt.",
+      "Ein Bootsausflug zu den Elaphiten-Inseln vor der Küste.",
+      "Auf GetYourGuide oder Viator nach Stadtmauer-Tickets mit frühem Zeitfenster suchen, um die größte Hitze und die größten Menschenmassen zu umgehen.",
+    ],
+  },
+  "Kotor": {
+    kurz: "Eine Altstadt am Fuß steiler Berge, direkt an einer der schönsten Buchten Europas gelegen.",
+    zuFuss: [
+      "Die Altstadt von Kotor ist klein und zu Fuß in ein bis zwei Stunden erkundbar.",
+      "Der Aufstieg zur Festung über der Stadt lohnt sich, ist aber steil und braucht festes Schuhwerk.",
+      "Genug Wasser für den Aufstieg mitnehmen, Schatten gibt es dort kaum.",
+    ],
+    gefuehrt: [
+      "Der geführte Aufstieg zur Festungsanlage, mit Kontext zur Geschichte der Bucht.",
+      "Eine Bootstour durch die Bucht von Kotor mit Stopp an der künstlichen Insel Our Lady of the Rocks.",
+      "Auf GetYourGuide oder Viator nach Bootstouren durch die Bucht suchen, von See aus wirkt die Landschaft noch eindrücklicher.",
+    ],
+  },
+  "Santorini": {
+    kurz: "Die Insel wird meist angeankert, ein Tenderboot oder eine Seilbahn bringt euch die Steilküste hinauf nach Fira.",
+    zuFuss: [
+      "Von Fira nach Oia entlang der Caldera laufen, einer der schönsten Küstenwege Griechenlands, rund zwei bis drei Stunden.",
+      "Die Seilbahn statt der 588 Stufen zum Hafen nehmen, wenn ihr Zeit sparen wollt.",
+      "Sonnenuntergang in Oia einplanen, wird aber entsprechend voll — für einen Tagesausflug meist zeitlich knapp.",
+    ],
+    gefuehrt: [
+      "Eine Insel-Rundfahrt mit Stopp in Oia, dem bekanntesten Ort der Insel.",
+      "Eine Weinverkostung bei einem der Weingüter auf vulkanischem Boden.",
+      "Auf GetYourGuide oder Viator nach Katamaran-Touren um die Caldera suchen, mit Blick auf die Steilküste vom Wasser aus.",
+    ],
+  },
+  "Mykonos": {
+    kurz: "Enge weiße Gassen, Windmühlen und ein Nachtleben, das über die Insel hinaus bekannt ist.",
+    zuFuss: [
+      "Chora, die Hauptstadt, ist ein Labyrinth aus weißen Gassen, das sich am besten ohne festen Plan erlaufen lässt.",
+      "Die Windmühlen und Little Venice direkt am Wasser sind die bekanntesten Fotomotive der Insel.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug zur Nachbarinsel Delos, einer antiken, unbewohnten Insel und UNESCO-Welterbe.",
+      "Ein Strandtag an einem der Beach-Clubs im Süden der Insel.",
+      "Auf GetYourGuide oder Viator nach Bootstouren zu Delos suchen, meist vergleichbar mit dem Bordausflug, aber flexibler in der Zeit.",
+    ],
+  },
+  "Piräus (Athen)": {
+    kurz: "Der Hafen von Athen — die Akropolis liegt rund eine Stunde entfernt im Zentrum der Stadt.",
+    zuFuss: [
+      "Vom Hafen selbst ist die Athener Innenstadt zu weit für einen Fußweg, U-Bahn oder Taxi sind nötig.",
+      "Direkt vom Terminal fährt die U-Bahn relativ zügig in Richtung Zentrum.",
+      "Bequeme Schuhe für den unebenen Boden rund um die Akropolis einplanen.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug zur Akropolis mit Guide, der Zusammenhänge erklärt, die man auf eigene Faust leicht verpasst.",
+      "Eine Kombination aus Akropolis und Plaka-Altstadt-Bummel.",
+      "Auf GetYourGuide oder Viator nach Akropolis-Skip-the-Line suchen, an belebten Tagen spart das erheblich Zeit.",
+    ],
+  },
+  "Istanbul": {
+    kurz: "Eine Stadt auf zwei Kontinenten, in der ein einziger Tag kaum reicht — plant, dass ihr nur einen Ausschnitt seht.",
+    zuFuss: [
+      "Hagia Sophia und Blaue Moschee liegen nah beieinander und sind beide von den meisten Terminals aus zu Fuß erreichbar.",
+      "Den Großen Basar durchlaufen, plant für Verhandlungen und Umwege ausreichend Zeit ein.",
+      "Bedeckte Schultern und Knie für den Moscheebesuch einplanen, an manchen Moscheen werden Tücher verliehen.",
+    ],
+    gefuehrt: [
+      "Eine Kombitour aus Hagia Sophia, Blauer Moschee und Basar mit Guide, der euch durch Gedränge und Geschichte führt.",
+      "Eine Bosporus-Bootstour zwischen Europa und Asien.",
+      "Auf GetYourGuide oder Viator nach Topkapi-Palast-Skip-the-Line suchen, dort sind die Schlangen oft besonders lang.",
+    ],
+  },
+  "Kusadasi": {
+    kurz: "Ausgangspunkt für Ephesos, eine der besterhaltenen antiken Städte der Welt.",
+    zuFuss: [
+      "Kusadasi selbst ist ein überschaubarer Küstenort, das eigentliche Ziel Ephesos liegt jedoch außerhalb.",
+      "Für Ephesos ist ein Taxi oder organisierter Transport nötig, zu Fuß ist es zu weit.",
+      "Festes Schuhwerk und Sonnenschutz für die Ausgrabungsstätte einplanen, dort gibt es kaum Schatten.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug nach Ephesos mit Guide, das macht hier wirklich den Unterschied zwischen Steinen und Geschichte.",
+      "Ein Besuch des Hauses der Jungfrau Maria in der Nähe von Ephesos.",
+      "Auf GetYourGuide oder Viator nach Ephesos-Halbtagestouren suchen, meist mit Abholung direkt am Pier.",
+    ],
+  },
+  "Katakolon": {
+    kurz: "Ein winziger Ort, dessen einziger Zweck der Zugang zum antiken Olympia ist.",
+    zuFuss: [
+      "Katakolon selbst ist in zehn Minuten abgelaufen, es gibt kaum mehr als eine Hafenstraße.",
+      "Olympia liegt rund 40 Minuten entfernt und ist nicht fußläufig.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug zur antiken Olympia-Stätte, dem Austragungsort der ersten Olympischen Spiele.",
+      "Eine Kombination aus Olympia-Besuch und Weinprobe im Umland.",
+      "Auf GetYourGuide oder Viator nach Olympia-Halbtagestouren suchen, meist die einzige sinnvolle Art, diesen Hafen zu nutzen.",
+    ],
+  },
+  "Kopenhagen": {
+    kurz: "Eine fahrradfreundliche Stadt mit gutem Nahverkehr, die kleine Meerjungfrau ist meist kleiner als erwartet.",
+    zuFuss: [
+      "Nyhavn mit den bunten Häusern am Kanal ist ein Muss und meist gut zu Fuß erreichbar.",
+      "Ein Leihfahrrad nehmen, Kopenhagen gehört zu den fahrradfreundlichsten Städten Europas.",
+    ],
+    gefuehrt: [
+      "Eine Kanalrundfahrt, die euch die Stadt vom Wasser aus zeigt.",
+      "Ein Ausflug nach Schloss Frederiksborg oder Kronborg (Hamlets Schloss) außerhalb der Stadt.",
+      "Auf GetYourGuide oder Viator nach Fahrradtouren mit Guide suchen, eine der angenehmsten Arten, die Stadt zu sehen.",
+    ],
+  },
+  "Oslo": {
+    kurz: "Kompakte Hauptstadt mit Fjordlage, das Vigeland-Skulpturenpark und die Museumshalbinsel Bygdøy sind die Klassiker.",
+    zuFuss: [
+      "Die Karl Johans Gate vom Hafen zum Königsschloss hochlaufen, die zentrale Achse der Stadt.",
+      "Die Oper direkt am Wasser besteigen, ihr könnt aufs Dach laufen.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug zur Museumshalbinsel Bygdøy mit Wikingerschiff- und Kon-Tiki-Museum.",
+      "Eine Fjordrundfahrt mit Blick auf die Stadt vom Wasser aus.",
+      "Auf GetYourGuide oder Viator nach Kombitickets für die Bygdøy-Museen suchen, meist inklusive Fähre.",
+    ],
+  },
+  "Bergen": {
+    kurz: "Das Tor zu den Fjorden, mit dem UNESCO-gelisteten Hanseviertel Bryggen direkt am Wasser.",
+    zuFuss: [
+      "Das Hanseviertel Bryggen mit seinen bunten Holzhäusern liegt direkt am Hafen und ist zu Fuß erkundbar.",
+      "Der Fischmarkt in Hafennähe lohnt sich für einen kurzen Bummel.",
+    ],
+    gefuehrt: [
+      "Die Standseilbahn Fløibanen auf den Hausberg Fløyen für den Panoramablick über die Stadt.",
+      "Ein Fjordausflug, wenn ihr von hier aus einen der Fjorde besuchen wollt.",
+      "Auf GetYourGuide oder Viator nach Fløyen-Kombitickets mit Wanderung suchen.",
+    ],
+  },
+  "Geiranger": {
+    kurz: "Einer der spektakulärsten Fjorde Norwegens, das Schiff fährt oft selbst mitten hindurch.",
+    zuFuss: [
+      "Der kleine Ort Geiranger ist schnell abgelaufen, das Erlebnis liegt in der Landschaft ringsum.",
+      "Zu einem der nahen Aussichtspunkte laufen, wenn ihr fit seid und Zeit habt — es geht steil bergauf.",
+      "Warme Schicht mitnehmen, im Fjord ist es kühler, als das Tal vermuten lässt.",
+    ],
+    gefuehrt: [
+      "Eine Fahrt zur Adlerstraße oder zum Aussichtspunkt Dalsnibba mit spektakulärem Blick auf den Fjord.",
+      "Eine Kajaktour auf dem Fjord selbst, für alle, die aktiv unterwegs sein wollen.",
+      "Auf GetYourGuide oder Viator nach kleinen Gruppentouren zu den Aussichtspunkten suchen, oft persönlicher als der große Bus.",
+    ],
+  },
+  "Stockholm": {
+    kurz: "Eine Stadt auf 14 Inseln, die Altstadt Gamla Stan ist besonders dicht an Sehenswürdigkeiten.",
+    zuFuss: [
+      "Gamla Stan, die Altstadt, komplett zu Fuß erkunden, die Gassen sind eng und autofrei.",
+      "Das Vasamuseum mit dem geborgenen Kriegsschiff aus dem 17. Jahrhundert liegt in guter Nähe.",
+    ],
+    gefuehrt: [
+      "Eine Bootstour durch den Schärengarten vor der Stadt.",
+      "Ein Ausflug zum Schloss Drottningholm, UNESCO-Welterbe außerhalb der Stadt.",
+      "Auf GetYourGuide oder Viator nach Vasamuseum-Skip-the-Line suchen.",
+    ],
+  },
+  "Reykjavík": {
+    kurz: "Die kleinste Hauptstadt Nordeuropas, meist eher Ausgangspunkt für Naturausflüge als Ziel für sich.",
+    zuFuss: [
+      "Die Innenstadt rund um die Kirche Hallgrímskirkja ist überschaubar und zu Fuß gut zu machen.",
+      "Die Hafenpromenade mit dem Konzerthaus Harpa lohnt sich für einen Spaziergang.",
+    ],
+    gefuehrt: [
+      "Ein Ausflug zum Golden Circle mit Geysir, Wasserfall Gullfoss und Nationalpark Þingvellir, das Wahrzeichen-Trio Islands.",
+      "Eine Fahrt zur Blauen Lagune, wenn Zeit und Liegeplan es zulassen (vorab Zeitfenster buchen).",
+      "Auf GetYourGuide oder Viator nach Golden-Circle-Kleingruppentouren suchen, oft persönlicher als der große Reisebus.",
+    ],
+    tipp: "Islands Wetter ändert sich schnell — Schichtkleidung ist hier wichtiger als anderswo, selbst im Sommer.",
+  },
+  "Southampton": {
+    kurz: "Meist reiner Start- oder Endhafen ohne eigenen Landgang, London ist rund eineinhalb Stunden entfernt.",
+    zuFuss: ["In Southampton selbst gibt es touristisch wenig, die meisten Gäste fahren weiter oder reisen direkt an."],
+    gefuehrt: [
+      "Ein Zug- oder Bustransfer nach London, wenn ihr vor oder nach der Reise noch Zeit habt.",
+      "Auf GetYourGuide oder Viator nach Transfers Southampton–London-Zentrum suchen.",
+    ],
+  },
+  "Tallinn": {
+    kurz: "Eine der besterhaltenen mittelalterlichen Altstädte Europas, komplett von einer Stadtmauer umschlossen.",
+    zuFuss: [
+      "Die Altstadt mit ihren Kopfsteinpflastergassen ist direkt vom Hafen aus zu Fuß erreichbar.",
+      "Auf den Domberg steigen für den Blick über die roten Ziegeldächer.",
+    ],
+    gefuehrt: [
+      "Ein geführter Altstadt-Walk mit Blick auf die mittelalterliche Geschichte der Hansestadt.",
+      "Ein Ausflug zum Freilichtmuseum Rocca al Mare außerhalb der Stadt.",
+      "Auf GetYourGuide oder Viator nach Food-Touren durch die Altstadt suchen.",
+    ],
+  },
+  "Singapur": {
+    kurz: "Eine der saubersten und am besten organisierten Städte Asiens, mit hervorragendem Nahverkehr und viel Grün mitten in der Stadt.",
+    zuFuss: [
+      "Die Gardens by the Bay mit den Supertree-Baumriesen sind zu Fuß oder mit kurzer MRT-Fahrt erreichbar.",
+      "Marina Bay Sands und den Merlion-Park entlang der Promenade ablaufen.",
+      "Das MRT-System ist zuverlässig und kühl klimatisiert, meist die beste Art, längere Strecken zu überbrücken.",
+    ],
+    gefuehrt: [
+      "Eine Nachttour durch Gardens by the Bay mit der Lichtshow Garden Rhapsody.",
+      "Ein Ausflug in die Altstadtviertel Little India, Chinatown und Kampong Glam.",
+      "Auf GetYourGuide oder Viator nach Gardens-by-the-Bay-Kombitickets mit Cloud Forest und Flower Dome suchen.",
+    ],
+  },
+  "Dubai": {
+    kurz: "Superlative auf engem Raum — vom höchsten Gebäude der Welt bis zur künstlichen Insel, dazwischen liegen aber oft weite, nicht begehbare Strecken.",
+    zuFuss: [
+      "In der Altstadt Al Fahidi und am Dubai Creek lässt sich noch das ursprünglichere Dubai zu Fuß erleben.",
+      "Die Dubai Mall mit Blick auf den Burj Khalifa ist klimatisiert und gut zu Fuß erkundbar.",
+      "Für alles andere lieber Taxi, Metro oder organisierten Transport nutzen, Distanzen und Hitze machen Fußwege sonst unangenehm.",
+    ],
+    gefuehrt: [
+      "Eine Fahrt auf die Aussichtsplattform des Burj Khalifa, am besten mit vorab gebuchtem Zeitfenster.",
+      "Ein Wüstenausflug mit Dünenfahrt und Beduinen-Camp am Nachmittag oder Abend.",
+      "Auf GetYourGuide oder Viator nach Burj-Khalifa-Tickets mit festem Zeitfenster suchen, um lange Wartezeiten zu vermeiden.",
+    ],
+  },
+  "Hongkong": {
+    kurz: "Eine Skyline, die man am besten von der anderen Seite des Hafens sieht — die Star Ferry ist dafür die günstigste und schönste Option.",
+    zuFuss: [
+      "Mit der Star Ferry von Kowloon nach Hong Kong Island übersetzen, eine der günstigsten Attraktionen der Stadt.",
+      "Die Uferpromenade am Victoria Harbour mit Blick auf die Skyline entlanglaufen.",
+    ],
+    gefuehrt: [
+      "Eine Fahrt mit der Peak Tram auf den Victoria Peak für den bekanntesten Ausblick der Stadt.",
+      "Eine Tour durch die schwimmenden Märkte und Fischerdörfer wie Aberdeen.",
+      "Auf GetYourGuide oder Viator nach Peak-Tram-Skip-the-Line suchen, die Warteschlangen sind besonders an Wochenenden lang.",
+    ],
+  },
+  "Sydney": {
+    kurz: "Eine der schönsten Hafeneinfahrten der Welt — mit etwas Glück legt euer Schiff direkt an der Circular Quay an, mit Blick auf Opernhaus und Harbour Bridge.",
+    zuFuss: [
+      "Von der Circular Quay zum Opernhaus und weiter in die Royal Botanic Gardens laufen.",
+      "The Rocks, das historische Hafenviertel, liegt direkt in Gehweite und lohnt einen Bummel.",
+    ],
+    gefuehrt: [
+      "Ein Aufstieg auf die Harbour Bridge (BridgeClimb), eines der bekanntesten Erlebnisse der Stadt.",
+      "Eine Fährfahrt nach Manly oder Watsons Bay, günstig und mit tollem Blick auf die Skyline.",
+      "Auf GetYourGuide oder Viator nach Opernhaus-Führungen hinter die Kulissen suchen.",
+    ],
+  },
+  "Rio de Janeiro": {
+    kurz: "Zuckerhut und Corcovado prägen die Skyline, die Stadt selbst braucht wegen ihrer Größe und Kontraste einen organisierten ersten Zugang.",
+    zuFuss: [
+      "In direkter Hafennähe bleiben und Wertsachen nicht offen tragen, wie in jeder Millionenstadt dieser Größe.",
+      "Copacabana und Ipanema sind mit kurzer Fahrt erreichbar, für einen entspannten Strandnachmittag.",
+    ],
+    gefuehrt: [
+      "Eine Fahrt zur Christus-Statue auf dem Corcovado, das bekannteste Wahrzeichen der Stadt.",
+      "Eine Seilbahnfahrt auf den Zuckerhut mit Panoramablick über die Bucht.",
+      "Auf GetYourGuide oder Viator nach Kombitouren Corcovado und Zuckerhut mit Abholung am Pier suchen.",
+    ],
+  },
+  "Buenos Aires": {
+    kurz: "Europäisch geprägte Metropole mit eigenem Tango-Rhythmus, meist Start- oder Endpunkt für Patagonien-Kreuzfahrten.",
+    zuFuss: [
+      "Das Viertel La Boca mit den bunten Häusern von Caminito ist ein beliebtes, aber touristisch belebtes Fotomotiv.",
+      "Recoleta mit seinem berühmten Friedhof und den eleganten Cafés lohnt einen längeren Bummel.",
+    ],
+    gefuehrt: [
+      "Eine Tango-Show mit Abendessen, ein Klassiker für den ersten oder letzten Abend in der Stadt.",
+      "Eine Stadtrundfahrt mit Guide durch die unterschiedlichen Viertel, gerade bei kurzer Zeit sinnvoll.",
+      "Auf GetYourGuide oder Viator nach privaten Stadttouren mit Abholung am Pier suchen.",
+    ],
+  },
+  "Tokyo (Yokohama)": {
+    kurz: "Das Kreuzfahrtterminal liegt meist in Yokohama, Tokyo selbst ist mit dem Zug rund 30 bis 45 Minuten entfernt.",
+    zuFuss: [
+      "Der Bezirk Minato Mirai direkt am Terminal in Yokohama ist modern und gut zu Fuß erkundbar.",
+      "Für Tokyo braucht ihr den Zug, das japanische Bahnsystem ist aber ausgesprochen zuverlässig und einfach zu nutzen.",
+    ],
+    gefuehrt: [
+      "Ein Ganztagesausflug nach Tokyo mit den Klassikern Shibuya, Asakusa und Kaiserpalast-Außenbereich.",
+      "Ein Besuch des Sankeien-Gartens direkt in Yokohama, wenn die Zeit für Tokyo nicht reicht.",
+      "Auf GetYourGuide oder Viator nach Tokyo-Tagestouren ab Yokohama suchen, meist mit garantierter Rückfahrt zum Schiff.",
+    ],
+  },
+};
+
+/* Liefert Land, Währung, Kurzinfo und Ausflugsideen zu einem eingetragenen
+   Hafennamen — eigene Inhalte, wo vorhanden, sonst die Typ-Vorlage. */
+function hafenInfo(name) {
+  const s = normText(name);
+  if (s.length < 2) return null;
+  const eintrag = HAFENLISTE.find((h) => normText(h.n) === s) || HAFENLISTE.find((h) => normText(h.n).indexOf(s) >= 0);
+  if (!eintrag) return null;
+  const bespoke = HAFEN_DETAILS[eintrag.n] || {};
+  const vorlage = TYP_VORLAGEN[eintrag.typ] || TYP_VORLAGEN.AS;
+  const waehrung = bespoke.waehrung || WAEHRUNG[eintrag.land] || null;
+  return {
+    name: eintrag.n,
+    land: eintrag.land,
+    waehrung,
+    kurz: bespoke.kurz || vorlage.kurz,
+    zuFuss: bespoke.zuFuss || vorlage.zuFuss,
+    gefuehrt: bespoke.gefuehrt || vorlage.gefuehrt,
+    tipp: bespoke.tipp || null,
+  };
+}
+
 /* Entfernung in Seemeilen */
 function seemeilen(a, b) {
   const R = 3440.065;
@@ -1435,20 +2777,21 @@ function seemeilen(a, b) {
 }
 
 function regionWaehlen(punkte, route) {
-  const kandidaten = Object.keys(REGIONEN).filter((k) => k !== "atlantik");
-  const passend = kandidaten.filter((k) => {
-    const [x0, y0, x1, y1] = REGIONEN[k].box;
-    return punkte.every((p) => p.lon >= x0 && p.lon <= x1 && p.lat >= y0 && p.lat <= y1);
-  });
-  if (punkte.length > 0 && passend.length > 0) {
-    passend.sort((a, b) => {
-      const fa = REGIONEN[a].box, fb = REGIONEN[b].box;
-      return (fa[2] - fa[0]) * (fa[3] - fa[1]) - (fb[2] - fb[0]) * (fb[3] - fb[1]);
+  if (punkte.length > 0) {
+    let beste = "atlantik", besterTreffer = -1;
+    Object.keys(REGIONEN).forEach((k) => {
+      const [x0, y0, x1, y1] = REGIONEN[k].box;
+      const treffer = punkte.filter((p) => p.lon >= x0 && p.lon <= x1 && p.lat >= y0 && p.lat <= y1).length;
+      if (treffer > besterTreffer) {
+        besterTreffer = treffer; beste = k;
+      } else if (treffer === besterTreffer && treffer > 0) {
+        const fa = REGIONEN[k].box, fb = REGIONEN[beste].box;
+        if ((fa[2] - fa[0]) * (fa[3] - fa[1]) < (fb[2] - fb[0]) * (fb[3] - fb[1])) beste = k;
+      }
     });
-    return passend[0];
+    return beste;
   }
-  if (punkte.length > 0) return "atlantik";
-  const zuordnung = { karibik: "karibik", mittel: "mittel", nord: "nord", trans: "atlantik" };
+  const zuordnung = { karibik: "karibikOst", mittel: "mittel", nord: "nord", trans: "atlantik" };
   return zuordnung[route] || "mittel";
 }
 
@@ -1457,17 +2800,20 @@ function Karte({ haefen, route, linie = true, nummern = true }) {
   const regKey = regionWaehlen(punkte, route);
   const reg = REGIONEN[regKey];
 
-  /* Ausschnitt bestimmen */
+  /* Ausschnitt bestimmen — richtet sich nach den eingetragenen Häfen,
+     nicht nach der Standard-Box der Region, damit nie ein Hafen
+     außerhalb des sichtbaren Kartenausschnitts landet. */
   let [bx0, by0, bx1, by1] = reg.box;
-  const drin = punkte.filter((p) => p.lon >= bx0 && p.lon <= bx1 && p.lat >= by0 && p.lat <= by1);
-  if (drin.length >= 2) {
-    const lons = drin.map((p) => p.lon), lats = drin.map((p) => p.lat);
-    const pufX = Math.max(2.5, (Math.max(...lons) - Math.min(...lons)) * 0.3);
-    const pufY = Math.max(1.5, (Math.max(...lats) - Math.min(...lats)) * 0.3);
-    bx0 = Math.max(bx0, Math.min(...lons) - pufX);
-    bx1 = Math.min(bx1, Math.max(...lons) + pufX);
-    by0 = Math.max(by0, Math.min(...lats) - pufY);
-    by1 = Math.min(by1, Math.max(...lats) + pufY);
+  if (punkte.length >= 2) {
+    const lons = punkte.map((p) => p.lon), lats = punkte.map((p) => p.lat);
+    const pufX = Math.max(2.5, (Math.max(...lons) - Math.min(...lons)) * 0.25);
+    const pufY = Math.max(1.5, (Math.max(...lats) - Math.min(...lats)) * 0.25);
+    bx0 = Math.min(...lons) - pufX; bx1 = Math.max(...lons) + pufX;
+    by0 = Math.min(...lats) - pufY; by1 = Math.max(...lats) + pufY;
+  } else if (punkte.length === 1) {
+    const pufX = 6, pufY = 4;
+    bx0 = punkte[0].lon - pufX; bx1 = punkte[0].lon + pufX;
+    by0 = punkte[0].lat - pufY; by1 = punkte[0].lat + pufY;
   }
 
   const lat0 = (by0 + by1) / 2;
@@ -1695,6 +3041,63 @@ function HafenFeld({ eintrag, onAendern }) {
   );
 }
 
+function HafenInfoKarte({ info }) {
+  const [auf, setAuf] = useState(false);
+  if (!info) return null;
+  return (
+    <div style={{
+      background: C.sky, borderRadius: 3, marginBottom: 18,
+      border: `1px solid ${C.line}`, overflow: "hidden",
+    }}>
+      <button type="button" onClick={() => setAuf(!auf)} aria-expanded={auf} style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%",
+        textAlign: "left", background: "transparent", border: "none", cursor: "pointer",
+        padding: "14px 16px", minHeight: 46, gap: 10,
+      }}>
+        <span style={{ fontFamily: SANS, fontSize: 15, color: C.navy }}>
+          Hafen-Info{info.land ? ` · ${info.land}` : ""}
+          {info.waehrung ? ` · ${info.waehrung[1]} (${info.waehrung[0]})` : ""}
+        </span>
+        <ChevronRight size={15} color={C.messing}
+          style={{ flexShrink: 0, transform: auf ? "rotate(90deg)" : "none", transition: "transform .2s" }} />
+      </button>
+      {auf && (
+        <div style={{ padding: "0 16px 20px" }}>
+          <P style={{ fontSize: 14.5, marginBottom: 16 }}>{info.kurz}</P>
+          {info.tipp && (
+            <div style={{
+              background: C.sand, borderRadius: 3, padding: "13px 14px", marginBottom: 18,
+              borderLeft: `2px solid ${C.messing}`,
+            }}>
+              <div style={{ fontFamily: SANS, fontSize: 13.5, lineHeight: 1.62, color: C.navy }}>{info.tipp}</div>
+            </div>
+          )}
+          <div style={{
+            fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.4, textTransform: "uppercase",
+            color: C.muted, marginBottom: 9,
+          }}>Auf eigene Faust</div>
+          {info.zuFuss.map((t, i) => (
+            <div key={"z" + i} style={{ display: "flex", gap: 9, marginBottom: 9 }}>
+              <span style={{ color: C.messing, flexShrink: 0 }} aria-hidden="true">·</span>
+              <span style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.6, color: C.body }}>{t}</span>
+            </div>
+          ))}
+          <div style={{
+            fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.4, textTransform: "uppercase",
+            color: C.muted, margin: "16px 0 9px",
+          }}>Gebuchte Ausflüge — Reederei oder GetYourGuide/Viator</div>
+          {info.gefuehrt.map((t, i) => (
+            <div key={"g" + i} style={{ display: "flex", gap: 9, marginBottom: 9 }}>
+              <span style={{ color: C.messing, flexShrink: 0 }} aria-hidden="true">·</span>
+              <span style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.6, color: C.body }}>{t}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ModulLandgang({ daten, setze }) {
   const h = daten.haefen;
   const notizen = useMemo(() => notizArchiv(daten.archiv || []), [daten.archiv]);
@@ -1715,8 +3118,9 @@ function ModulLandgang({ daten, setze }) {
   return (
     <div>
       <Kicker>Modul 5</Kicker>
-      <H2>Der Landgang-Planer</H2>
+      <H2>Route & Landgang-Planer</H2>
       <Lead>
+        <span>Tragt eure komplette Route ein — von jedem Hafen weltweit finden wir Land, Währung und Ausflugsideen für euch, egal ob großer Klassiker oder kleine Insel.</span>
         <span>Ein Hafentag fühlt sich lang an, ist aber kürzer als gedacht, weil Ausschiffung, Weg zum Zentrum und Rückweg schnell drei Stunden fressen.</span>
       </Lead>
 
@@ -1766,6 +3170,8 @@ function ModulLandgang({ daten, setze }) {
             </div>
 
             <HafenFeld eintrag={x} onAendern={(teil) => upd(x.id, teil)} />
+
+            {typeof x.lon === "number" && <HafenInfoKarte info={hafenInfo(x.name)} />}
 
             {notizen[normText(x.name)] && (
               <div style={{
