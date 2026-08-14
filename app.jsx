@@ -271,6 +271,30 @@ const PACK = [
       { id: "fluessig", t: "Flüssigkeiten unter 100 ml im Handgepäck" },
     ],
   },
+  {
+    id: "tempel", titel: "Für Tempel- und Kultur-Häfen", wenn: (f) => (f.typen || []).indexOf("TK") >= 0,
+    punkte: [
+      { id: "schulterbedeckt", t: "Ein Oberteil mit bedeckten Schultern", stern: true, d: "An vielen Tempeln ist das Voraussetzung für den Einlass, und ein Tuch zum Überziehen reicht meist schon." },
+      { id: "langehose", t: "Eine leichte lange Hose oder ein langer Rock" },
+      { id: "schnellschuhe", t: "Schuhe, die sich schnell aus- und wieder anziehen lassen", d: "Vor vielen Tempeln müsst ihr die Schuhe ausziehen." },
+    ],
+  },
+  {
+    id: "golf", titel: "Für Golf- und Wüsten-Häfen", wenn: (f) => (f.typen || []).indexOf("WU") >= 0,
+    punkte: [
+      { id: "kopfbedeckung", t: "Kopfbedeckung gegen die Sonne" },
+      { id: "leichtekleidung", t: "Leichte, bedeckende Kleidung statt Shorts und Trägertop", d: "Auch aus Respekt vor lokalen Gepflogenheiten abseits der Strandresorts." },
+      { id: "sonnenhoch", t: "Sonnenschutz mit sehr hohem Faktor" },
+    ],
+  },
+  {
+    id: "arktisnatur", titel: "Für Fjord-, Arktis- und Naturhäfen", wenn: (f) => ["FJ", "NA"].some((t) => (f.typen || []).indexOf(t) >= 0),
+    punkte: [
+      { id: "extraschicht", t: "Eine zusätzliche warme Schicht mehr, als ihr für nötig haltet", stern: true },
+      { id: "fernglas", t: "Fernglas für Wale, Vögel oder Gletscher" },
+      { id: "wanderschuhe", t: "Wasserfeste, eingelaufene Schuhe" },
+    ],
+  },
 ];
 
 const NICHT_MIT = [
@@ -347,6 +371,17 @@ const NOTFALL = [
   },
 ];
 
+/* Ideen für Tage ohne Landgang. */
+const SEETAG_IDEEN = [
+  "Früh aufstehen und Deck-Yoga oder eine Runde auf dem Laufdeck, solange es dort noch leer ist.",
+  "Das Tagesprogramm in Ruhe durchlesen und die guten Plätze für Shows oder Vorträge vormerken.",
+  "Spa und Sauna nutzen, an Seetagen ist es dort deutlich ruhiger als an Hafentagen.",
+  "Ein Buch, das ihr euch für genau diesen Moment aufgehoben habt.",
+  "Die Kabine oder den Koffer einmal in Ruhe sortieren, bevor der nächste Hafentag alles wieder durcheinanderbringt.",
+  "Ein Spezialitätenrestaurant für den Abend reservieren, an Seetagen sind die guten Zeiten oft noch frei.",
+  "Am Nachmittag einen Blick auf die Live-Positionskarte werfen, wo genau ihr gerade seid, macht überraschend viel Freude.",
+];
+
 /* =========================================================
    MODULÜBERSICHT
 ========================================================= */
@@ -368,6 +403,7 @@ const LEER = {
   setup: {
     reederei: "", schiff: "", route: "", abfahrt: "", naechte: "7",
     personen: "2", kind: false, anreise: "", saison: "", gala: false, reisepreis: "",
+    interessen: [],
   },
   haken: {},
   kabine: { art: "", laengs: "", deck: "", seekrank: "", kind: "", nummer: "" },
@@ -378,10 +414,34 @@ const LEER = {
   },
   haefen: [],
   archiv: [],
+  geplant: [],
+  wunschliste: [],
+  hafenNotizen: {},
+  tagebuch: [],
   doks: {
     buchung: "", kabinennr: "", versicherung: "", notruf: "", ausweise: "",
     medikamente: "", blutgruppe: "", kontakt: "", agentur: "",
   },
+};
+
+const INTERESSEN_OPTIONEN = [
+  { v: "schnorcheln", l: "Schnorcheln & Strand" },
+  { v: "geschichte", l: "Geschichte & Kultur" },
+  { v: "natur", l: "Natur & Wandern" },
+  { v: "shopping", l: "Shopping" },
+  { v: "kulinarik", l: "Kulinarik" },
+  { v: "nachtleben", l: "Nachtleben" },
+  { v: "familie", l: "Familie & Kinder" },
+];
+/* Ordnet Hafentypen den Interessen zu, für den „Passt zu euch"-Hinweis. */
+const INTERESSEN_ZU_TYP = {
+  schnorcheln: ["SI", "PI"],
+  geschichte: ["RU", "AS", "TK"],
+  natur: ["FJ", "NA", "DJ"],
+  shopping: ["GM", "HK"],
+  kulinarik: ["AS", "TK", "SA"],
+  nachtleben: ["GM", "SI"],
+  familie: ["PI", "SI", "GM"],
 };
 
 /* =========================================================
@@ -890,6 +950,15 @@ function ModulKabine({ daten, setze }) {
             ))}
           </Card>
 
+          {a.kind === "ja" && reedereiFinden(daten.setup.reederei) && reedereiFinden(daten.setup.reederei).kidsClubAb && (
+            <Card tone="white">
+              <P style={{ margin: 0, fontSize: 14.5 }}>
+                Bei {reedereiFinden(daten.setup.reederei).n} nimmt der Kids Club Kinder üblicherweise
+                ab {reedereiFinden(daten.setup.reederei).kidsClubAb} Jahren — meldet euer Kind vorab an, sobald es geht, denn die Plätze sind begrenzt.
+              </P>
+            </Card>
+          )}
+
           <Card tone="sand">
             <P style={{ margin: 0, fontFamily: SERIF, fontSize: 17.5, fontStyle: "italic", lineHeight: 1.55, color: C.navy }}>
               Fürs nächste Mal: Fragt beim Buchen konkret nach einer Kabine, über und unter der ebenfalls Kabinen liegen, denn das ist die Frage, die kaum jemand stellt und die am meisten bringt.
@@ -912,7 +981,10 @@ function ModulKabine({ daten, setze }) {
 ========================================================= */
 function ModulPack({ daten, setze, setzeHaken }) {
   const s = daten.setup;
-  const f = { route: s.route, saison: s.saison, kind: s.kind, anreise: s.anreise, gala: s.gala };
+  const f = {
+    route: s.route, saison: s.saison, kind: s.kind, anreise: s.anreise, gala: s.gala,
+    typen: typenInRoute(daten.haefen),
+  };
   const [neu, setNeu] = useState("");
   const bloecke = PACK.filter((b) => !b.wenn || b.wenn(f));
 
@@ -997,12 +1069,13 @@ const PREIS = {
   fotos: 90,
 };
 
-function bordRechnung(b, s) {
+function bordRechnung(b, s, haefen) {
   const personen = Math.max(1, parseInt(s.personen || "2", 10) || 2);
   const naechte = Math.max(1, parseInt(s.naechte || "7", 10) || 7);
   const zeilen = [];
   const inkl = b.inklusive || [];
   const hat = (k) => inkl.indexOf(k) >= 0;
+  const echtesAusflugBudget = (haefen || []).reduce((a, x) => a + (parseFloat(x.budgetGeplant) || 0), 0);
 
   let getraenke = 0;
   let paketTipp = null;
@@ -1022,12 +1095,15 @@ function bordRechnung(b, s) {
     };
   }
 
-  const haefen = Math.max(2, Math.round(naechte * 0.6));
+  const haefenSchaetzung = Math.max(2, Math.round(naechte * 0.6));
   let ausfluege = 0;
-  if (hat("ausfluege")) ausfluege = 0;
+  if (echtesAusflugBudget > 0) {
+    ausfluege = echtesAusflugBudget;
+    zeilen.push({ t: "Ausflüge (Budget aus eurem Landgang-Planer)", v: ausfluege });
+  } else if (hat("ausfluege")) ausfluege = 0;
   else if (b.ausfluege === "wenige") ausfluege = 3 * PREIS.ausflug * personen;
-  else if (b.ausfluege === "jeder") ausfluege = haefen * PREIS.ausflug * personen;
-  if (ausfluege) zeilen.push({ t: "Ausflüge über die Reederei", v: ausfluege });
+  else if (b.ausfluege === "jeder") ausfluege = haefenSchaetzung * PREIS.ausflug * personen;
+  if (ausfluege && echtesAusflugBudget === 0) zeilen.push({ t: "Ausflüge über die Reederei", v: ausfluege });
 
   let wlan = 0;
   if (hat("wlan")) wlan = 0;
@@ -1057,13 +1133,13 @@ function bordRechnung(b, s) {
   const preis = parseFloat((s.reisepreis || "").replace(/[^\d.,]/g, "").replace(",", ".")) || 0;
   const prozent = preis > 0 ? Math.round((summe / preis) * 100) : null;
 
-  return { zeilen, summe, prozent, paketTipp, personen, naechte, haefen, inkl };
+  return { zeilen, summe, prozent, paketTipp, personen, naechte, haefen: haefenSchaetzung, inkl, echtesAusflugBudget };
 }
 
 function ModulBord({ daten, setze }) {
   const b = daten.bord;
   const s = daten.setup;
-  const r = useMemo(() => bordRechnung(b, s), [b, s]);
+  const r = useMemo(() => bordRechnung(b, s, daten.haefen), [b, s, daten.haefen]);
   const set = (k, v) => setze("bord", { ...b, [k]: v });
   const inkl = (k) => (b.inklusive || []).indexOf(k) >= 0;
   const NAMEN = { getraenke: "Getränke", trinkgeld: "Trinkgeld", spa: "Sauna und Spa-Bereich",
@@ -1668,6 +1744,126 @@ const WAEHRUNG = {
   "Australien": ["AUD", "Australischer Dollar"], "Neuseeland": ["NZD", "Neuseeland-Dollar"],
 };
 
+const SPRACHE = {
+  "Spanien": "Spanisch", "Frankreich": "Französisch", "Monaco": "Französisch", "Italien": "Italienisch",
+  "Malta": "Maltesisch/Englisch", "Kroatien": "Kroatisch", "Montenegro": "Montenegrinisch",
+  "Griechenland": "Griechisch", "Zypern": "Griechisch/Englisch", "Portugal": "Portugiesisch",
+  "Deutschland": "Deutsch", "Finnland": "Finnisch", "Estland": "Estnisch", "Lettland": "Lettisch",
+  "Litauen": "Litauisch", "Niederlande": "Niederländisch", "Belgien": "Niederländisch/Französisch",
+  "Irland": "Englisch", "Guadeloupe": "Französisch", "Martinique": "Französisch",
+  "Türkei": "Türkisch", "Israel": "Hebräisch", "Ägypten": "Arabisch", "Tunesien": "Arabisch/Französisch",
+  "Marokko": "Arabisch/Französisch", "Gibraltar": "Englisch", "Dänemark": "Dänisch",
+  "Norwegen": "Norwegisch", "Schweden": "Schwedisch", "Polen": "Polnisch",
+  "Vereinigtes Königreich": "Englisch", "Island": "Isländisch", "Färöer": "Färöisch",
+  "USA": "Englisch", "Bahamas": "Englisch", "Kuba": "Spanisch", "Mexiko": "Spanisch",
+  "Kaimaninseln": "Englisch", "Jamaika": "Englisch", "Haiti": "Französisch/Haitianisch-Kreol",
+  "Dominikanische Republik": "Spanisch", "Puerto Rico": "Spanisch/Englisch",
+  "US Virgin Islands": "Englisch", "Britische Jungferninseln": "Englisch",
+  "St. Maarten (niederl.)": "Niederländisch/Englisch", "St. Kitts und Nevis": "Englisch",
+  "Antigua und Barbuda": "Englisch", "Dominica": "Englisch", "St. Lucia": "Englisch",
+  "Barbados": "Englisch", "St. Vincent und die Grenadinen": "Englisch", "Grenada": "Englisch",
+  "Trinidad und Tobago": "Englisch", "Turks- und Caicosinseln": "Englisch",
+  "Aruba": "Niederländisch/Papiamento", "Curaçao": "Niederländisch/Papiamento",
+  "Bonaire": "Niederländisch/Papiamento", "Kolumbien": "Spanisch", "Panama": "Spanisch",
+  "Costa Rica": "Spanisch", "Nicaragua": "Spanisch", "Guatemala": "Spanisch", "Belize": "Englisch",
+  "Honduras": "Spanisch", "Kanada": "Englisch/Französisch", "Bermuda": "Englisch",
+  "Brasilien": "Portugiesisch", "Uruguay": "Spanisch", "Argentinien": "Spanisch", "Chile": "Spanisch",
+  "Peru": "Spanisch", "Vereinigte Arabische Emirate": "Arabisch", "Oman": "Arabisch", "Katar": "Arabisch",
+  "Indien": "Hindi/Englisch", "Sri Lanka": "Singhalesisch/Tamil", "Singapur": "Englisch/Mandarin/Malaiisch",
+  "Malaysia": "Malaiisch/Englisch", "Thailand": "Thai", "Vietnam": "Vietnamesisch",
+  "Indonesien": "Indonesisch", "China": "Mandarin", "Hongkong": "Kantonesisch/Englisch",
+  "Taiwan": "Mandarin", "Südkorea": "Koreanisch", "Japan": "Japanisch",
+  "Australien": "Englisch", "Neuseeland": "Englisch",
+};
+
+/* Steckdosentyp nach Land, grob gruppiert. Bei Unsicherheit lieber
+   den Weltadapter empfehlen, als eine falsche genaue Angabe machen. */
+const STECKDOSE_GRUPPEN = [
+  [["Vereinigtes Königreich", "Irland", "Malta", "Zypern", "Gibraltar"], "Typ G (UK-Dreieckstecker), 230V"],
+  [["USA", "Kanada", "Mexiko", "Bahamas", "Bermuda", "Kuba", "Kaimaninseln", "Jamaika", "Haiti",
+    "Dominikanische Republik", "Puerto Rico", "US Virgin Islands", "Britische Jungferninseln",
+    "St. Maarten (niederl.)", "Trinidad und Tobago", "Barbados", "Kolumbien", "Panama", "Costa Rica",
+    "Nicaragua", "Guatemala", "Belize", "Honduras", "Aruba", "Curaçao", "Bonaire", "Japan"],
+    "Typ A/B (US-Flachstecker), 110–120V"],
+  [["Guadeloupe", "Martinique", "Frankreich", "Monaco"], "Typ C/E (Europa-Rundstecker), 220–230V"],
+  [["Spanien", "Italien", "Malta", "Kroatien", "Montenegro", "Griechenland", "Portugal", "Deutschland",
+    "Finnland", "Estland", "Lettland", "Litauen", "Niederlande", "Belgien", "Türkei", "Israel",
+    "Ägypten", "Tunesien", "Marokko", "Dänemark", "Norwegen", "Schweden", "Polen", "Südkorea"],
+    "Europlug (Typ C/F), 220–230V"],
+  [["Australien", "Neuseeland", "China", "Argentinien"], "Typ I (Winkelstecker), 220–230V"],
+  [["Vereinigte Arabische Emirate", "Oman", "Katar", "Singapur", "Malaysia", "Hongkong", "Indien",
+    "Sri Lanka"], "meist Typ G (UK-Dreieckstecker), 220–230V"],
+];
+function steckdoseFuer(land) {
+  const treffer = STECKDOSE_GRUPPEN.find((g) => g[0].indexOf(land) >= 0);
+  return treffer ? treffer[1] : "wechselnde Steckertypen — ein Weltadapter ist hier die sichere Wahl";
+}
+
+/* Kontinent/Region je Land, Grundlage für die Fahrtenbuch-Abzeichen. */
+const KONTINENT = {
+  Europa: ["Spanien", "Frankreich", "Monaco", "Italien", "Malta", "Kroatien", "Montenegro", "Griechenland",
+    "Zypern", "Portugal", "Deutschland", "Finnland", "Estland", "Lettland", "Litauen", "Niederlande",
+    "Belgien", "Irland", "Gibraltar", "Dänemark", "Norwegen", "Schweden", "Polen",
+    "Vereinigtes Königreich", "Island", "Färöer", "Türkei"],
+  Afrika: ["Ägypten", "Tunesien", "Marokko"],
+  Nordamerika: ["USA", "Kanada", "Bermuda"],
+  "Mittelamerika & Karibik": ["Mexiko", "Bahamas", "Kuba", "Kaimaninseln", "Jamaika", "Haiti",
+    "Dominikanische Republik", "Puerto Rico", "US Virgin Islands", "Britische Jungferninseln",
+    "St. Maarten (niederl.)", "St. Kitts und Nevis", "Antigua und Barbuda", "Guadeloupe", "Dominica",
+    "Martinique", "St. Lucia", "Barbados", "St. Vincent und die Grenadinen", "Grenada",
+    "Trinidad und Tobago", "Turks- und Caicosinseln", "Aruba", "Curaçao", "Bonaire", "Panama",
+    "Costa Rica", "Nicaragua", "Guatemala", "Belize", "Honduras"],
+  Südamerika: ["Kolumbien", "Brasilien", "Uruguay", "Argentinien", "Chile", "Peru"],
+  Asien: ["Vereinigte Arabische Emirate", "Oman", "Katar", "Indien", "Sri Lanka", "Singapur", "Malaysia",
+    "Thailand", "Vietnam", "Indonesien", "China", "Hongkong", "Taiwan", "Südkorea", "Japan", "Israel"],
+  Ozeanien: ["Australien", "Neuseeland"],
+};
+function kontinentFuer(land) {
+  return Object.keys(KONTINENT).find((k) => KONTINENT[k].indexOf(land) >= 0) || null;
+}
+function trinkgeldTippFuer(land) {
+  const k = kontinentFuer(land);
+  const texte = {
+    "Europa": "Trinkgeld ist meist freiwillig, 5–10 % beim Essen sind üblich, oft wird einfach aufgerundet.",
+    "Nordamerika": "Deutlich mehr als in Europa üblich — 15–20 % bei Restaurants und Ausflügen sind Standard.",
+    "Mittelamerika & Karibik": "Wie in den USA — 15–20 % bei Restaurants und Ausflügen sind Standard, auch bei Guides.",
+    "Südamerika": "Trinkgeld ist verbreitet, 10 % sind meist eine gute Richtschnur.",
+    "Asien": "Sehr unterschiedlich von Land zu Land, teils unüblich bis unerwünscht — bei geführten Ausflügen aber zunehmend erwartet.",
+    "Afrika": "Bei geführten Ausflügen üblich, 10 % sind eine gute Richtschnur.",
+    "Ozeanien": "Unüblich und wird nicht erwartet.",
+  };
+  return texte[k] || "Informiert euch am besten kurz vor Ort, das ist von Land zu Land sehr unterschiedlich.";
+}
+
+/* Reederei-Eigenheiten — Richtwerte, die sich ändern können.
+   Aktuelle Zahlen bitte immer bei der Reederei selbst prüfen. */
+const REEDEREIEN = [
+  { n: "AIDA Cruises", puffer: 45, trinkgeldAutomatik: true, trinkgeldProNacht: 12, kidsClubAb: 3 },
+  { n: "TUI Cruises (Mein Schiff)", puffer: 45, trinkgeldAutomatik: true, trinkgeldProNacht: 10, kidsClubAb: 1 },
+  { n: "MSC Cruises", puffer: 60, trinkgeldAutomatik: true, trinkgeldProNacht: 12, kidsClubAb: 2 },
+  { n: "Costa Crociere", puffer: 60, trinkgeldAutomatik: true, trinkgeldProNacht: 10, kidsClubAb: 3 },
+  { n: "Royal Caribbean", puffer: 90, trinkgeldAutomatik: true, trinkgeldProNacht: 18, kidsClubAb: 3 },
+  { n: "Celebrity Cruises", puffer: 90, trinkgeldAutomatik: true, trinkgeldProNacht: 18, kidsClubAb: 3 },
+  { n: "Norwegian Cruise Line", puffer: 90, trinkgeldAutomatik: true, trinkgeldProNacht: 19, kidsClubAb: 3 },
+  { n: "Princess Cruises", puffer: 90, trinkgeldAutomatik: true, trinkgeldProNacht: 16, kidsClubAb: 3 },
+  { n: "Carnival Cruise Line", puffer: 90, trinkgeldAutomatik: true, trinkgeldProNacht: 16, kidsClubAb: 2 },
+  { n: "Holland America Line", puffer: 60, trinkgeldAutomatik: true, trinkgeldProNacht: 16, kidsClubAb: 3 },
+  { n: "Disney Cruise Line", puffer: 90, trinkgeldAutomatik: true, trinkgeldProNacht: 16, kidsClubAb: 3 },
+  { n: "Hurtigruten / HX", puffer: 45, trinkgeldAutomatik: false, trinkgeldProNacht: 0, kidsClubAb: null },
+];
+function reedereiVorschlaege(q) {
+  const s = normText(q || "");
+  if (s.length < 2) return [];
+  return REEDEREIEN.filter((r) => normText(r.n).indexOf(s) >= 0).slice(0, 5);
+}
+function reedereiFinden(name) {
+  const s = normText(name || "");
+  if (s.length < 2) return null;
+  return REEDEREIEN.find((r) => normText(r.n) === s)
+    || REEDEREIEN.find((r) => normText(r.n).indexOf(s) >= 0 || s.indexOf(normText(r.n)) >= 0)
+    || null;
+}
+
 /* Generische Vorlage je Hafentyp, greift überall dort, wo es noch keine
    eigenen Inhalte gibt — damit hat wirklich jeder Hafen etwas Nützliches. */
 const TYP_VORLAGEN = {
@@ -1840,6 +2036,23 @@ const TYP_VORLAGEN = {
       "Auf GetYourGuide oder Viator nach Halbtagestouren zu Naturzielen suchen, die per Bus allein schwer zu erreichen sind.",
     ],
   },
+};
+
+/* Beste Reisezeit / Klima-Hinweis je Hafentyp — grobe, aber ehrliche Richtwerte. */
+const KLIMA_VORLAGEN = {
+  AS: "Frühling und Herbst sind meist angenehmer als der Hochsommer, wenn mehrere Kreuzfahrtschiffe gleichzeitig die Altstadt fluten.",
+  HK: "Ganzjährig machbar, prüft aber lokale Feiertage — an denen sind viele Sehenswürdigkeiten geschlossen.",
+  RU: "Vormittags ist es an Ausgrabungsstätten spürbar kühler und leerer als am Nachmittag.",
+  FJ: "Von Mai bis September ist mit den meisten Sonnenstunden zu rechnen, dafür auch mit den meisten Mitreisenden.",
+  NA: "Wetter und Tageslicht hängen stark von der Saison ab — informiert euch vor der Reise gezielt für euren Reisemonat.",
+  SI: "Ganzjährig warm, Regen- und Hurrikansaison (grob Juni bis November in der Karibik) im Hinterkopf behalten.",
+  PI: "Ganzjährig warm, bei Regen wird das Programm der Insel meist trotzdem durchgeführt.",
+  GM: "Ganzjährig machbar, in tropischen Lagen ist Vor- oder Nachmittag angenehmer als die Mittagshitze.",
+  DJ: "In der Regenzeit sind Wege schnell schlammig — Wechselschuhe einplanen.",
+  WU: "Von November bis März ist es spürbar angenehmer als im Hochsommer, wenn tagsüber kaum jemand draußen unterwegs ist.",
+  TK: "Vor der Reise kurz prüfen, ob euer Anlaufdatum in eine lokale Regen- oder Monsunzeit fällt.",
+  SA: "Saisons liegen auf der Südhalbkugel spiegelverkehrt zu Europa — Sommer dort ist Winter hier.",
+  AU: "Saisons liegen auf der Südhalbkugel spiegelverkehrt zu Europa — Sommer dort ist Winter hier.",
 };
 
 /* Eigene, geprüfte Inhalte für die meistangelaufenen Häfen —
@@ -2757,12 +2970,30 @@ function hafenInfo(name) {
   return {
     name: eintrag.n,
     land: eintrag.land,
+    typ: eintrag.typ,
+    kontinent: kontinentFuer(eintrag.land),
     waehrung,
+    sprache: SPRACHE[eintrag.land] || null,
+    steckdose: steckdoseFuer(eintrag.land),
+    trinkgeldTipp: trinkgeldTippFuer(eintrag.land),
+    klima: KLIMA_VORLAGEN[eintrag.typ] || null,
     kurz: bespoke.kurz || vorlage.kurz,
     zuFuss: bespoke.zuFuss || vorlage.zuFuss,
     gefuehrt: bespoke.gefuehrt || vorlage.gefuehrt,
     tipp: bespoke.tipp || null,
   };
+}
+
+/* Welche Hafentypen kommen in der eingetragenen Route tatsächlich vor —
+   Grundlage für die automatisch erweiterte Packliste. */
+function typenInRoute(haefen) {
+  const typen = new Set();
+  (haefen || []).forEach((h) => {
+    if (!h.name) return;
+    const eintrag = HAFENLISTE.find((x) => normText(x.n) === normText(h.name));
+    if (eintrag) typen.add(eintrag.typ);
+  });
+  return Array.from(typen);
 }
 
 /* Entfernung in Seemeilen */
@@ -2774,6 +3005,13 @@ function seemeilen(a, b) {
   const x = Math.sin(dLat / 2) ** 2 +
     Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin(dLon / 2) ** 2;
   return Math.round(2 * R * Math.asin(Math.sqrt(x)));
+}
+
+/* Grobe Zeitzonen-Schätzung allein aus dem Längengrad — kein Ersatz für die
+   Bordansage, aber genug, um vor einem Zeitzonenwechsel zu warnen. */
+function zeitzoneVersatz(a, b) {
+  if (typeof a.lon !== "number" || typeof b.lon !== "number") return null;
+  return Math.round(b.lon / 15) - Math.round(a.lon / 15);
 }
 
 function regionWaehlen(punkte, route) {
@@ -3041,9 +3279,36 @@ function HafenFeld({ eintrag, onAendern }) {
   );
 }
 
-function HafenInfoKarte({ info }) {
+function Steckbrief({ info }) {
+  const zeilen = [
+    info.sprache && ["Sprache", info.sprache],
+    info.steckdose && ["Steckdose", info.steckdose],
+    info.trinkgeldTipp && ["Trinkgeld", info.trinkgeldTipp],
+    info.klima && ["Beste Reisezeit", info.klima],
+  ].filter(Boolean);
+  if (!zeilen.length) return null;
+  return (
+    <div style={{ display: "grid", gap: 12, marginBottom: 18 }}>
+      {zeilen.map(([label, text]) => (
+        <div key={label}>
+          <div style={{
+            fontFamily: MONO, fontSize: 10, letterSpacing: 1.4, textTransform: "uppercase",
+            color: C.muted, marginBottom: 3,
+          }}>{label}</div>
+          <div style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.55, color: C.navy }}>{text}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function HafenInfoKarte({ info, interessen, notiz, onNotizChange }) {
   const [auf, setAuf] = useState(false);
   if (!info) return null;
+  const passt = (interessen || []).filter((i) => (INTERESSEN_ZU_TYP[i] || []).indexOf(info.typ) >= 0);
+  const passtLabels = passt.map((v) => (INTERESSEN_OPTIONEN.find((o) => o.v === v) || {}).l).filter(Boolean);
+  const gygUrl = "https://www.getyourguide.com/s/?q=" + encodeURIComponent(info.name);
+  const viatorUrl = "https://www.viator.com/searchResults/all?text=" + encodeURIComponent(info.name);
   return (
     <div style={{
       background: C.sky, borderRadius: 3, marginBottom: 18,
@@ -3063,6 +3328,17 @@ function HafenInfoKarte({ info }) {
       </button>
       {auf && (
         <div style={{ padding: "0 16px 20px" }}>
+          {passtLabels.length > 0 && (
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: 7, background: C.greenSoft,
+              borderRadius: 3, padding: "7px 12px", marginBottom: 14,
+            }}>
+              <Check size={13} color={C.green} />
+              <span style={{ fontFamily: SANS, fontSize: 12.5, color: C.green }}>
+                Passt zu euren Interessen: {passtLabels.join(", ")}
+              </span>
+            </div>
+          )}
           <P style={{ fontSize: 14.5, marginBottom: 16 }}>{info.kurz}</P>
           {info.tipp && (
             <div style={{
@@ -3072,6 +3348,7 @@ function HafenInfoKarte({ info }) {
               <div style={{ fontFamily: SANS, fontSize: 13.5, lineHeight: 1.62, color: C.navy }}>{info.tipp}</div>
             </div>
           )}
+          <Steckbrief info={info} />
           <div style={{
             fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.4, textTransform: "uppercase",
             color: C.muted, marginBottom: 9,
@@ -3092,8 +3369,74 @@ function HafenInfoKarte({ info }) {
               <span style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.6, color: C.body }}>{t}</span>
             </div>
           ))}
+          <div style={{ display: "flex", gap: 10, marginTop: 14, marginBottom: 20, flexWrap: "wrap" }}>
+            <a href={gygUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+              <Btn small variant="outline">{info.name} auf GetYourGuide</Btn>
+            </a>
+            <a href={viatorUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+              <Btn small variant="outline">{info.name} auf Viator</Btn>
+            </a>
+          </div>
+          <div style={{
+            fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.4, textTransform: "uppercase",
+            color: C.muted, marginBottom: 8,
+          }}>Eure eigene Notiz zu {info.name}</div>
+          <textarea value={notiz || ""} rows={2} onChange={(e) => onNotizChange(e.target.value)}
+            placeholder="Bleibt dauerhaft im Hafen-Lexikon, egal welche Reise gerade läuft."
+            style={{ ...eingabeStil, fontFamily: SANS, resize: "vertical", lineHeight: 1.6 }} />
         </div>
       )}
+    </div>
+  );
+}
+
+function TagebuchEingabe({ eintraege, onAdd, onLoeschen }) {
+  const [datum, setDatum] = useState("");
+  const [text, setText] = useState("");
+  function add() {
+    if (!text.trim()) return;
+    onAdd({ id: "tb" + Date.now(), datum, text: text.trim() });
+    setText("");
+  }
+  return (
+    <div>
+      <div style={{ display: "flex", gap: 10 }}>
+        <div style={{ flexShrink: 0, width: 150 }}>
+          <Feld label="Datum" type="date" wert={datum} onChange={setDatum} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <label style={{
+            display: "block", fontFamily: MONO, fontSize: 11, letterSpacing: 1.4,
+            textTransform: "uppercase", color: C.muted, marginBottom: 7,
+          }}>Was war heute?</label>
+          <textarea value={text} rows={2} onChange={(e) => setText(e.target.value)}
+            placeholder="Kurz festhalten, bevor es wieder verblasst."
+            style={{ ...eingabeStil, fontFamily: SANS, resize: "vertical", lineHeight: 1.6 }} />
+        </div>
+      </div>
+      <Btn small variant="outline" onClick={add} style={{ marginBottom: 20 }}><Plus size={14} /> Eintragen</Btn>
+      {eintraege.slice().reverse().map((e) => {
+        const d = alsDatum(e.datum);
+        return (
+          <div key={e.id} style={{
+            display: "flex", gap: 10, padding: "12px 0", borderTop: `1px solid ${C.line}`,
+          }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {d && (
+                <div style={{
+                  fontFamily: MONO, fontSize: 10, letterSpacing: 1.4, textTransform: "uppercase",
+                  color: C.muted, marginBottom: 4,
+                }}>{kurz(d)}</div>
+              )}
+              <div style={{ fontFamily: SANS, fontSize: 14.5, lineHeight: 1.6, color: C.navy }}>{e.text}</div>
+            </div>
+            <button type="button" onClick={() => onLoeschen(e.id)} aria-label="Eintrag löschen" style={{
+              background: "transparent", border: "none", cursor: "pointer", color: C.muted,
+              width: 40, height: 40, display: "grid", placeItems: "center", flexShrink: 0,
+            }}><X size={15} /></button>
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -3101,8 +3444,13 @@ function HafenInfoKarte({ info }) {
 function ModulLandgang({ daten, setze }) {
   const h = daten.haefen;
   const notizen = useMemo(() => notizArchiv(daten.archiv || []), [daten.archiv]);
+  const reederei = reedereiFinden(daten.setup.reederei);
   function add() {
-    setze("haefen", [...h, { id: "h" + Date.now(), name: "", lon: null, lat: null, an: "08:00", ab: "18:00", puffer: "45", weg: "", note: "", sterne: 0 }]);
+    setze("haefen", [...h, {
+      id: "h" + Date.now(), name: "", lon: null, lat: null, an: "08:00", ab: "18:00",
+      puffer: String(reederei ? reederei.puffer : 45), weg: "", note: "", sterne: 0,
+      gebucht: false, treffpunkt: "", budgetGeplant: "", budgetIst: "",
+    }]);
   }
   function upd(id, teil) {
     setze("haefen", h.map((x) => (x.id === id ? { ...x, ...teil } : x)));
@@ -3126,6 +3474,37 @@ function ModulLandgang({ daten, setze }) {
 
       <Karte haefen={h} route={daten.setup.route} />
 
+      {h.length > 1 && (
+        <Card tone="white" style={{ padding: "16px 16px 8px" }}>
+          <div style={{
+            fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.4, textTransform: "uppercase",
+            color: C.muted, marginBottom: 10,
+          }}>Übersicht — auf einen Blick</div>
+          {h.map((x, i) => {
+            const rasterAmp = x.weg ? AMPEL[x.weg] : null;
+            return (
+              <div key={x.id} style={{
+                display: "flex", alignItems: "center", gap: 10, padding: "9px 0",
+                borderBottom: i < h.length - 1 ? `1px solid ${C.line}` : "none",
+              }}>
+                <span aria-hidden="true" style={{
+                  width: 10, height: 10, borderRadius: "50%", flexShrink: 0,
+                  background: rasterAmp ? rasterAmp.farbe : C.line,
+                }} />
+                <span style={{
+                  fontFamily: SANS, fontSize: 14, color: C.navy, flex: 1, minWidth: 0,
+                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                }}>{x.name || `Hafen ${i + 1}`}</span>
+                <span style={{
+                  fontFamily: MONO, fontSize: 10.5, letterSpacing: 0.8, textTransform: "uppercase",
+                  color: x.gebucht ? C.green : C.muted, whiteSpace: "nowrap",
+                }}>{x.gebucht ? "gebucht" : rasterAmp ? "offen" : "noch keine Wahl"}</span>
+              </div>
+            );
+          })}
+        </Card>
+      )}
+
       {h.length === 0 && (
         <Card>
           <P style={{ margin: 0, fontSize: 14.5 }}>
@@ -3144,6 +3523,7 @@ function ModulLandgang({ daten, setze }) {
         const vor = i > 0 ? h[i - 1] : null;
         const strecke = vor && typeof vor.lon === "number" && typeof x.lon === "number"
           ? seemeilen(vor, x) : null;
+        const zeitDiff = vor ? zeitzoneVersatz(vor, x) : null;
         return (
           <Card key={x.id} tone="white">
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
@@ -3151,8 +3531,13 @@ function ModulLandgang({ daten, setze }) {
                 width: 30, height: 30, borderRadius: "50%", background: C.navy, color: C.white,
                 display: "grid", placeItems: "center", fontFamily: SANS, fontSize: 14, flexShrink: 0,
               }}>{i + 1}</span>
-              <div style={{ flex: 1, fontFamily: SANS, fontSize: 13, color: C.muted }}>
+              <div style={{ flex: 1, fontFamily: SANS, fontSize: 13, color: C.muted, minWidth: 0 }}>
                 {strecke ? `${strecke.toLocaleString("de-DE")} sm ab ${vor.name || "vorherigem Hafen"}` : "Reihenfolge der Route"}
+                {zeitDiff !== null && zeitDiff !== 0 && (
+                  <div style={{ color: C.warn, marginTop: 2 }}>
+                    Vermutlich {zeitDiff > 0 ? "+" : ""}{zeitDiff} Std. Zeitverschiebung — an Bord genau ansagen lassen
+                  </div>
+                )}
               </div>
               <button type="button" onClick={() => schieben(i, -1)} aria-label="nach oben" style={{
                 background: "transparent", border: `1px solid ${C.line}`, borderRadius: 3,
@@ -3171,7 +3556,11 @@ function ModulLandgang({ daten, setze }) {
 
             <HafenFeld eintrag={x} onAendern={(teil) => upd(x.id, teil)} />
 
-            {typeof x.lon === "number" && <HafenInfoKarte info={hafenInfo(x.name)} />}
+            {typeof x.lon === "number" && (
+              <HafenInfoKarte info={hafenInfo(x.name)} interessen={daten.setup.interessen}
+                notiz={(daten.hafenNotizen || {})[normText(x.name)]}
+                onNotizChange={(v) => setze("hafenNotizen", { ...(daten.hafenNotizen || {}), [normText(x.name)]: v })} />
+            )}
 
             {notizen[normText(x.name)] && (
               <div style={{
@@ -3222,11 +3611,27 @@ function ModulLandgang({ daten, setze }) {
               optionen={[{ v: "nah", l: "Zentrum, zu Fuß" }, { v: "mittel", l: "bis eine Stunde" }, { v: "weit", l: "weiter weg" }]} />
 
             {amp && (
-              <div style={{ background: amp.bg, borderRadius: 3, padding: "16px" }}>
+              <div style={{ background: amp.bg, borderRadius: 3, padding: "16px", marginBottom: 18 }}>
                 <div style={{ fontFamily: SANS, fontSize: 15, color: amp.farbe, marginBottom: 7 }}>{amp.titel}</div>
                 <div style={{ fontFamily: SANS, fontSize: 14.5, lineHeight: 1.62, color: C.navy }}>{amp.text}</div>
               </div>
             )}
+
+            <Schalter label="Ausflug ist gebucht" an={!!x.gebucht} onChange={(v) => upd(x.id, { gebucht: v })} />
+            {x.gebucht && (
+              <Feld label="Treffpunkt" wert={x.treffpunkt || ""} onChange={(v) => upd(x.id, { treffpunkt: v })}
+                placeholder="z. B. Pier 3, 08:45 Uhr" />
+            )}
+            <div style={{ display: "flex", gap: 10 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <Feld label="Budget geplant" type="number" wert={x.budgetGeplant || ""}
+                  onChange={(v) => upd(x.id, { budgetGeplant: v })} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <Feld label="Tatsächlich ausgegeben" type="number" wert={x.budgetIst || ""}
+                  onChange={(v) => upd(x.id, { budgetIst: v })} />
+              </div>
+            </div>
 
             <div style={{ marginTop: 18, paddingTop: 16, borderTop: `1px solid ${C.line}` }}>
               <div style={{
@@ -3257,6 +3662,27 @@ function ModulLandgang({ daten, setze }) {
         <P style={{ marginBottom: 0, fontSize: 14.5 }}>
           Plant eine Sache pro Hafen richtig statt drei halb, seid mindestens eine Stunde vor der Bordzeit zurück und nehmt immer Wasser, einen Snack und die Kopie der Bordkarte mit, weil genau das fehlt, wenn es unangenehm wird.
         </P>
+      </Card>
+
+      <Card tone="white">
+        <H3>Ideen für Seetage</H3>
+        <P style={{ fontSize: 14, marginBottom: 12 }}>Nicht jeder Tag hat einen Hafen — dafür ist der hier.</P>
+        {SEETAG_IDEEN.map((t, i) => (
+          <div key={i} style={{ display: "flex", gap: 9, marginBottom: 9 }}>
+            <span style={{ color: C.messing, flexShrink: 0 }} aria-hidden="true">·</span>
+            <span style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.6, color: C.body }}>{t}</span>
+          </div>
+        ))}
+      </Card>
+
+      <Card tone="white">
+        <H3>Euer Tagebuch</H3>
+        <P style={{ fontSize: 14, marginBottom: 16 }}>
+          Kurze Notizen zu jedem Tag an Bord, unabhängig von den Häfen — wandert automatisch mit ins Fahrtenbuch.
+        </P>
+        <TagebuchEingabe eintraege={daten.tagebuch || []}
+          onAdd={(e) => setze("tagebuch", [...(daten.tagebuch || []), e])}
+          onLoeschen={(id) => setze("tagebuch", (daten.tagebuch || []).filter((e) => e.id !== id))} />
       </Card>
     </div>
   );
@@ -3397,6 +3823,53 @@ function notizArchiv(archiv) {
   return m;
 }
 
+/* Abzeichen fürs Fahrtenbuch — errechnet aus den besuchten Häfen. */
+function abzeichenBerechnen(archiv) {
+  const kontinente = new Set();
+  const gesehen = new Set();
+  let karibik = 0, fjord = 0, ruinen = 0, privatinsel = 0, asien = 0;
+  archiv.forEach((r) => (r.haefen || []).forEach((h) => {
+    if (!h.name) return;
+    const key = normText(h.name);
+    if (gesehen.has(key)) return;
+    gesehen.add(key);
+    const eintrag = HAFENLISTE.find((x) => normText(x.n) === key);
+    if (!eintrag) return;
+    const k = kontinentFuer(eintrag.land);
+    if (k) kontinente.add(k);
+    if (k === "Mittelamerika & Karibik") karibik++;
+    if (eintrag.typ === "FJ") fjord++;
+    if (eintrag.typ === "RU") ruinen++;
+    if (eintrag.typ === "PI") privatinsel++;
+    if (k === "Asien") asien++;
+  }));
+  const abzeichen = [];
+  if (karibik >= 5) abzeichen.push({ t: "Karibik-Kennerin", d: `${karibik} karibische Häfen besucht` });
+  if (fjord >= 3) abzeichen.push({ t: "Fjord-Fan", d: `${fjord} Fjord-Häfen besucht` });
+  if (ruinen >= 3) abzeichen.push({ t: "Geschichtsfan", d: `${ruinen} antike Stätten besucht` });
+  if (privatinsel >= 3) abzeichen.push({ t: "Insel-Sammlerin", d: `${privatinsel} Privatinseln besucht` });
+  if (asien >= 3) abzeichen.push({ t: "Asien-Entdeckerin", d: `${asien} asiatische Häfen besucht` });
+  if (kontinente.size >= 3) abzeichen.push({ t: "Weltenbummlerin", d: `${kontinente.size} Kontinente/Regionen bereist` });
+  if (archiv.length >= 5) abzeichen.push({ t: "Vielfahrerin", d: `${archiv.length} Kreuzfahrten im Logbuch` });
+  return abzeichen;
+}
+
+function reedereiRanking(archiv) {
+  const m = {};
+  archiv.forEach((r) => {
+    if (!r.reederei || !r.bewertung) return;
+    const werte = [r.bewertung.essen, r.bewertung.service, r.bewertung.kabine, r.bewertung.preis].filter((x) => x > 0);
+    if (!werte.length) return;
+    const schnitt = werte.reduce((a, x) => a + x, 0) / werte.length;
+    if (!m[r.reederei]) m[r.reederei] = { summe: 0, n: 0 };
+    m[r.reederei].summe += schnitt;
+    m[r.reederei].n++;
+  });
+  return Object.keys(m)
+    .map((k) => ({ reederei: k, schnitt: m[k].summe / m[k].n, mal: m[k].n }))
+    .sort((a, b) => b.schnitt - a.schnitt);
+}
+
 function Zahl({ wert, label }) {
   return (
     <div style={{ flex: "1 1 30%", minWidth: 92, padding: "14px 4px", textAlign: "center" }}>
@@ -3427,11 +3900,56 @@ function Sterne({ wert, onChange, klein }) {
   );
 }
 
+function WunschlisteEingabe({ onAdd }) {
+  const [text, setText] = useState("");
+  const [offen, setOffen] = useState(false);
+  const vorschlaege = offen ? hafenVorschlaege(text) : [];
+  const waehle = (name) => { onAdd(name); setText(""); setOffen(false); };
+  return (
+    <div style={{ marginBottom: 16, position: "relative" }}>
+      <div style={{ display: "flex", gap: 8 }}>
+        <input value={text}
+          onChange={(e) => { setText(e.target.value); setOffen(true); }}
+          onFocus={() => setOffen(true)}
+          onBlur={() => setTimeout(() => setOffen(false), 180)}
+          onKeyDown={(e) => { if (e.key === "Enter" && text.trim()) waehle(text.trim()); }}
+          placeholder="Traumhafen eintippen, z. B. Bora Bora"
+          style={{ ...eingabeStil, flex: 1, minWidth: 0 }} />
+        <Btn small onClick={() => text.trim() && waehle(text.trim())} style={{ flexShrink: 0 }}><Plus size={15} /></Btn>
+      </div>
+      {vorschlaege.length > 0 && (
+        <div style={{
+          position: "absolute", left: 0, right: 0, top: 50, zIndex: 20,
+          background: C.white, border: `1px solid ${C.line}`, borderRadius: 3,
+          overflow: "hidden", boxShadow: "0 8px 24px rgba(18,57,92,0.14)",
+        }}>
+          {vorschlaege.map((v) => (
+            <button key={v.n} type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => waehle(v.n)}
+              style={{
+                display: "block", width: "100%", textAlign: "left", cursor: "pointer",
+                background: "transparent", border: "none", borderBottom: `1px solid ${C.line}`,
+                padding: "13px 14px", minHeight: 46, fontFamily: SANS, fontSize: 15, color: C.navy,
+              }}>{v.n}</button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ModulFahrtenbuch({ daten, setze }) {
   const archiv = daten.archiv || [];
   const st = archivStatistik(archiv);
   const haefen = alleHaefen(archiv);
   const [offen, setOffen] = useState(null);
+  const abzeichen = useMemo(() => abzeichenBerechnen(archiv), [archiv]);
+  const ranking = useMemo(() => reedereiRanking(archiv), [archiv]);
+  const besucht = useMemo(() => {
+    const m = new Set();
+    archiv.forEach((r) => (r.haefen || []).forEach((h) => h.name && m.add(normText(h.name))));
+    return m;
+  }, [archiv]);
+  const wunschliste = daten.wunschliste || [];
 
   return (
     <div>
@@ -3441,6 +3959,12 @@ function ModulFahrtenbuch({ daten, setze }) {
         <span>Jede abgeschlossene Reise bleibt hier liegen, mit Häfen, Notizen und Seemeilen.</span>
         <span>Beim nächsten Mal wisst ihr wieder, was ihr euch damals notiert habt — und das ist mehr wert als jedes Reiseportal.</span>
       </Lead>
+
+      {archiv.length > 0 && (
+        <Btn small variant="outline" onClick={() => window.print()} style={{ marginBottom: 20 }}>
+          Als PDF sichern oder drucken
+        </Btn>
+      )}
 
       {archiv.length === 0 ? (
         <Card>
@@ -3463,6 +3987,23 @@ function ModulFahrtenbuch({ daten, setze }) {
               <Zahl wert={st.schiffe} label={st.schiffe === 1 ? "Schiff" : "Schiffe"} />
             </div>
           </Card>
+
+          {abzeichen.length > 0 && (
+            <Card tone="white">
+              <Kicker>Eure Abzeichen</Kicker>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                {abzeichen.map((a) => (
+                  <div key={a.t} title={a.d} style={{
+                    background: C.sand, borderRadius: 3, padding: "10px 14px",
+                    border: `1px solid ${C.messingLeise}`,
+                  }}>
+                    <div style={{ fontFamily: SERIF, fontSize: 15, color: C.navy }}>✦ {a.t}</div>
+                    <div style={{ fontFamily: SANS, fontSize: 12, color: C.muted, marginTop: 3 }}>{a.d}</div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          )}
 
           {st.lieblingshafen && st.lieblingshafen.mal > 1 && (
             <Card tone="sand">
@@ -3528,6 +4069,19 @@ function ModulFahrtenbuch({ daten, setze }) {
                         color: C.muted, marginTop: 12,
                       }}>{r.sm.toLocaleString("de-DE")} Seemeilen</div>
                     )}
+                    {(r.tagebuch || []).length > 0 && (
+                      <div style={{ marginTop: 16 }}>
+                        <div style={{
+                          fontFamily: MONO, fontSize: 10, letterSpacing: 1.5, textTransform: "uppercase",
+                          color: C.muted, marginBottom: 8,
+                        }}>Euer Tagebuch</div>
+                        {r.tagebuch.slice().reverse().map((e) => (
+                          <P key={e.id} style={{ fontSize: 14, marginBottom: 8 }}>
+                            {e.datum && <strong style={{ color: C.navy }}>{e.datum}: </strong>}{e.text}
+                          </P>
+                        ))}
+                      </div>
+                    )}
                     <div style={{ marginTop: 16 }}>
                       <Btn small variant="quiet"
                         onClick={() => setze("archiv", archiv.filter((x) => x.id !== r.id))}>
@@ -3542,6 +4096,21 @@ function ModulFahrtenbuch({ daten, setze }) {
         </div>
       )}
 
+      {ranking.length > 0 && (
+        <Card tone="green">
+          <Kicker color={C.green}>Euer Reederei-Ranking</Kicker>
+          {ranking.map((r, i) => (
+            <div key={r.reederei} style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              padding: "9px 0", borderBottom: i < ranking.length - 1 ? `1px solid ${C.line}` : "none",
+            }}>
+              <span style={{ fontFamily: SANS, fontSize: 14.5, color: C.navy }}>{i + 1}. {r.reederei}</span>
+              <span style={{ fontFamily: MONO, fontSize: 12, color: C.muted }}>{r.schnitt.toFixed(1)} ★ ({r.mal}×)</span>
+            </div>
+          ))}
+        </Card>
+      )}
+
       {st.reedereien.length > 1 && (
         <Card tone="green">
           <P style={{ margin: 0, fontSize: 14.5 }}>
@@ -3550,6 +4119,46 @@ function ModulFahrtenbuch({ daten, setze }) {
           </P>
         </Card>
       )}
+
+      <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "28px 0 16px" }}>
+        <span aria-hidden="true" style={{ width: 20, height: 1, background: C.messing }} />
+        <span style={{
+          fontFamily: MONO, fontSize: 10.5, letterSpacing: 2.4, textTransform: "uppercase", color: C.muted,
+        }}>Eure Traumhäfen</span>
+        <span aria-hidden="true" style={{ flex: 1, height: 1, background: C.line }} />
+      </div>
+      <Card tone="white">
+        <P style={{ fontSize: 14, marginBottom: 16 }}>
+          Eine Wunschliste, unabhängig von der aktuellen Route — für alles, wo ihr irgendwann mal hinwollt.
+        </P>
+        <WunschlisteEingabe onAdd={(name) => {
+          if (wunschliste.some((w) => normText(w) === normText(name))) return;
+          setze("wunschliste", [...wunschliste, name]);
+        }} />
+        {wunschliste.length === 0 ? (
+          <P style={{ fontSize: 13.5, color: C.muted, marginBottom: 0 }}>Noch keine Träume eingetragen.</P>
+        ) : wunschliste.map((name, i) => {
+          const istBesucht = besucht.has(normText(name));
+          return (
+            <div key={name + i} style={{
+              display: "flex", alignItems: "center", gap: 10, padding: "10px 0",
+              borderBottom: i < wunschliste.length - 1 ? `1px solid ${C.line}` : "none",
+            }}>
+              {istBesucht && <Check size={14} color={C.green} />}
+              <span style={{
+                flex: 1, minWidth: 0, fontFamily: SANS, fontSize: 14.5,
+                color: istBesucht ? C.muted : C.navy,
+                textDecoration: istBesucht ? "line-through" : "none",
+              }}>{name}</span>
+              <button type="button" onClick={() => setze("wunschliste", wunschliste.filter((_, j) => j !== i))}
+                aria-label="Entfernen" style={{
+                  background: "transparent", border: "none", cursor: "pointer", color: C.muted,
+                  width: 40, height: 40, display: "grid", placeItems: "center",
+                }}><X size={15} /></button>
+            </div>
+          );
+        })}
+      </Card>
     </div>
   );
 }
@@ -3557,6 +4166,59 @@ function ModulFahrtenbuch({ daten, setze }) {
 /* =========================================================
    REISE-SETUP
 ========================================================= */
+function ReedereiFeld({ wert, onChange }) {
+  const [offen, setOffen] = useState(false);
+  const vorschlaege = offen ? reedereiVorschlaege(wert) : [];
+  return (
+    <div style={{ marginBottom: 4, position: "relative" }}>
+      <Feld label="Reederei" wert={wert} placeholder="z. B. Mein Schiff, AIDA …"
+        onChange={(v) => { onChange(v); setOffen(true); }} />
+      {vorschlaege.length > 0 && (
+        <div style={{
+          position: "absolute", left: 0, right: 0, top: 76, zIndex: 20,
+          background: C.white, border: `1px solid ${C.line}`, borderRadius: 3,
+          overflow: "hidden", boxShadow: "0 8px 24px rgba(18,57,92,0.14)",
+        }}>
+          {vorschlaege.map((r) => (
+            <button key={r.n} type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => { onChange(r.n); setOffen(false); }}
+              style={{
+                display: "block", width: "100%", textAlign: "left", cursor: "pointer",
+                background: "transparent", border: "none", borderBottom: `1px solid ${C.line}`,
+                padding: "13px 14px", minHeight: 46, fontFamily: SANS, fontSize: 15, color: C.navy,
+              }}>{r.n}</button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ReedereiInfo({ reederei }) {
+  const r = reedereiFinden(reederei);
+  if (!r) return null;
+  return (
+    <div style={{
+      background: C.sand, borderRadius: 3, padding: "14px 15px", margin: "0 0 20px",
+      borderLeft: `2px solid ${C.messing}`,
+    }}>
+      <div style={{
+        fontFamily: MONO, fontSize: 10, letterSpacing: 1.5, textTransform: "uppercase",
+        color: C.muted, marginBottom: 8,
+      }}>Was wir über {r.n} wissen</div>
+      <P style={{ fontSize: 14, marginBottom: 0, lineHeight: 1.6 }}>
+        Bordzeit meist {r.puffer} Minuten vor Abfahrt fällig.{" "}
+        {r.trinkgeldAutomatik
+          ? `Trinkgeld läuft automatisch übers Bordkonto, Richtwert rund ${r.trinkgeldProNacht} € pro Person und Nacht.`
+          : "Trinkgeld läuft hier nicht automatisch übers Bordkonto."}
+        {" "}{r.kidsClubAb ? `Kids Club meist ab ${r.kidsClubAb} Jahren.` : "Kein klassischer Kids Club."}
+        {" "}Richtwerte — die genauen, aktuellen Zahlen findet ihr in euren Buchungsunterlagen.
+      </P>
+    </div>
+  );
+}
+
 function Setup({ daten, setze }) {
   const s = daten.setup;
   const set = (k, v) => setze("setup", { ...s, [k]: v });
@@ -3569,7 +4231,8 @@ function Setup({ daten, setze }) {
       </P>
 
       <Card tone="white">
-        <Feld label="Reederei" wert={s.reederei} onChange={(v) => set("reederei", v)} placeholder="z. B. Mein Schiff, AIDA …" />
+        <ReedereiFeld wert={s.reederei} onChange={(v) => set("reederei", v)} />
+        <ReedereiInfo reederei={s.reederei} />
         <Feld label="Schiff" wert={s.schiff} onChange={(v) => set("schiff", v)} />
         <Feld label="Abfahrtsdatum" type="date" wert={s.abfahrt} onChange={(v) => set("abfahrt", v)} />
         <div style={{ display: "flex", gap: 10 }}>
@@ -3588,6 +4251,9 @@ function Setup({ daten, setze }) {
           optionen={[{ v: "sommer", l: "Sommer" }, { v: "neben", l: "Nebensaison" }, { v: "winter", l: "Winter" }]} />
         <Wahl label="Anreise" wert={s.anreise} onChange={(v) => set("anreise", v)}
           optionen={[{ v: "flug", l: "Fly & Cruise" }, { v: "boden", l: "Auto oder Bahn" }]} />
+        <WahlMehr label="Worauf freut ihr euch am meisten?" werte={s.interessen} onChange={(v) => set("interessen", v)}
+          optionen={INTERESSEN_OPTIONEN}
+          hinweis="Passende Häfen markieren wir im Hafen-Lexikon mit einem kleinen Hinweis." />
 
         <Schalter label="Ein Kind unter drei Jahren ist dabei" an={s.kind} onChange={(v) => set("kind", v)} />
         <Schalter label="Es gibt Gala-Abende" an={s.gala} onChange={(v) => set("gala", v)} />
@@ -3610,7 +4276,31 @@ const PHASE = {
   8: "nach der Reise",
 };
 
-function Start({ daten, gehe, fortschritt, onAbschliessen }) {
+function GeplantKarte({ eintrag, onAktivieren, onLoeschen }) {
+  const s = eintrag.setup;
+  const ab = alsDatum(s.abfahrt);
+  const tage = ab ? tageBis(ab) : null;
+  const zeile = [s.reederei, s.schiff].filter(Boolean).join(" · ");
+  return (
+    <Card tone="white" style={{ padding: "16px 18px 18px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, marginBottom: 8 }}>
+        <div style={{ fontFamily: SERIF, fontSize: 19, color: C.navy }}>{zeile || "Reise ohne Namen"}</div>
+        {tage !== null && tage > 0 && (
+          <div style={{ fontFamily: MONO, fontSize: 11, color: C.blue, whiteSpace: "nowrap" }}>{tage} Tage</div>
+        )}
+      </div>
+      <div style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, marginBottom: 14 }}>
+        {ab ? kurz(ab) : "kein Datum"} · {(eintrag.haefen || []).length} {(eintrag.haefen || []).length === 1 ? "Hafen" : "Häfen"} geplant
+      </div>
+      <div style={{ display: "flex", gap: 10 }}>
+        <Btn small onClick={onAktivieren} style={{ flex: 1 }}>Aktivieren</Btn>
+        <Btn small variant="quiet" onClick={onLoeschen}>Löschen</Btn>
+      </div>
+    </Card>
+  );
+}
+
+function Start({ daten, gehe, fortschritt, onAbschliessen, onAktivieren, onGeplantLoeschen }) {
   const s = daten.setup;
   const bilanz = archivStatistik(daten.archiv || []);
   const ab = alsDatum(s.abfahrt);
@@ -3739,6 +4429,22 @@ function Start({ daten, gehe, fortschritt, onAbschliessen }) {
         );
       })}
 
+      {daten.geplant && daten.geplant.length > 0 && (
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "28px 0 16px" }}>
+            <span aria-hidden="true" style={{ width: 20, height: 1, background: C.messing }} />
+            <span style={{
+              fontFamily: MONO, fontSize: 10.5, letterSpacing: 2.4, textTransform: "uppercase", color: C.muted,
+            }}>Weitere Reisen in Planung</span>
+            <span aria-hidden="true" style={{ flex: 1, height: 1, background: C.line }} />
+          </div>
+          {daten.geplant.map((g) => (
+            <GeplantKarte key={g.id} eintrag={g}
+              onAktivieren={() => onAktivieren(g.id)} onLoeschen={() => onGeplantLoeschen(g.id)} />
+          ))}
+        </div>
+      )}
+
       {(daten.haefen.length > 0 || s.schiff || s.reederei) && (
         <div style={{ textAlign: "center", padding: "18px 0 4px" }}>
           <Btn small variant="outline" onClick={onAbschliessen} full>
@@ -3764,6 +4470,82 @@ function Start({ daten, gehe, fortschritt, onAbschliessen }) {
 /* =========================================================
    APP
 ========================================================= */
+/* =========================================================
+   TEILEN – Postkarte fürs Screenshot
+========================================================= */
+function TeilenPostkarte({ daten, onClose }) {
+  const s = daten.setup;
+  const h = daten.haefen || [];
+  const ab = alsDatum(s.abfahrt);
+  const mitOrt = h.filter((x) => typeof x.lon === "number");
+  const sm = mitOrt.reduce((a, p, i) => (i ? a + seemeilen(mitOrt[i - 1], p) : 0), 0);
+  const schiffszeile = [s.reederei, s.schiff].filter(Boolean).join(" · ");
+
+  return (
+    <div role="dialog" aria-modal="true" className="no-print" style={{
+      position: "fixed", inset: 0, zIndex: 80,
+      background: `radial-gradient(circle at 50% 38%, ${C.nachtblau} 0%, ${C.tiefsee} 72%)`,
+      overflowY: "auto", padding: "26px 20px 44px",
+    }}>
+      <button type="button" onClick={onClose} aria-label="Schließen" style={{
+        position: "fixed", top: 18, right: 18, background: "transparent",
+        border: `1px solid ${C.messingLeise}`, borderRadius: 3, color: C.messingHell,
+        width: 44, height: 44, display: "grid", placeItems: "center", cursor: "pointer", zIndex: 2,
+      }}><X size={18} /></button>
+
+      <div style={{ maxWidth: 480, margin: "0 auto" }}>
+        <div style={{ textAlign: "center", margin: "20px 0 22px" }}>
+          <div style={{
+            fontFamily: MONO, fontSize: 10, letterSpacing: 3.2, color: C.messing,
+            textTransform: "uppercase", marginBottom: 12,
+          }}>Logbuch · @wolken.wanderer</div>
+          <h2 style={{
+            fontFamily: SERIF, fontWeight: 500, fontSize: "clamp(30px, 8vw, 42px)",
+            lineHeight: 1.08, color: C.white, margin: "0 0 10px",
+          }}>{schiffszeile || "Unsere Reise"}</h2>
+          {ab && (
+            <div style={{
+              fontFamily: MONO, fontSize: 11.5, letterSpacing: 1.4, color: C.messingHell,
+              textTransform: "uppercase",
+            }}>Auslaufen {kurz(ab)} · {s.naechte} Nächte</div>
+          )}
+        </div>
+
+        <div style={{
+          background: "rgba(255,255,255,0.05)", borderRadius: RUND, padding: 12,
+          border: `1px solid ${C.messingLeise}`,
+        }}>
+          <Karte haefen={h} route={s.route} />
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "center", gap: 34, marginTop: 8, flexWrap: "wrap" }}>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontFamily: SERIF, fontSize: 30, color: C.white }}>{mitOrt.length}</div>
+            <div style={{
+              fontFamily: MONO, fontSize: 10, letterSpacing: 1.4, color: C.messingHell,
+              textTransform: "uppercase", marginTop: 5,
+            }}>{mitOrt.length === 1 ? "Hafen" : "Häfen"}</div>
+          </div>
+          {sm > 0 && (
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontFamily: SERIF, fontSize: 30, color: C.white }}>{sm.toLocaleString("de-DE")}</div>
+              <div style={{
+                fontFamily: MONO, fontSize: 10, letterSpacing: 1.4, color: C.messingHell,
+                textTransform: "uppercase", marginTop: 5,
+              }}>Seemeilen</div>
+            </div>
+          )}
+        </div>
+
+        <div style={{
+          textAlign: "center", marginTop: 30, fontFamily: SANS, fontSize: 12.5,
+          lineHeight: 1.7, color: "#8FA9B8",
+        }}>Macht einen Screenshot und teilt ihn — dieses Fenster ist extra für genau das gemacht.</div>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   const [daten, setDaten] = useState(LEER);
   const [screen, setScreen] = useState("start");
@@ -3771,6 +4553,8 @@ function App() {
   const [gespeichert, setGespeichert] = useState(false);
   const [frage, setFrage] = useState(false);
   const [abschluss, setAbschluss] = useState(false);
+  const [bewertung, setBewertung] = useState({ essen: 0, service: 0, kabine: 0, preis: 0 });
+  const [teilen, setTeilen] = useState(false);
   const timer = useRef(null);
 
   useEffect(() => {
@@ -3816,7 +4600,10 @@ function App() {
     }));
     f[1] = { wert: cw, gesamt: cg };
 
-    const ff = { route: s.route, saison: s.saison, kind: s.kind, anreise: s.anreise, gala: s.gala };
+    const ff = {
+      route: s.route, saison: s.saison, kind: s.kind, anreise: s.anreise, gala: s.gala,
+      typen: typenInRoute(daten.haefen),
+    };
     let pg = 0, pw = 0;
     PACK.filter((b) => !b.wenn || b.wenn(ff)).forEach((b) =>
       b.punkte.filter((x) => !x.wenn || x.wenn(ff)).forEach((x) => {
@@ -3831,26 +4618,67 @@ function App() {
     return f;
   }, [daten]);
 
+  /* Felder, die reiseübergreifend erhalten bleiben, egal was mit der
+     aktiven Reise passiert (neu, geparkt, ins Fahrtenbuch gelegt). */
+  const uebergreifend = (d) => ({
+    archiv: d.archiv || [], geplant: d.geplant || [], wunschliste: d.wunschliste || [],
+    hafenNotizen: d.hafenNotizen || {},
+  });
+  const reiseSnapshot = (d) => ({
+    id: "g" + Date.now(), setup: d.setup, kabine: d.kabine, haefen: d.haefen,
+    bord: d.bord, doks: d.doks, packExtra: d.packExtra, haken: d.haken, tagebuch: d.tagebuch || [],
+  });
+  const hatInhalt = (d) => !!(d.setup.reederei || d.setup.schiff || d.setup.abfahrt || (d.haefen && d.haefen.length));
+
   function neueReise() {
-    setDaten((d) => ({ ...LEER, archiv: d.archiv || [] }));
+    setDaten((d) => ({ ...LEER, ...uebergreifend(d) }));
     setFrage(false);
     setScreen("start");
   }
 
-  function insFahrtenbuch() {
+  function reiseParken() {
+    setDaten((d) => {
+      const geplant = hatInhalt(d) ? [...(d.geplant || []), reiseSnapshot(d)] : (d.geplant || []);
+      return { ...LEER, ...uebergreifend(d), geplant };
+    });
+    setScreen("start");
+  }
+
+  function reiseAktivieren(id) {
+    setDaten((d) => {
+      const eintrag = (d.geplant || []).find((g) => g.id === id);
+      if (!eintrag) return d;
+      const rest = (d.geplant || []).filter((g) => g.id !== id);
+      const geplant = hatInhalt(d) ? [...rest, reiseSnapshot(d)] : rest;
+      return {
+        ...d, geplant,
+        setup: eintrag.setup, kabine: eintrag.kabine, haefen: eintrag.haefen,
+        bord: eintrag.bord, doks: eintrag.doks, packExtra: eintrag.packExtra, haken: eintrag.haken,
+        tagebuch: eintrag.tagebuch || [],
+      };
+    });
+    setScreen("start");
+  }
+
+  function geplantLoeschen(id) {
+    setDaten((d) => ({ ...d, geplant: (d.geplant || []).filter((g) => g.id !== id) }));
+  }
+
+  function insFahrtenbuch(bewertung) {
     setDaten((d) => {
       const mitOrt = (d.haefen || []).filter((x) => typeof x.lon === "number");
       const sm = mitOrt.reduce((a, p, i) => (i ? a + seemeilen(mitOrt[i - 1], p) : 0), 0);
       const eintrag = {
         id: "r" + Date.now(),
         reederei: d.setup.reederei, schiff: d.setup.schiff, abfahrt: d.setup.abfahrt,
-        naechte: d.setup.naechte, route: d.setup.route, sm,
+        naechte: d.setup.naechte, route: d.setup.route, sm, bewertung: bewertung || null,
         kabine: { art: d.kabine.art, laengs: d.kabine.laengs, nummer: d.kabine.nummer },
         haefen: (d.haefen || []).map((x) => ({
           name: x.name, lon: x.lon, lat: x.lat, note: x.note || "", sterne: x.sterne || 0,
         })),
+        tagebuch: d.tagebuch || [],
       };
-      return { ...LEER, archiv: [...(d.archiv || []), eintrag] };
+      return { ...LEER, ...uebergreifend(d), archiv: [...(d.archiv || []), eintrag] };
     });
     setAbschluss(false);
     setScreen(8);
@@ -3868,7 +4696,7 @@ function App() {
     }}>
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "22px 20px 0" }}>
         {(istModul || screen === "setup") && (
-          <div style={{
+          <div className="no-print" style={{
             display: "flex", alignItems: "center", gap: 10, marginBottom: 22,
             paddingBottom: 14, borderBottom: `1px solid ${C.line}`,
           }}>
@@ -3889,7 +4717,9 @@ function App() {
         )}
 
         <div key={String(screen)} style={{ animation: "auftauchen .32s ease both" }}>
-          {screen === "start" && <Start daten={daten} gehe={setScreen} fortschritt={fortschritt} onAbschliessen={() => setAbschluss(true)} />}
+          {screen === "start" && <Start daten={daten} gehe={setScreen} fortschritt={fortschritt}
+            onAbschliessen={() => setAbschluss(true)}
+            onAktivieren={reiseAktivieren} onGeplantLoeschen={geplantLoeschen} />}
           {screen === "setup" && <Setup daten={daten} setze={setze} />}
           {screen === 1 && <ModulCountdown daten={daten} setzeHaken={setzeHaken} />}
           {screen === 2 && <ModulKabine daten={daten} setze={setze} />}
@@ -3902,7 +4732,17 @@ function App() {
         </div>
 
         {screen === "start" && (
-          <div style={{ textAlign: "center", padding: "4px 0 30px" }}>
+          <div style={{ textAlign: "center", padding: "4px 0 30px", display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
+            {daten.haefen.length > 0 && (
+              <Btn small variant="quiet" onClick={() => setTeilen(true)}>
+                Route als Postkarte teilen
+              </Btn>
+            )}
+            {(daten.setup.reederei || daten.setup.schiff || daten.haefen.length > 0) && (
+              <Btn small variant="quiet" onClick={reiseParken}>
+                <Plus size={14} /> Weitere Reise parken und neue anlegen
+              </Btn>
+            )}
             <Btn small variant="quiet" onClick={() => setFrage(true)}>
               <RotateCcw size={14} /> Neue Reise anlegen
             </Btn>
@@ -3953,9 +4793,23 @@ function App() {
               Schiff, Häfen, eure Notizen und die gefahrenen Seemeilen bleiben dauerhaft im Fahrtenbuch.
               Der Planer selbst wird danach leer, damit ihr die nächste Reise vorbereiten könnt.
             </P>
+            {daten.setup.reederei && (
+              <div style={{ marginBottom: 8 }}>
+                <div style={{
+                  fontFamily: MONO, fontSize: 10, letterSpacing: 1.4, textTransform: "uppercase",
+                  color: C.muted, marginBottom: 10,
+                }}>Wie war {daten.setup.reederei}? (freiwillig)</div>
+                {[["essen", "Essen"], ["service", "Service"], ["kabine", "Kabine"], ["preis", "Preis-Leistung"]].map(([k, l]) => (
+                  <div key={k} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                    <span style={{ fontFamily: SANS, fontSize: 14, color: C.navy }}>{l}</span>
+                    <Sterne wert={bewertung[k]} onChange={(v) => setBewertung({ ...bewertung, [k]: v })} />
+                  </div>
+                ))}
+              </div>
+            )}
             <div style={{ display: "flex", gap: 10 }}>
               <Btn small variant="outline" onClick={() => setAbschluss(false)} style={{ flex: 1 }}>Noch nicht</Btn>
-              <Btn small onClick={insFahrtenbuch} style={{ flex: 1 }}>Eintragen</Btn>
+              <Btn small onClick={() => { insFahrtenbuch(bewertung); setBewertung({ essen: 0, service: 0, kabine: 0, preis: 0 }); }} style={{ flex: 1 }}>Eintragen</Btn>
             </div>
           </div>
         </div>
@@ -3982,6 +4836,8 @@ function App() {
           </div>
         </div>
       )}
+
+      {teilen && <TeilenPostkarte daten={daten} onClose={() => setTeilen(false)} />}
 
       <div aria-live="polite" style={{
         position: "fixed", bottom: 88, left: "50%",
