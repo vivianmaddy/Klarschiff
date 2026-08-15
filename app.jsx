@@ -664,10 +664,12 @@ function WahlMehr({ label, werte, onChange, optionen, hinweis }) {
   const um = (v) => onChange(liste.indexOf(v) >= 0 ? liste.filter((x) => x !== v) : [...liste, v]);
   return (
     <div style={{ marginBottom: 20 }}>
-      <div style={{
-        fontFamily: MONO, fontSize: 11, letterSpacing: 1.4, textTransform: "uppercase",
-        color: C.muted, marginBottom: 9,
-      }}>{label}</div>
+      {label && (
+        <div style={{
+          fontFamily: MONO, fontSize: 11, letterSpacing: 1.4, textTransform: "uppercase",
+          color: C.muted, marginBottom: 9,
+        }}>{label}</div>
+      )}
       <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
         {optionen.map((o) => {
           const an = liste.indexOf(o.v) >= 0;
@@ -3757,12 +3759,19 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
   const h = daten.haefen;
   const notizen = useMemo(() => notizArchiv(daten.archiv || []), [daten.archiv]);
   const reederei = reedereiFinden(daten.setup.reederei);
+  /* Zählt nur echte Häfen durch, damit die Nummer auf der Karte (die
+     Seetage ja gar nicht zeichnet) zur Nummer auf der Karte passt. */
+  let laufendeHafenNr = 0;
+  const hafenNummern = h.map((e) => (typeof e.lon === "number" ? ++laufendeHafenNr : null));
   function add() {
     setze("haefen", [...h, {
-      id: "h" + Date.now(), name: "", lon: null, lat: null, an: "08:00", ab: "18:00",
+      id: "h" + Date.now(), typ: "hafen", name: "", lon: null, lat: null, an: "08:00", ab: "18:00",
       puffer: String(reederei ? reederei.puffer : 45), weg: "", note: "", sterne: 0,
       gebucht: false, treffpunkt: "", budgetGeplant: "", budgetIst: "",
     }]);
+  }
+  function addSeetag() {
+    setze("haefen", [...h, { id: "s" + Date.now(), typ: "see", note: "" }]);
   }
   function upd(id, teil) {
     setze("haefen", h.map((x) => (x.id === id ? { ...x, ...teil } : x)));
@@ -3793,7 +3802,8 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
             color: C.muted, marginBottom: 10,
           }}>Übersicht — auf einen Blick</div>
           {h.map((x, i) => {
-            const rasterAmp = x.weg ? AMPEL[x.weg] : null;
+            const istSee = x.typ === "see";
+            const rasterAmp = !istSee && x.weg ? AMPEL[x.weg] : null;
             return (
               <div key={x.id} style={{
                 display: "flex", alignItems: "center", gap: 10, padding: "9px 0",
@@ -3801,16 +3811,18 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
               }}>
                 <span aria-hidden="true" style={{
                   width: 10, height: 10, borderRadius: "50%", flexShrink: 0,
-                  background: rasterAmp ? rasterAmp.farbe : C.line,
+                  background: istSee ? C.blue : (rasterAmp ? rasterAmp.farbe : C.line),
                 }} />
                 <span style={{
                   fontFamily: SANS, fontSize: 14, color: C.navy, flex: 1, minWidth: 0,
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                }}>{x.name || `Hafen ${i + 1}`}</span>
-                <span style={{
-                  fontFamily: MONO, fontSize: 10.5, letterSpacing: 0.8, textTransform: "uppercase",
-                  color: x.gebucht ? C.green : C.muted, whiteSpace: "nowrap",
-                }}>{x.gebucht ? "gebucht" : rasterAmp ? "offen" : "noch keine Wahl"}</span>
+                }}>{istSee ? "🌊 Seetag" : (x.name || `Hafen ${i + 1}`)}</span>
+                {!istSee && (
+                  <span style={{
+                    fontFamily: MONO, fontSize: 10.5, letterSpacing: 0.8, textTransform: "uppercase",
+                    color: x.gebucht ? C.green : C.muted, whiteSpace: "nowrap",
+                  }}>{x.gebucht ? "gebucht" : rasterAmp ? "offen" : "noch keine Wahl"}</span>
+                )}
               </div>
             );
           })}
@@ -3840,15 +3852,45 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
       </Card>
 
       {h.map((x, i) => {
+        if (x.typ === "see") {
+          return (
+            <Card key={x.id} tone="white">
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                <span style={{
+                  width: 30, height: 30, borderRadius: "50%", background: C.skySoft, color: C.navy,
+                  display: "grid", placeItems: "center", fontSize: 15, flexShrink: 0,
+                }} aria-hidden="true">🌊</span>
+                <div style={{ flex: 1, fontFamily: SERIF, fontSize: 19, color: C.navy }}>Seetag</div>
+                <button type="button" onClick={() => schieben(i, -1)} aria-label="nach oben" style={{
+                  background: "transparent", border: `1px solid ${C.line}`, borderRadius: 3,
+                  cursor: "pointer", color: C.body, width: 44, height: 44, fontSize: 15,
+                }}>↑</button>
+                <button type="button" onClick={() => schieben(i, 1)} aria-label="nach unten" style={{
+                  background: "transparent", border: `1px solid ${C.line}`, borderRadius: 3,
+                  cursor: "pointer", color: C.body, width: 44, height: 44, fontSize: 15,
+                }}>↓</button>
+                <button type="button" onClick={() => setze("haefen", h.filter((y) => y.id !== x.id))}
+                  aria-label="Seetag entfernen" style={{
+                    background: "transparent", border: "none", cursor: "pointer", color: C.muted,
+                    width: 44, height: 44, display: "grid", placeItems: "center",
+                  }}><X size={17} /></button>
+              </div>
+              <textarea value={x.note || ""} rows={2}
+                onChange={(e) => upd(x.id, { note: e.target.value })}
+                placeholder="Was ist an dem Tag geplant? Z. B. Galaabend, Vortrag über den nächsten Hafen …"
+                style={{ ...eingabeStil, fontFamily: SANS, resize: "vertical", lineHeight: 1.6 }} />
+            </Card>
+          );
+        }
         const an = minuten(x.an);
         const ab = minuten(x.ab);
         const puf = parseInt(x.puffer || "45", 10) || 45;
         const bord = ab !== null ? ab - puf : null;
         const netto = an !== null && bord !== null ? bord - an - 60 : null;
         const amp = x.weg ? AMPEL[x.weg] : null;
-        const vor = i > 0 ? h[i - 1] : null;
-        const strecke = vor && typeof vor.lon === "number" && typeof x.lon === "number"
-          ? seemeilen(vor, x) : null;
+        let vor = null;
+        for (let j = i - 1; j >= 0; j--) { if (typeof h[j].lon === "number") { vor = h[j]; break; } }
+        const strecke = vor && typeof x.lon === "number" ? seemeilen(vor, x) : null;
         const zeitDiff = vor ? zeitzoneVersatz(vor, x) : null;
         return (
           <Card key={x.id} tone="white">
@@ -3856,7 +3898,7 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
               <span style={{
                 width: 30, height: 30, borderRadius: "50%", background: C.navy, color: C.white,
                 display: "grid", placeItems: "center", fontFamily: SANS, fontSize: 14, flexShrink: 0,
-              }}>{i + 1}</span>
+              }}>{hafenNummern[i]}</span>
               <div style={{ flex: 1, fontFamily: SANS, fontSize: 13, color: C.muted, minWidth: 0 }}>
                 {strecke ? `${strecke.toLocaleString("de-DE")} sm ab ${vor.name || "vorherigem Hafen"}` : "Reihenfolge der Route"}
                 {zeitDiff !== null && zeitDiff !== 0 && (
@@ -3978,9 +4020,22 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
         );
       })}
 
-      <Btn full variant="outline" onClick={add} style={{ marginBottom: 26 }}>
-        <Plus size={16} /> Hafen hinzufügen
-      </Btn>
+      <div style={{ display: "flex", gap: 10, marginBottom: 8 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <Btn full variant="outline" onClick={add}>
+            <Plus size={16} /> Hafen hinzufügen
+          </Btn>
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <Btn full variant="outline" onClick={addSeetag}>
+            🌊 Seetag hinzufügen
+          </Btn>
+        </div>
+      </div>
+      <P style={{ fontSize: 12.5, color: C.muted, marginTop: 0, marginBottom: 26 }}>
+        Mehrere Seetage am Stück? Einfach mehrfach auf „Seetag hinzufügen" tippen und mit den Pfeilen
+        an die richtige Stelle in der Route schieben.
+      </P>
 
       <Card tone="sand">
         <H3>Unsere Hafentag-Regeln</H3>
@@ -4366,44 +4421,56 @@ function ModulFahrtenbuch({ daten, setze }) {
                           ? ", " + { vorne: "vorne", mittschiffs: "mittschiffs", achtern: "achtern" }[r.kabine.laengs] : ""}
                       </P>
                     )}
-                    {(r.haefen || []).filter((h) => h.name).length > 0 && (
+                    {(r.haefen || []).length > 0 && (
                       <div style={{ marginBottom: 8 }}>
                         <div style={{
                           fontFamily: MONO, fontSize: 10, letterSpacing: 1.5, textTransform: "uppercase",
                           color: C.muted, marginBottom: 10,
-                        }}>Was habt ihr an Land unternommen?</div>
-                        {(r.haefen || []).filter((h) => h.name).map((h, i) => {
-                          const ausgewaehlt = h.ausflug || [];
-                          const info = hafenInfo(h.name);
+                        }}>Was habt ihr an den einzelnen Tagen unternommen?</div>
+                        {(r.haefen || []).map((h, i) => {
+                          const istSee = h.typ === "see";
+                          const ausflug = h.ausflug || [];
+                          const bordTag = h.bordAktivitaeten || [];
+                          const info = !istSee && h.name ? hafenInfo(h.name) : null;
+                          const setzeTag = (patch) => setze("archiv", archiv.map((x) => {
+                            if (x.id !== r.id) return x;
+                            return {
+                              ...x,
+                              haefen: (x.haefen || []).map((y, j) => (j === i ? { ...y, ...patch } : y)),
+                            };
+                          }));
                           return (
-                            <div key={i} style={{ marginBottom: 10 }}>
+                            <div key={i} style={{ marginBottom: 14 }}>
                               <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 4 }}>
-                                <span style={{ fontFamily: SANS, fontSize: 15, color: C.navy }}>{h.name}</span>
-                                <Sterne wert={h.sterne} />
+                                <span style={{ fontFamily: SANS, fontSize: 15, color: C.navy }}>
+                                  {istSee ? "🌊 Seetag" : (h.name || `Tag ${i + 1}`)}
+                                </span>
+                                {!istSee && <Sterne wert={h.sterne} />}
                               </div>
                               {h.note && (
                                 <P style={{ fontSize: 14, marginBottom: 6 }}>{h.note}</P>
                               )}
+                              {!istSee && info && (
+                                <Aufklappbar titel={
+                                  ausflug.length > 0
+                                    ? `${ausflug.length} Ausflüge ausgewählt — ansehen oder ändern`
+                                    : "Was habt ihr hier unternommen? Ankreuzen"
+                                }>
+                                  <AusflugAbhaken info={info} ausgewaehlt={ausflug} onToggle={(text) => {
+                                    const neu = ausflug.indexOf(text) >= 0
+                                      ? ausflug.filter((t) => t !== text) : [...ausflug, text];
+                                    setzeTag({ ausflug: neu });
+                                  }} />
+                                </Aufklappbar>
+                              )}
                               <Aufklappbar titel={
-                                ausgewaehlt.length > 0
-                                  ? `${ausgewaehlt.length} Ausflüge ausgewählt — ansehen oder ändern`
-                                  : "Was habt ihr hier unternommen? Ankreuzen"
+                                bordTag.length > 0
+                                  ? `${bordTag.length} Bordaktivitäten an diesem Tag`
+                                  : "Was habt ihr an diesem Tag an Bord unternommen?"
                               }>
-                                <AusflugAbhaken info={info} ausgewaehlt={ausgewaehlt} onToggle={(text) => {
-                                  setze("archiv", archiv.map((x) => {
-                                    if (x.id !== r.id) return x;
-                                    return {
-                                      ...x,
-                                      haefen: (x.haefen || []).map((y, j) => {
-                                        if (j !== i) return y;
-                                        const cur = y.ausflug || [];
-                                        const neu = cur.indexOf(text) >= 0
-                                          ? cur.filter((t) => t !== text) : [...cur, text];
-                                        return { ...y, ausflug: neu };
-                                      }),
-                                    };
-                                  }));
-                                }} />
+                                <WahlMehr label={null} werte={bordTag}
+                                  onChange={(neu) => setzeTag({ bordAktivitaeten: neu })}
+                                  optionen={BORD_AKTIVITAETEN} />
                               </Aufklappbar>
                             </div>
                           );
@@ -4416,11 +4483,6 @@ function ModulFahrtenbuch({ daten, setze }) {
                         color: C.muted, marginTop: 12,
                       }}>{r.sm.toLocaleString("de-DE")} Seemeilen</div>
                     )}
-                    <div style={{ marginTop: 16 }}>
-                      <WahlMehr label="Was habt ihr an Bord unternommen?" werte={r.bordAktivitaeten || []}
-                        onChange={(neu) => setze("archiv", archiv.map((x) => (x.id === r.id ? { ...x, bordAktivitaeten: neu } : x)))}
-                        optionen={BORD_AKTIVITAETEN} />
-                    </div>
                     {(r.tagebuch || []).length > 0 && (
                       <div style={{ marginTop: 8 }}>
                         <div style={{
@@ -4674,6 +4736,12 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
   const bilanz = archivStatistik(daten.archiv || []);
   const ab = alsDatum(s.abfahrt);
   const tage = ab ? tageBis(ab) : null;
+  const hafenZahl = daten.haefen.filter((x) => x.typ !== "see").length;
+  const seetagZahl = daten.haefen.filter((x) => x.typ === "see").length;
+  const routeZeile = [
+    hafenZahl > 0 ? `${hafenZahl} ${hafenZahl === 1 ? "Hafen" : "Häfen"}` : null,
+    seetagZahl > 0 ? `${seetagZahl} ${seetagZahl === 1 ? "Seetag" : "Seetage"}` : null,
+  ].filter(Boolean).join(" · ") + (hafenZahl > 0 || seetagZahl > 0 ? " geplant" : "");
 
   let wert = 0, gesamt = 0;
   Object.keys(fortschritt).forEach((k) => { wert += fortschritt[k].wert; gesamt += fortschritt[k].gesamt; });
@@ -4768,7 +4836,7 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
 
       <div style={{ display: "flex", gap: 12, marginBottom: 26 }}>
         <KachelLink Icon={MapPin} titel="Route" onClick={() => gehe("route")}
-          unter={daten.haefen.length > 0 ? `${daten.haefen.length} ${daten.haefen.length === 1 ? "Hafen" : "Häfen"} geplant` : "Eure Route eintragen"} />
+          unter={routeZeile || "Eure Route eintragen"} />
         <KachelLink Icon={Menu} titel="Mehr" onClick={() => gehe("mehr")}
           unter="Packliste, Kabine, Bordkonto, Logbuch" />
       </div>
@@ -5113,9 +5181,10 @@ function App() {
         naechte: d.setup.naechte, route: d.setup.route, sm, bewertung: bewertung || null,
         kabine: { art: d.kabine.art, laengs: d.kabine.laengs, nummer: d.kabine.nummer },
         haefen: (d.haefen || []).map((x) => ({
-          name: x.name, lon: x.lon, lat: x.lat, note: x.note || "", sterne: x.sterne || 0, ausflug: [],
+          typ: x.typ === "see" ? "see" : "hafen",
+          name: x.name, lon: x.lon, lat: x.lat, note: x.note || "", sterne: x.sterne || 0,
+          ausflug: [], bordAktivitaeten: [],
         })),
-        bordAktivitaeten: [],
         tagebuch: d.tagebuch || [],
       };
       return { ...LEER, ...uebergreifend(d), archiv: [...(d.archiv || []), eintrag] };
