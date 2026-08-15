@@ -67,10 +67,10 @@ const C = {
   greenSoft: "#DDE9E4",
 
   /* Karte */
-  wasser: "#D6E9E7",
+  wasser: "#E9F2F0",
   wasserLinie: "#B7D4D0",
-  land: "#ECE1C4",
-  landLinie: "#B99B62",
+  land: "#F1DFCC",
+  landLinie: "#E2C7A4",
 };
 
 const SERIF = "'Bodoni Moda', 'Playfair Display', Georgia, serif";
@@ -387,6 +387,24 @@ const SEETAG_IDEEN = [
   "Die Kabine oder den Koffer einmal in Ruhe sortieren, bevor der nächste Hafentag alles wieder durcheinanderbringt.",
   "Ein Spezialitätenrestaurant für den Abend reservieren, an Seetagen sind die guten Zeiten oft noch frei.",
   "Am Nachmittag einen Blick auf die Live-Positionskarte werfen, wo genau ihr gerade seid, macht überraschend viel Freude.",
+];
+
+/* Typische Bordaktivitäten für den Rückblick im Fahrtenbuch — bewusst
+   reedereiübergreifend gehalten, feste Multiple-Choice-Liste. */
+const BORD_AKTIVITAETEN = [
+  { v: "pool", l: "🏊 Pool & Sonnendeck" },
+  { v: "spa", l: "💆 Spa & Sauna" },
+  { v: "shows", l: "🎭 Shows & Theater" },
+  { v: "casino", l: "🎰 Casino" },
+  { v: "fitness", l: "🏋️ Fitness & Sport" },
+  { v: "kids", l: "🧒 Kids Club" },
+  { v: "quiz", l: "🧠 Quiz & Spieleabend" },
+  { v: "kochkurs", l: "🍳 Kochkurs oder Cocktailkurs" },
+  { v: "spezial", l: "🍽️ Spezialitätenrestaurant" },
+  { v: "shopping", l: "🛍️ Shopping an Bord" },
+  { v: "livemusik", l: "🎷 Live-Musik & Bar" },
+  { v: "vortrag", l: "🗺️ Landausflug-Vortrag" },
+  { v: "ruhe", l: "📖 Lesen & Ruhe an Deck" },
 ];
 
 /* =========================================================
@@ -3182,156 +3200,64 @@ function Karte({ haefen, route, linie = true, nummern = true }) {
     (i ? "L" : "M") + zx(c[0]).toFixed(1) + " " + zy(c[1]).toFixed(1)
   ).join(" ") + " Z";
 
-  /* Gitternetz */
-  const schrittX = (bx1 - bx0) > 40 ? 20 : (bx1 - bx0) > 15 ? 10 : 5;
-  const schrittY = (by1 - by0) > 30 ? 10 : (by1 - by0) > 12 ? 5 : 2;
-  const linienX = [], linienY = [];
-  for (let v = Math.ceil(bx0 / schrittX) * schrittX; v <= bx1; v += schrittX) linienX.push(v);
-  for (let v = Math.ceil(by0 / schrittY) * schrittY; v <= by1; v += schrittY) linienY.push(v);
-
   const gesamt = punkte.reduce((a, p, i) => i ? a + seemeilen(punkte[i - 1], p) : 0, 0);
-
-  /* Maßstabsleiste */
-  const pxProSm = skala / 60;
-  const stufen = [25, 50, 100, 200, 500, 1000];
-  let smBalken = stufen[0];
-  stufen.forEach((v) => { if (v * pxProSm <= 260) smBalken = v; });
-  const balkenBreite = smBalken * pxProSm;
-
-  const gradLon = (v) => `${Math.abs(Math.round(v))}°${v < 0 ? "W" : "O"}`;
-  const gradLat = (v) => `${Math.abs(Math.round(v))}°${v < 0 ? "S" : "N"}`;
-
-  /* kleine Windrose in der Ecke */
-  const rx = breite - 78, ry = 78, rr = 32;
-  const roseStriche = [];
-  for (let i = 0; i < 16; i++) {
-    const a = (i * 22.5 * Math.PI) / 180;
-    const lang = i % 4 === 0;
-    roseStriche.push(
-      <line key={"rs" + i}
-        x1={rx + (rr - (lang ? 9 : 5)) * Math.sin(a)} y1={ry - (rr - (lang ? 9 : 5)) * Math.cos(a)}
-        x2={rx + rr * Math.sin(a)} y2={ry - rr * Math.cos(a)}
-        stroke={C.messing} strokeWidth={lang ? 1.3 : 0.7} opacity="0.75" />
-    );
-  }
 
   return (
     <div style={{ marginBottom: 22 }}>
       <div style={{
-        background: C.wasser, borderRadius: RUND, overflow: "hidden",
-        border: `1px solid ${C.line}`, boxShadow: `inset 0 0 0 1px ${C.messingLeise}`,
+        background: C.white, borderRadius: RUND + 4, padding: 14,
+        boxShadow: "0 10px 28px rgba(11,35,56,0.08)",
       }}>
-        <svg viewBox={`0 0 ${breite} ${hoehe}`} width="100%" style={{ display: "block" }}
-          role="img" aria-label={`Seekarte ${reg.name} mit euren Häfen`}>
-          <defs>
-            <linearGradient id="kartenWasser" x1="0" y1="0" x2="0.35" y2="1">
-              <stop offset="0%" stopColor="#EAF4F2" />
-              <stop offset="100%" stopColor="#C3DEDA" />
-            </linearGradient>
-            <linearGradient id="kartenLand" x1="0" y1="0" x2="0.4" y2="1">
-              <stop offset="0%" stopColor="#F3EBD6" />
-              <stop offset="100%" stopColor="#DFCB9C" />
-            </linearGradient>
-            <radialGradient id="kartenPin" cx="0.35" cy="0.3" r="0.8">
-              <stop offset="0%" stopColor={C.nachtblau} />
-              <stop offset="100%" stopColor={C.tiefsee} />
-            </radialGradient>
-            <filter id="kartenSchatten" x="-60%" y="-60%" width="220%" height="220%">
-              <feDropShadow dx="0" dy="2" stdDeviation="2.2" floodColor="#0B2338" floodOpacity="0.32" />
-            </filter>
-          </defs>
+        <div style={{ borderRadius: RUND, overflow: "hidden" }}>
+          <svg viewBox={`0 0 ${breite} ${hoehe}`} width="100%" style={{ display: "block" }}
+            role="img" aria-label={`Seekarte ${reg.name} mit euren Häfen`}>
+            <rect x="0" y="0" width={breite} height={hoehe} fill={C.wasser} />
 
-          <rect x="0" y="0" width={breite} height={hoehe} fill="url(#kartenWasser)" />
+            {reg.land.map((ring, i) => (
+              <path key={"l" + i} d={pfad(ring)} fill={C.land} stroke={C.landLinie} strokeWidth="1.4"
+                strokeLinejoin="round" />
+            ))}
+            {(reg.wasser || []).map((ring, i) => (
+              <path key={"w" + i} d={pfad(ring)} fill={C.wasser} stroke={C.landLinie} strokeWidth="1.4"
+                strokeLinejoin="round" />
+            ))}
+            {reg.inseln.map((s, i) => {
+              const [x, y] = px({ lon: s[0], lat: s[1] });
+              return <circle key={"i" + i} cx={x} cy={y} r={s[2]} fill={C.land} stroke={C.landLinie}
+                strokeWidth="1.2" />;
+            })}
 
-          {linienX.map((v) => (
-            <line key={"gx" + v} x1={zx(v)} y1="0" x2={zx(v)} y2={hoehe}
-              stroke={C.wasserLinie} strokeWidth="1" strokeDasharray="1 5" opacity="0.8" />
-          ))}
-          {linienY.map((v) => (
-            <line key={"gy" + v} x1="0" y1={zy(v)} x2={breite} y2={zy(v)}
-              stroke={C.wasserLinie} strokeWidth="1" strokeDasharray="1 5" opacity="0.8" />
-          ))}
-
-          {reg.land.map((ring, i) => (
-            <path key={"l" + i} d={pfad(ring)} fill="url(#kartenLand)" stroke={C.landLinie} strokeWidth="1.6"
-              strokeLinejoin="round" filter="url(#kartenSchatten)" />
-          ))}
-          {(reg.wasser || []).map((ring, i) => (
-            <path key={"w" + i} d={pfad(ring)} fill="url(#kartenWasser)" stroke={C.landLinie} strokeWidth="1.6"
-              strokeLinejoin="round" />
-          ))}
-          {reg.inseln.map((s, i) => {
-            const [x, y] = px({ lon: s[0], lat: s[1] });
-            return <circle key={"i" + i} cx={x} cy={y} r={s[2]} fill="url(#kartenLand)" stroke={C.landLinie}
-              strokeWidth="1.3" filter="url(#kartenSchatten)" />;
-          })}
-
-          {linienX.map((v) => (
-            <text key={"tx" + v} x={zx(v) + 5} y={hoehe - 9} fontFamily={MONO} fontSize="13"
-              fill={C.muted} opacity="0.85">{gradLon(v)}</text>
-          ))}
-          {linienY.map((v) => (
-            <text key={"ty" + v} x="7" y={zy(v) - 6} fontFamily={MONO} fontSize="13"
-              fill={C.muted} opacity="0.85">{gradLat(v)}</text>
-          ))}
-
-          <g opacity="0.85">
-            <circle cx={rx} cy={ry} r={rr + 8} fill="rgba(245,248,247,0.55)" />
-            <circle cx={rx} cy={ry} r={rr} fill="none" stroke={C.messing} strokeWidth="1" opacity="0.65" />
-            {roseStriche}
-            <polygon points={`${rx},${ry - rr + 4} ${rx - 5},${ry} ${rx},${ry - 9} ${rx + 5},${ry}`}
-              fill={C.messing} />
-            <text x={rx} y={ry - rr - 7} textAnchor="middle" fontFamily={MONO} fontSize="12"
-              fill={C.messing} letterSpacing="1">N</text>
-          </g>
-
-          {linie && punkte.length > 1 && (
-            <>
+            {linie && punkte.length > 1 && (
               <path d={punkte.map((p, i) => {
                 const [x, y] = px(p);
                 return (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1);
               }).join(" ")}
-                fill="none" stroke={C.white} strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"
-                opacity="0.65" />
-              <path d={punkte.map((p, i) => {
-                const [x, y] = px(p);
-                return (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1);
-              }).join(" ")}
-                fill="none" stroke={C.messing} strokeWidth="3" strokeDasharray="2 8"
+                fill="none" stroke={C.messing} strokeWidth="2.5"
                 strokeLinecap="round" strokeLinejoin="round" />
-            </>
-          )}
+            )}
 
-          {punkte.map((p, i) => {
-            const [x, y] = px(p);
-            const rechts = x < breite * 0.62;
-            const r = nummern ? 14 : 9;
-            return (
-              <g key={"p" + i} filter="url(#kartenSchatten)">
-                <circle cx={x} cy={y} r={r + 2.5} fill={C.white} />
-                <circle cx={x} cy={y} r={r} fill="url(#kartenPin)" />
-                <circle cx={x} cy={y} r={r} fill="none" stroke={C.messing} strokeWidth="2" />
-                {nummern && (
-                  <text x={x} y={y + 5} textAnchor="middle" fontSize="14" fill={C.messingHell}
-                    fontFamily={MONO}>{i + 1}</text>
-                )}
-                {punkte.length <= 12 && (
-                  <text x={rechts ? x + r + 7 : x - r - 7} y={y + 6} textAnchor={rechts ? "start" : "end"}
-                    fontSize="21" fill={C.navy} fontFamily={SANS} stroke={C.white} strokeWidth="5"
-                    paintOrder="stroke">{p.name || "Hafen"}</text>
-                )}
-              </g>
-            );
-          })}
-
-          <g transform={`translate(18 ${hoehe - 34})`}>
-            <line x1="0" y1="0" x2={balkenBreite} y2="0" stroke={C.navy} strokeWidth="2" />
-            <line x1="0" y1="-5" x2="0" y2="5" stroke={C.navy} strokeWidth="2" />
-            <line x1={balkenBreite} y1="-5" x2={balkenBreite} y2="5" stroke={C.navy} strokeWidth="2" />
-            <text x={balkenBreite / 2} y="-11" textAnchor="middle" fontFamily={MONO} fontSize="13"
-              fill={C.navy}>{smBalken} sm</text>
-          </g>
-        </svg>
+            {punkte.map((p, i) => {
+              const [x, y] = px(p);
+              const rechts = x < breite * 0.62;
+              const r = 8;
+              return (
+                <g key={"p" + i}>
+                  <circle cx={x} cy={y} r={r + 3} fill={C.white} />
+                  <circle cx={x} cy={y} r={r} fill={C.tiefsee} />
+                  {nummern && (
+                    <text x={x} y={y + 4} textAnchor="middle" fontSize="10.5" fill={C.messingHell}
+                      fontFamily={MONO}>{i + 1}</text>
+                  )}
+                  {punkte.length <= 12 && (
+                    <text x={rechts ? x + r + 9 : x - r - 9} y={y + 6} textAnchor={rechts ? "start" : "end"}
+                      fontSize="21" fontStyle="italic" fill={C.navy} fontFamily={SERIF} stroke={C.wasser}
+                      strokeWidth="6" paintOrder="stroke">{p.name || "Hafen"}</text>
+                  )}
+                </g>
+              );
+            })}
+          </svg>
+        </div>
       </div>
 
       <div style={{
@@ -3501,6 +3427,41 @@ function IdeenGruppen({ liste }) {
   ));
 }
 
+/* Rückblick fürs Fahrtenbuch: welche der Ausflugsideen eines Hafens
+   habt ihr tatsächlich gemacht — als ankreuzbare Chips, nach Kategorie. */
+function AusflugAbhaken({ info, ausgewaehlt, onToggle }) {
+  const kombiniert = [...(info.zuFuss || []), ...(info.gefuehrt || [])];
+  const gruppen = gruppiereNachKategorie(kombiniert);
+  return (
+    <div>
+      {gruppen.map((g) => (
+        <div key={g.id} style={{ marginBottom: 12 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 7 }}>
+            <span style={{ fontSize: 12.5 }} aria-hidden="true">{g.icon}</span>
+            <span style={{
+              fontFamily: MONO, fontSize: 10, letterSpacing: 1.2, textTransform: "uppercase", color: C.muted,
+            }}>{g.label}</span>
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+            {g.items.map((t, i) => {
+              const an = ausgewaehlt.indexOf(t) >= 0;
+              return (
+                <button key={i} type="button" onClick={() => onToggle(t)} aria-pressed={an} style={{
+                  fontFamily: SANS, fontSize: 13, cursor: "pointer", minHeight: 40, textAlign: "left",
+                  padding: "9px 13px", borderRadius: 3,
+                  border: `1px solid ${an ? C.tiefsee : C.line}`,
+                  background: an ? C.tiefsee : C.white, color: an ? C.white : C.body,
+                  display: "inline-flex", alignItems: "center", gap: 7, maxWidth: "100%",
+                }}>{an && <Check size={12} color={C.messingHell} style={{ flexShrink: 0 }} />}<span>{t}</span></button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function HafenInfoInhalt({ info, interessen, notiz, onNotizChange }) {
   const passt = (interessen || []).filter((i) => (INTERESSEN_ZU_TYP[i] || []).indexOf(info.typ) >= 0);
   const passtLabels = passt.map((v) => (INTERESSEN_OPTIONEN.find((o) => o.v === v) || {}).l).filter(Boolean);
@@ -3534,9 +3495,12 @@ function HafenInfoInhalt({ info, interessen, notiz, onNotizChange }) {
         background: C.white, borderRadius: RUND, padding: "18px 18px 14px", marginBottom: 14,
         boxShadow: "0 1px 2px rgba(11,35,56,0.05)",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 3 }}>
           <span style={{ fontSize: 19 }} aria-hidden="true">🥾</span>
           <H3 style={{ margin: 0, fontSize: 18 }}>Auf eigene Faust</H3>
+        </div>
+        <div style={{ fontFamily: SANS, fontSize: 12, color: C.muted, marginBottom: 13 }}>
+          Ohne Guide, ohne Buchung — selbst machen
         </div>
         <IdeenGruppen liste={info.zuFuss} />
       </div>
@@ -3546,13 +3510,16 @@ function HafenInfoInhalt({ info, interessen, notiz, onNotizChange }) {
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 3 }}>
           <span style={{ fontSize: 19 }} aria-hidden="true">🎟️</span>
-          <H3 style={{ margin: 0, fontSize: 18 }}>Gebuchte Ausflüge</H3>
+          <H3 style={{ margin: 0, fontSize: 18 }}>Klassische Ausflüge</H3>
         </div>
         <div style={{ fontFamily: SANS, fontSize: 12, color: C.muted, marginBottom: 13 }}>
-          Reederei oder GetYourGuide/Viator
+          Typische Touren, die viele Reedereien für dieses Ziel anbieten
         </div>
         <IdeenGruppen liste={info.gefuehrt} />
-        <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
+        <div style={{
+          fontFamily: SANS, fontSize: 12.5, color: C.muted, margin: "14px 0 10px",
+        }}>Selbst buchen statt über die Reederei:</div>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           <a href={gygUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
             <Btn small variant="outline">{info.name} auf GetYourGuide</Btn>
           </a>
@@ -3858,6 +3825,20 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
         </Card>
       )}
 
+      <Card tone="white">
+        <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 3 }}>
+          <span style={{ fontSize: 19 }} aria-hidden="true">🌊</span>
+          <H3 style={{ margin: 0 }}>Ideen für Seetage</H3>
+        </div>
+        <P style={{ fontSize: 14, marginBottom: 12 }}>Nicht jeder Tag hat einen Hafen — dafür ist der hier.</P>
+        {SEETAG_IDEEN.map((t, i) => (
+          <div key={i} style={{ display: "flex", gap: 9, marginBottom: 9 }}>
+            <span style={{ color: C.messing, flexShrink: 0 }} aria-hidden="true">·</span>
+            <span style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.6, color: C.body }}>{t}</span>
+          </div>
+        ))}
+      </Card>
+
       {h.map((x, i) => {
         const an = minuten(x.an);
         const ab = minuten(x.ab);
@@ -4006,17 +3987,6 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
         <P style={{ marginBottom: 0, fontSize: 14.5 }}>
           Plant eine Sache pro Hafen richtig statt drei halb, seid mindestens eine Stunde vor der Bordzeit zurück und nehmt immer Wasser, einen Snack und die Kopie der Bordkarte mit, weil genau das fehlt, wenn es unangenehm wird.
         </P>
-      </Card>
-
-      <Card tone="white">
-        <H3>Ideen für Seetage</H3>
-        <P style={{ fontSize: 14, marginBottom: 12 }}>Nicht jeder Tag hat einen Hafen — dafür ist der hier.</P>
-        {SEETAG_IDEEN.map((t, i) => (
-          <div key={i} style={{ display: "flex", gap: 9, marginBottom: 9 }}>
-            <span style={{ color: C.messing, flexShrink: 0 }} aria-hidden="true">·</span>
-            <span style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.6, color: C.body }}>{t}</span>
-          </div>
-        ))}
       </Card>
 
       <Card tone="white">
@@ -4396,25 +4366,63 @@ function ModulFahrtenbuch({ daten, setze }) {
                           ? ", " + { vorne: "vorne", mittschiffs: "mittschiffs", achtern: "achtern" }[r.kabine.laengs] : ""}
                       </P>
                     )}
-                    {(r.haefen || []).filter((h) => h.note || h.sterne).map((h, i) => (
-                      <div key={i} style={{ marginBottom: 14 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 4 }}>
-                          <span style={{ fontFamily: SANS, fontSize: 15, color: C.navy }}>{h.name}</span>
-                          <Sterne wert={h.sterne} />
-                        </div>
-                        {h.note && (
-                          <P style={{ fontSize: 14, marginBottom: 0 }}>{h.note}</P>
-                        )}
+                    {(r.haefen || []).filter((h) => h.name).length > 0 && (
+                      <div style={{ marginBottom: 8 }}>
+                        <div style={{
+                          fontFamily: MONO, fontSize: 10, letterSpacing: 1.5, textTransform: "uppercase",
+                          color: C.muted, marginBottom: 10,
+                        }}>Was habt ihr an Land unternommen?</div>
+                        {(r.haefen || []).filter((h) => h.name).map((h, i) => {
+                          const ausgewaehlt = h.ausflug || [];
+                          const info = hafenInfo(h.name);
+                          return (
+                            <div key={i} style={{ marginBottom: 10 }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 4 }}>
+                                <span style={{ fontFamily: SANS, fontSize: 15, color: C.navy }}>{h.name}</span>
+                                <Sterne wert={h.sterne} />
+                              </div>
+                              {h.note && (
+                                <P style={{ fontSize: 14, marginBottom: 6 }}>{h.note}</P>
+                              )}
+                              <Aufklappbar titel={
+                                ausgewaehlt.length > 0
+                                  ? `${ausgewaehlt.length} Ausflüge ausgewählt — ansehen oder ändern`
+                                  : "Was habt ihr hier unternommen? Ankreuzen"
+                              }>
+                                <AusflugAbhaken info={info} ausgewaehlt={ausgewaehlt} onToggle={(text) => {
+                                  setze("archiv", archiv.map((x) => {
+                                    if (x.id !== r.id) return x;
+                                    return {
+                                      ...x,
+                                      haefen: (x.haefen || []).map((y, j) => {
+                                        if (j !== i) return y;
+                                        const cur = y.ausflug || [];
+                                        const neu = cur.indexOf(text) >= 0
+                                          ? cur.filter((t) => t !== text) : [...cur, text];
+                                        return { ...y, ausflug: neu };
+                                      }),
+                                    };
+                                  }));
+                                }} />
+                              </Aufklappbar>
+                            </div>
+                          );
+                        })}
                       </div>
-                    ))}
+                    )}
                     {r.sm > 0 && (
                       <div style={{
                         fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.4, textTransform: "uppercase",
                         color: C.muted, marginTop: 12,
                       }}>{r.sm.toLocaleString("de-DE")} Seemeilen</div>
                     )}
+                    <div style={{ marginTop: 16 }}>
+                      <WahlMehr label="Was habt ihr an Bord unternommen?" werte={r.bordAktivitaeten || []}
+                        onChange={(neu) => setze("archiv", archiv.map((x) => (x.id === r.id ? { ...x, bordAktivitaeten: neu } : x)))}
+                        optionen={BORD_AKTIVITAETEN} />
+                    </div>
                     {(r.tagebuch || []).length > 0 && (
-                      <div style={{ marginTop: 16 }}>
+                      <div style={{ marginTop: 8 }}>
                         <div style={{
                           fontFamily: MONO, fontSize: 10, letterSpacing: 1.5, textTransform: "uppercase",
                           color: C.muted, marginBottom: 8,
@@ -5105,8 +5113,9 @@ function App() {
         naechte: d.setup.naechte, route: d.setup.route, sm, bewertung: bewertung || null,
         kabine: { art: d.kabine.art, laengs: d.kabine.laengs, nummer: d.kabine.nummer },
         haefen: (d.haefen || []).map((x) => ({
-          name: x.name, lon: x.lon, lat: x.lat, note: x.note || "", sterne: x.sterne || 0,
+          name: x.name, lon: x.lon, lat: x.lat, note: x.note || "", sterne: x.sterne || 0, ausflug: [],
         })),
+        bordAktivitaeten: [],
         tagebuch: d.tagebuch || [],
       };
       return { ...LEER, ...uebergreifend(d), archiv: [...(d.archiv || []), eintrag] };
