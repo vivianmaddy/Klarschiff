@@ -66,16 +66,17 @@ const C = {
   green: "#2E6E5B",
   greenSoft: "#DDE9E4",
 
-  /* Karte */
-  wasser: "#E9F2F0",
-  wasserLinie: "#B7D4D0",
-  land: "#F1DFCC",
-  landLinie: "#E2C7A4",
+  /* Karte — Blau/Weiß/Creme */
+  wasser: "#BFDCEE",
+  wasserLinie: "#9CC5E3",
+  land: "#FBF7EE",
+  landLinie: "#D9CFB8",
 };
 
 const SERIF = "'Bodoni Moda', 'Playfair Display', Georgia, serif";
 const SANS = "'Questrial', 'Helvetica Neue', Arial, sans-serif";
 const MONO = "'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace";
+const DISPLAY = "'Space Grotesk', 'Helvetica Neue', Arial, sans-serif";
 
 const RUND = 16;
 const RUND_KLEIN = 10;
@@ -486,8 +487,8 @@ function Kicker({ children, color, hell }) {
 function H2({ children, style }) {
   return (
     <h2 style={{
-      fontFamily: SERIF, fontWeight: 500, fontSize: "clamp(29px, 7vw, 42px)",
-      lineHeight: 1.12, letterSpacing: "-0.01em", color: C.navy, margin: 0, ...style,
+      fontFamily: DISPLAY, fontWeight: 700, fontSize: "clamp(27px, 6.6vw, 39px)",
+      lineHeight: 1.08, letterSpacing: "-0.02em", color: C.navy, margin: 0, ...style,
     }}>{children}</h2>
   );
 }
@@ -495,8 +496,8 @@ function H2({ children, style }) {
 function H3({ children, style }) {
   return (
     <h3 style={{
-      fontFamily: SERIF, fontWeight: 500, fontSize: 23, lineHeight: 1.28,
-      color: C.navy, margin: "0 0 14px", ...style,
+      fontFamily: DISPLAY, fontWeight: 700, fontSize: 21, lineHeight: 1.2,
+      letterSpacing: "-0.01em", color: C.navy, margin: "0 0 14px", ...style,
     }}>{children}</h3>
   );
 }
@@ -4776,8 +4777,8 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
       }}>
         <div style={{ textAlign: "center" }}>
           <h1 style={{
-            fontFamily: SERIF, fontWeight: 500, fontSize: "clamp(42px, 12vw, 58px)",
-            lineHeight: 0.98, letterSpacing: "-0.015em", color: C.white, margin: "0 0 8px",
+            fontFamily: DISPLAY, fontWeight: 700, fontSize: "clamp(38px, 11vw, 54px)",
+            lineHeight: 0.96, letterSpacing: "-0.03em", color: C.white, margin: "0 0 8px",
           }}>Klarschiff</h1>
 
           <p style={{
