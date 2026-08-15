@@ -67,10 +67,10 @@ const C = {
   greenSoft: "#DDE9E4",
 
   /* Karte */
-  wasser: "#DCE7E7",
-  wasserLinie: "#C3D4D4",
-  land: "#DFD6C0",
-  landLinie: "#BCAC8A",
+  wasser: "#D6E9E7",
+  wasserLinie: "#B7D4D0",
+  land: "#ECE1C4",
+  landLinie: "#B99B62",
 };
 
 const SERIF = "'Bodoni Moda', 'Playfair Display', Georgia, serif";
@@ -702,72 +702,54 @@ function Warnung({ children }) {
 }
 
 /* ---------------------------------------------------------
-   Windrose – zeigt, wie weit ihr mit der Vorbereitung seid
+   Bullauge – großer, plakativer Countdown, screenshot-tauglich
+   für Start-Titelbild (dunkel) und Teilen-Postkarte (hell)
 --------------------------------------------------------- */
-function Windrose({ prozent, oben, unten, groesse = 260 }) {
+function Bullauge({ prozent, oben, unten, groesse = 260, hell = false }) {
   const M = 150;
-  const R = 104;
-  const striche = [];
-  for (let i = 0; i < 72; i++) {
-    const a = (i * 5 * Math.PI) / 180;
-    const lang = i % 9 === 0;
-    const r1 = R + 6;
-    const r2 = R + (lang ? 15 : 10);
-    striche.push(
-      <line key={"s" + i}
-        x1={M + r1 * Math.sin(a)} y1={M - r1 * Math.cos(a)}
-        x2={M + r2 * Math.sin(a)} y2={M - r2 * Math.cos(a)}
-        stroke={C.messing} strokeWidth={lang ? 1.4 : 0.7} opacity={lang ? 0.95 : 0.5} />
+  const R = 108;
+  const anteil = Math.max(0, Math.min(100, prozent || 0)) / 100;
+  const umfang = 2 * Math.PI * (R - 10);
+  const zahlGross = oben != null && String(oben).length > 3;
+
+  const glas = hell ? C.white : C.tiefsee;
+  const rahmen = C.messing;
+  const ring = hell ? C.blue : C.messingHell;
+  const zahl = hell ? C.navy : "#F5F8F7";
+  const beschriftung = hell ? C.muted : C.messingHell;
+
+  const nieten = [];
+  for (let i = 0; i < 12; i++) {
+    const a = (i * 30 * Math.PI) / 180;
+    nieten.push(
+      <circle key={i} cx={M + (R + 14) * Math.sin(a)} cy={M - (R + 14) * Math.cos(a)}
+        r="2.4" fill={rahmen} opacity={hell ? 0.5 : 0.85} />
     );
   }
 
-  const zacke = (grad, laenge, breit) => {
-    const a = (grad * Math.PI) / 180;
-    const q = ((grad + 90) * Math.PI) / 180;
-    const sp = [M + laenge * Math.sin(a), M - laenge * Math.cos(a)];
-    const l = [M + breit * Math.sin(q), M - breit * Math.cos(q)];
-    const r = [M - breit * Math.sin(q), M + breit * Math.cos(q)];
-    return { sp, l, r };
-  };
-
-  const punkte = [];
-  [0, 90, 180, 270].forEach((g) => {
-    const z = zacke(g, R - 6, 17);
-    punkte.push(<polygon key={"a" + g} points={`${z.sp} ${z.l} ${M},${M}`} fill={C.messing} opacity="0.92" />);
-    punkte.push(<polygon key={"b" + g} points={`${z.sp} ${z.r} ${M},${M}`} fill="none" stroke={C.messing} strokeWidth="1" />);
-  });
-  [45, 135, 225, 315].forEach((g) => {
-    const z = zacke(g, R * 0.6, 11);
-    punkte.push(<polygon key={"c" + g} points={`${z.sp} ${z.l} ${M},${M}`} fill={C.messing} opacity="0.55" />);
-    punkte.push(<polygon key={"d" + g} points={`${z.sp} ${z.r} ${M},${M}`} fill="none" stroke={C.messing} strokeWidth="0.8" opacity="0.8" />);
-  });
-
-  const rF = R + 22;
-  const umfang = 2 * Math.PI * rF;
-  const anteil = Math.max(0, Math.min(100, prozent || 0)) / 100;
-
   return (
     <svg viewBox="0 0 300 300" width={groesse} height={groesse} role="img"
-      aria-label={`Windrose, ${Math.round(prozent || 0)} Prozent vorbereitet`}
+      aria-label={`${oben}${unten ? " " + unten : ""}`}
       style={{ display: "block", margin: "0 auto", maxWidth: "100%" }}>
-      <circle cx={M} cy={M} r={rF} fill="none" stroke={C.messing} strokeWidth="1" opacity="0.28" />
-      <circle cx={M} cy={M} r={rF} fill="none" stroke={C.messingHell} strokeWidth="2.5"
+      <circle cx={M} cy={M} r={R + 22} fill="none" stroke={rahmen} strokeWidth="1.5" opacity={hell ? 0.3 : 0.35} />
+      {nieten}
+      <circle cx={M} cy={M} r={R + 7} fill="none" stroke={rahmen} strokeWidth="6" opacity={hell ? 0.5 : 0.7} />
+      <circle cx={M} cy={M} r={R} fill={glas} stroke={rahmen} strokeWidth="1" />
+      <circle cx={M} cy={M} r={R - 10} fill="none" stroke={hell ? C.line : "rgba(228,202,149,0.2)"} strokeWidth="1" />
+      <circle cx={M} cy={M} r={R - 10} fill="none" stroke={ring} strokeWidth="3.5"
         strokeLinecap="round" strokeDasharray={`${umfang * anteil} ${umfang}`}
         transform={`rotate(-90 ${M} ${M})`} style={{ transition: "stroke-dasharray .6s ease" }} />
-      <circle cx={M} cy={M} r={R + 4} fill="none" stroke={C.messing} strokeWidth="0.8" opacity="0.45" />
-      {striche}
-      {punkte}
-      <circle cx={M} cy={M} r="52" fill="#0B2338" stroke={C.messing} strokeWidth="1" opacity="0.97" />
-      <text x={M} y={oben ? M - 2 : M + 4} textAnchor="middle" fill="#F5F8F7"
-        fontFamily={SERIF} fontSize={oben && String(oben).length > 3 ? 26 : 33} fontWeight="500">
-        {oben}
-      </text>
+      <path d={`M ${M - R * 0.55} ${M - R * 0.7} A ${R * 0.82} ${R * 0.82} 0 0 1 ${M + R * 0.15} ${M - R * 0.8}`}
+        fill="none" stroke={hell ? "rgba(11,35,56,0.06)" : "rgba(255,255,255,0.12)"} strokeWidth="14" strokeLinecap="round" />
+      <text x={M} y={unten ? M - 2 : M + 16} textAnchor="middle" fill={zahl}
+        fontFamily={SERIF} fontWeight="600" fontSize={zahlGross ? 40 : 76}>{oben}</text>
       {unten && (
-        <text x={M} y={M + 26} textAnchor="middle" fill={C.messingHell}
-          fontFamily={MONO} fontSize="8" letterSpacing="1.1">{unten}</text>
+        <g>
+          <text x={M} y={M + 42} textAnchor="middle" fill={beschriftung}
+            fontFamily={MONO} fontSize="10.5" letterSpacing="2.4">{unten}</text>
+          <line x1={M - 30} y1={M + 54} x2={M + 30} y2={M + 54} stroke={rahmen} strokeWidth="1" opacity={hell ? 0.4 : 0.5} />
+        </g>
       )}
-      <text x={M} y={M - R - 22} textAnchor="middle" fill={C.messingHell}
-        fontFamily={MONO} fontSize="11" letterSpacing="2">N</text>
     </svg>
   );
 }
@@ -1895,11 +1877,17 @@ const TYP_VORLAGEN = {
       "Vom Anleger direkt Richtung Altstadt oder Zentrum laufen, ein Ziel wie eine Kirche oder ein Marktplatz reicht als Orientierung.",
       "Eine Gasse ohne festes Ziel entlanglaufen — in kleinen Hafenstädten ist genau das oft der beste Programmpunkt.",
       "Rechtzeitig einen Kaffee oder ein Eis am Hafen einplanen, mit Blick auf das eigene Schiff.",
+      "Auf einem kleinen Markt am Hafen nach Käse, Wein oder Gebäck aus der Region stöbern.",
+      "Zu einer Kirche oder einem Aussichtspunkt am Ortsrand hochlaufen, oft der schönste Blick auf Schiff und Bucht.",
+      "Wer noch Zeit hat, eine kurze Wanderung ins Hügelland oberhalb der Stadt einplanen, viele Häfen liegen am Fuß von Weinbergen oder Olivenhainen.",
     ],
     gefuehrt: [
       "Ein zwei- bis dreistündiger Altstadt- oder Food-Walk mit lokalem Guide.",
       "Bei knapper Zeit oder wenn der Ort etwas außerhalb liegt: den Reederei-Bus ins Zentrum nehmen statt zu Fuß zu gehen.",
       "Auf GetYourGuide oder Viator nach einer Altstadt-Tour suchen, oft günstiger als der gleiche Ausflug über die Reederei.",
+      "Eine Wein- oder Olivenölverkostung in der Umgebung, wenn die Region dafür bekannt ist.",
+      "Eine kurze Bootstour entlang der Küste für die schönste Perspektive auf die Hafenstadt.",
+      "Ein Wander- oder Radausflug ins Hinterland, wenn ihr die Stadt selbst schon kennt.",
     ],
   },
   HK: {
@@ -1908,11 +1896,17 @@ const TYP_VORLAGEN = {
       "Ein Ziel in Laufnähe zum Kai wählen und den Rest bewusst weglassen, statt drei Viertel der Stadt in vier Stunden abzuhaken.",
       "Ein Tagesticket für Bus, Bahn oder Fähre kaufen, sobald ihr von Bord seid — meist die schnellste Art, Zeit zu sparen.",
       "Eine Sehenswürdigkeit mit Warteschlangen direkt nach der Ausschiffung ansteuern, bevor die Busse mit Tagesausflüglern ankommen.",
+      "Einen belebten Markt oder ein Streetfood-Viertel ansteuern, oft die authentischste Art, die Stadt kennenzulernen.",
+      "Einen Park oder eine Uferpromenade für eine ruhige halbe Stunde einplanen, als Ausgleich zum Trubel.",
+      "Einen Aussichtspunkt oder ein Rooftop mit Blick über die Skyline ansteuern, wenn die Zeit für mehr nicht reicht.",
     ],
     gefuehrt: [
       "Ein Hop-on-Hop-off-Bus, wenn die Stadt groß und die Zeit knapp ist.",
       "Eine Highlights-Tour mit Guide für die Orte, zu denen ihr sonst nicht rechtzeitig zurückfindet.",
       "Auf GetYourGuide oder Viator nach „Skip the Line“-Tickets für die größte Sehenswürdigkeit suchen, das spart hier oft am meisten Zeit.",
+      "Eine Bootstour im Hafen oder entlang der Küste für einen Blick auf die Stadt vom Wasser aus.",
+      "Ein Kochkurs oder eine geführte Markttour durch die Streetfood-Szene.",
+      "Ein Museumsbesuch oder eine Tour zu einem historischen Wahrzeichen, wenn euch Geschichte mehr interessiert als Shopping.",
     ],
   },
   RU: {
@@ -1921,11 +1915,17 @@ const TYP_VORLAGEN = {
       "Prüfen, ob die Ruinenstätte wirklich fußläufig ist — meistens ist das nicht der Fall, und ein Taxi vom Kai spart euch Stunden.",
       "Wasser und Sonnenschutz einpacken, antike Stätten liegen fast immer schattenlos in praller Sonne.",
       "Feste Schuhe anziehen, der Untergrund auf Ausgrabungsstätten ist uneben.",
+      "Nach dem Rundgang ein Café oder einen schattigen Rastplatz am Ausgang der Anlage ansteuern.",
+      "Wenn vorhanden, einen Abstecher zum kleinen Vor-Ort-Museum einplanen, das ordnet die Funde meist gut ein.",
+      "Ein Fernglas mitnehmen, viele Anlagen liegen erhöht mit weitem Blick über die Küste.",
     ],
     gefuehrt: [
       "Ein Ausflug mit Guide zur Hauptstätte, weil die Geschichte dahinter den Unterschied macht zwischen Steinhaufen und Weltwunder.",
       "Reederei-Bus, wenn die Distanz groß und die Rückfahrt zeitlich eng ist — dort wartet das Schiff notfalls auf euch.",
       "Auf GetYourGuide oder Viator nach einer Tour mit Zeitfenster-Ticket suchen, das umgeht Warteschlangen am Einlass.",
+      "Eine Kombination aus Ruinen-Tour und Strandnachmittag, viele Anbieter verbinden beides in einem Tagesausflug.",
+      "Eine Wanderung mit lokalem Guide durch die weitläufigeren, weniger besuchten Bereiche der Stätte.",
+      "Ein Kochkurs mit landestypischen Gerichten, wenn ihr den Nachmittag lieber kulinarisch verbringt als am Fels.",
     ],
   },
   FJ: {
@@ -1934,11 +1934,17 @@ const TYP_VORLAGEN = {
       "Den Ort selbst in 30 bis 60 Minuten ablaufen, das reicht meistens völlig für das Zentrum.",
       "Zu einer nahen Aussichtsplattform oder einem Wasserfall am Ortsrand laufen, wenn die Zeit reicht — oft ausgeschildert.",
       "Eine warme Schicht mitnehmen, im Fjord ist es selbst im Sommer kühler als erwartet.",
+      "Eine kurze Wanderung zu einem nahen Aussichtspunkt über dem Fjord einplanen, wenn die Zeit reicht.",
+      "Am Kai ein Café mit Blick auf die Berge für eine ruhige Pause ansteuern.",
+      "Wer mag, an einer geschützten Stelle kurz schwimmen gehen, auch wenn das Wasser kühl ist.",
     ],
     gefuehrt: [
       "Eine Fjord-Boots- oder Kajaktour, weil ihr die Landschaft vom Wasser aus am besten seht.",
       "Eine Zahnradbahn- oder Panoramabus-Fahrt zu einem Aussichtspunkt, der zu Fuß zu weit wäre.",
       "Bei GetYourGuide oder Viator nach kleinen Gruppentouren suchen, die sind in Fjorden oft persönlicher als der große Reederei-Bus.",
+      "Eine Wanderung zu einem Gletscher oder Aussichtsgipfel mit Guide, wenn ihr fit genug für ein paar Stunden Aufstieg seid.",
+      "Eine Zugfahrt mit Panoramablick durch die Fjordlandschaft, wenn eine solche Strecke existiert.",
+      "Eine Kajaktour auf dem Fjord selbst, das ruhigste Bild bekommt ihr meist vom Wasser aus.",
     ],
   },
   NA: {
@@ -1947,11 +1953,17 @@ const TYP_VORLAGEN = {
       "Den Ort selbst kurz ablaufen, aber nicht zu viel erwarten — das eigentliche Ziel liegt fast immer außerhalb.",
       "Wetterfeste Kleidung im Schichtsystem mitnehmen, das Wetter kann sich hier binnen einer Stunde drehen.",
       "Ein Fernglas einpacken, wenn Wale oder Vögel angekündigt sind.",
+      "Eine Wanderung auf einem ausgeschilderten Naturpfad direkt am Ort einplanen, wenn Zeit und Wetter mitspielen.",
+      "Ein warmes Getränk in einem der wenigen Cafés am Hafen vor der Weiterfahrt einplanen.",
+      "Ruhig am Ufer nach Walen oder Robben Ausschau halten, oft lohnt sich das mehr als ein organisierter Ausflug.",
     ],
     gefuehrt: [
       "Eine Natur- oder Wildlife-Tour mit lokalem Anbieter, das ist hier meistens der ganze Sinn des Landgangs.",
       "Bei Gletschern oder abgelegenen Fjorden lieber die Reederei nehmen, weil Wetter und Wege unberechenbar sind und das Schiff sonst ohne euch fährt.",
       "Auf GetYourGuide oder Viator nach kleinen Gruppen suchen — meist persönlicher und oft günstiger als der Bordausflug.",
+      "Eine Gletscherwanderung oder Eishöhlentour mit zertifiziertem Guide, das ist hier nichts für den Alleingang.",
+      "Eine Walbeobachtungstour per Boot, in vielen Naturhäfen die Hauptattraktion.",
+      "Ein Fotografie- oder Naturkunde-Ausflug mit lokalem Guide, der euch zeigt, wo sich die Tiere tatsächlich aufhalten.",
     ],
   },
   SI: {
@@ -1960,11 +1972,17 @@ const TYP_VORLAGEN = {
       "Wenn ein Strand in Laufnähe liegt, braucht es keinen Ausflug — Handtuch, Sonnencreme und los.",
       "Den kleinen Ort am Hafen ablaufen, oft reicht das für Souvenirs und einen Cocktail zum Mittag.",
       "Klar absprechen, wo genau ihr euch am Strand aufhaltet, falls ihr euch trennt — Handynetz ist hier oft schwach.",
+      "Ein Getränk oder einen Snack an einer der Strandbars einplanen, meist unkompliziert und ohne Reservierung.",
+      "Schnorchelausrüstung selbst mitbringen oder direkt am Strand ausleihen, oft günstiger als der Bordausflug.",
+      "Einen kurzen Spaziergang zum anderen Ende des Strandes für eine ruhigere, weniger belebte Ecke einplanen.",
     ],
     gefuehrt: [
       "Ein Katamaran-, Schnorchel- oder Strandausflug, meist die klassische Wahl an diesen Zielen.",
       "Wenn der beste Strand weiter draußen liegt, den Reederei-Bus oder -Katamaran nehmen statt Taxi auf gut Glück.",
       "Auf GetYourGuide oder Viator nach einem Beach Day oder einer Katamaran-Tour suchen, oft günstiger als das Bordangebot mit identischem Strand.",
+      "Eine Bootstour zu einer vorgelagerten Sandbank oder einem noch leereren Strandabschnitt.",
+      "Ein Kochkurs oder Rum-Tasting, wenn ihr den Nachmittag lieber kulinarisch statt am Wasser verbringt.",
+      "Eine Insel-Rundfahrt mit lokalem Guide, der euch auch Orte abseits der Touristenstrände zeigt.",
     ],
   },
   PI: {
@@ -1973,11 +1991,17 @@ const TYP_VORLAGEN = {
       "Früh von Bord gehen, die besten Liegen und Cabanas sind an belebten Tagen schnell weg.",
       "Die Insel ist überschaubar — ein Rundgang zu Fuß reicht, um alle Stationen zu finden.",
       "Wasserschuhe mitnehmen, der Einstieg ins Wasser ist an manchen Stellen mit Korallen oder Kieseln nicht barfußfreundlich.",
+      "Ein Getränk an der Strandbar der Insel bestellen, meist im Kreuzfahrtpreis oder gegen Bordkonto inklusive.",
+      "Schnorchelausrüstung direkt am Strand der Insel ausleihen, das Riff liegt oft nur wenige Meter vom Ufer.",
+      "Eine ruhige Ecke abseits der Hauptliegewiese suchen, an belebten Tagen wird es dort deutlich leerer.",
     ],
     gefuehrt: [
       "Cabana oder Wasserpark-Zugang vorab über die Reederei-App reservieren, das ist hier meist die einzige Buchungsart.",
       "Wassersport wie Jetski, Parasailing oder Schnorcheln direkt am Strand der Insel buchen.",
       "Externe Anbieter wie GetYourGuide gibt es hier in der Regel nicht — alles läuft über die Reederei selbst.",
+      "Ein Kajak oder Paddleboard direkt an der Insel ausleihen, meist unkompliziert vor Ort buchbar.",
+      "Der reedereieigene Grill- oder Restaurantbereich, oft im Ausflugspreis enthalten.",
+      "Ein Ausflug mit Glasboden-Boot, um das Riff zu sehen, ohne selbst ins Wasser zu müssen.",
     ],
   },
   GM: {
@@ -1986,11 +2010,17 @@ const TYP_VORLAGEN = {
       "Ein Viertel statt der ganzen Stadt auswählen und das dafür in Ruhe erkunden.",
       "Öffentliche Verkehrsmittel oder eine Ride-Hailing-App nutzen, das ist in modernen Großstädten meist einfacher als gedacht.",
       "Auf die Rückfahrzeit zum Hafen großzügig Puffer einplanen, Verkehr in Großstädten ist selten planbar.",
+      "Einen Markt- oder Foodhall-Besuch einplanen, oft ein guter erster Eindruck der lokalen Küche.",
+      "Eine Uferpromenade oder einen Stadtpark für eine ruhige Pause zwischen zwei Terminen einplanen.",
+      "Ein Museum oder eine Galerie ansteuern, wenn Kunst und Geschichte euch mehr interessieren als Shopping.",
     ],
     gefuehrt: [
       "Eine Highlights-Tour mit Guide, wenn ihr in kurzer Zeit viel sehen wollt.",
       "Eine Hafenrundfahrt oder Skyline-Tour, die zeigt die Stadt oft besser als jeder Spaziergang.",
       "Auf GetYourGuide oder Viator nach einer privaten Tour suchen, wenn ihr lieber flexibel unterwegs sein wollt als in der Gruppe.",
+      "Eine Hafenrundfahrt oder Bootstour für den besten Blick auf die Skyline.",
+      "Eine private Food-Tour durch angesagte Viertel, wenn ihr kulinarisch unterwegs sein wollt.",
+      "Ein Ausflug zu einem Wahrzeichen oder Aussichtsturm mit Guide, wenn ihr in kurzer Zeit viel sehen wollt.",
     ],
   },
   DJ: {
@@ -1999,11 +2029,17 @@ const TYP_VORLAGEN = {
       "Den Hafenbereich selbst ablaufen, aber ohne große Erwartungen — hier ist meist wenig, das eigentliche Ziel liegt weiter draußen.",
       "Insektenschutz und wasserfeste Sandalen einpacken, falls ihr zu Wasserfällen oder auf Wanderwege wollt.",
       "Nur mit organisiertem Transport ins Landesinnere fahren, ein Taxi auf eigene Faust ist hier oft weder günstiger noch sicherer.",
+      "Am Hafen ein kühles Getränk in einem der wenigen Cafés vor der Weiterfahrt einplanen.",
+      "Wer mag, kurz am Strand nahe dem Hafen baden gehen, oft ruhiger als die organisierten Ausflugsziele.",
+      "Eine kurze Wanderung auf einem ausgeschilderten Weg direkt am Hafen einplanen, wenn einer existiert.",
     ],
     gefuehrt: [
       "Ein Ausflug zu Wasserfällen, Zipline oder Regenwald mit lokalem Anbieter — das ist hier meistens der ganze Grund für den Halt.",
       "Bei größerer Entfernung ins Landesinnere die Reederei nehmen, damit das Schiff notfalls auf euch wartet.",
       "Auf GetYourGuide oder Viator nach Naturausflügen mit kleiner Gruppengröße suchen, oft persönlicher als der große Bordbus.",
+      "Eine Kajak- oder Bootstour durch Mangroven oder entlang der Küste.",
+      "Ein Ausflug zu einer Kaffee- oder Kakaoplantage mit Verkostung, wenn die Region dafür bekannt ist.",
+      "Eine Nationalpark-Wanderung mit Guide, der euch zeigt, wo Tiere und Pflanzen tatsächlich zu sehen sind.",
     ],
   },
   WU: {
@@ -2012,11 +2048,17 @@ const TYP_VORLAGEN = {
       "Wenn möglich früh oder spätnachmittags draußen unterwegs sein, mittags ist es hier oft zu heiß für längere Fußwege.",
       "Leichte, bedeckende Kleidung mitnehmen — auch aus Respekt vor lokalen Gepflogenheiten sinnvoll.",
       "Viel Wasser trinken, mehr als ihr für nötig haltet.",
+      "Eine klimatisierte Mall oder einen Food Court für eine Verschnaufpause zwischendurch ansteuern.",
+      "Am frühen Abend eine Uferpromenade für einen ruhigen Spaziergang nutzen, dann ist es spürbar kühler.",
+      "Ein Café mit Blick auf einen der Wolkenkratzer für eine kurze Pause einplanen.",
     ],
     gefuehrt: [
       "Eine Stadt- oder Skyline-Tour mit klimatisiertem Fahrzeug, weil zu Fuß hier oft keine Option ist.",
       "Ein Wüstenausflug mit Dünenfahrt, wenn ihr auch abseits der Stadt etwas sehen wollt.",
       "Auf GetYourGuide oder Viator nach klimatisierten Halbtagestouren suchen, das ist hier die angenehmste Art, viel zu sehen.",
+      "Ein Ausflug ins Aquarium oder in einen Indoor-Freizeitpark, wenn euch die Hitze draußen zu viel wird.",
+      "Eine Dinner-Cruise auf einem traditionellen Dhau-Boot mit Blick auf die beleuchtete Skyline.",
+      "Eine Dünenfahrt mit Beduinen-Camp und Verkostung landestypischer Speisen am Abend.",
     ],
   },
   TK: {
@@ -2025,11 +2067,17 @@ const TYP_VORLAGEN = {
       "Ein einziges Tempel- oder Marktziel in Hafennähe auswählen, statt mehrere über die Stadt verteilte anzusteuern.",
       "Kleidung mit bedeckten Schultern und Knien einpacken, an vielen Tempeln ist das Voraussetzung für den Einlass.",
       "Bargeld in kleinen Scheinen mitnehmen, Karten werden abseits der Touristenzentren seltener akzeptiert.",
+      "Schuhe, die man leicht aus- und wieder anziehen kann, mitnehmen, an Tempeln müsst ihr sie oft am Eingang ausziehen.",
+      "Einen Streetfood-Stand oder kleinen Markt für eine günstige, authentische Mittagspause ansteuern.",
+      "Am Nachmittag einen ruhigeren Tempel oder Garten abseits der Hauptroute ansteuern, dort ist es oft deutlich leerer.",
     ],
     gefuehrt: [
       "Eine Tempel- oder Kulturtour mit Guide, der Kontext liefert, den ihr auf eigene Faust verpasst.",
       "Bei großer Entfernung zwischen Hafen und Stadtzentrum den Reederei-Transfer einplanen.",
       "Auf GetYourGuide oder Viator nach einer privaten Tour oder einem Kochkurs suchen, oft ein persönlicherer Einstieg als die große Gruppe.",
+      "Eine Kochkurs- oder Streetfood-Tour durch lokale Märkte, wenn euch die Küche mehr interessiert als Sehenswürdigkeiten.",
+      "Eine Fluss- oder Kanalfahrt mit Boot, in vielen asiatischen Häfen eine eigene Sehenswürdigkeit.",
+      "Eine Wanderung zu einem weniger besuchten Tempel im Umland mit lokalem Guide.",
     ],
   },
   SA: {
@@ -2038,11 +2086,17 @@ const TYP_VORLAGEN = {
       "In direkter Hafennähe bleiben und Wertsachen unauffällig tragen, wie in jeder Großstadt dieser Größe.",
       "Ein Viertel mit gutem Ruf gezielt ansteuern, statt einfach drauflos zu laufen.",
       "Landeswährung in kleinen Scheinen dabeihaben, Karten werden nicht überall akzeptiert.",
+      "Einen Markt oder ein Viertel mit Streetfood ansteuern, dort bekommt ihr oft den authentischsten Eindruck der Stadt.",
+      "Eine Uferpromenade oder einen zentralen Platz für eine ruhige Pause zwischendurch einplanen.",
+      "Ein Museum oder ein historisches Zentrum ansteuern, wenn Geschichte euch mehr interessiert als Shopping.",
     ],
     gefuehrt: [
       "Eine Stadttour mit Guide für den ersten Überblick, gerade bei eurem ersten Besuch.",
       "Ein Ausflug zum bekanntesten Wahrzeichen der Stadt, meist der Grund, warum das Schiff hier hält.",
       "Auf GetYourGuide oder Viator nach Kleingruppentouren mit Abholung am Pier suchen, das nimmt die Unsicherheit beim ersten Schritt von Bord.",
+      "Eine Bootstour entlang der Küste oder Bucht, oft die schönste Perspektive auf die Stadt.",
+      "Ein Tango-Abend oder Kochkurs, wenn ihr die lokale Kultur abseits der Sehenswürdigkeiten erleben wollt.",
+      "Eine Wanderung oder ein Ausflug in die nähere Umgebung, wenn die Stadt selbst schon bekannt ist.",
     ],
   },
   AU: {
@@ -2051,11 +2105,17 @@ const TYP_VORLAGEN = {
       "Die Uferpromenade am Hafen ablaufen, in Australien und Neuseeland liegt dort oft schon das Beste.",
       "Öffentliche Fähren nutzen, wo es sie gibt — meist die günstigste und schönste Art, die Bucht zu sehen.",
       "Sonnenschutz nicht unterschätzen, die Sonne ist hier stärker, als das Wetter vermuten lässt.",
+      "Ein Fish-and-Chips oder einen Kaffee an der Promenade einplanen, in Australien und Neuseeland eine eigene kleine Kultur für sich.",
+      "Barfuß oder mit Wasserschuhen am Strand entlanglaufen, oft der entspannteste Programmpunkt am Hafentag.",
+      "Wer mag, in einem Nationalpark in Hafennähe eine kurze Wanderung einplanen.",
     ],
     gefuehrt: [
       "Eine Bootstour durch die Bucht oder den Hafen, der von See aus meist am schönsten ist.",
       "Ein Ausflug in Nationalpark oder Weinregion außerhalb der Stadt, wenn Zeit und Reederei-Tour es hergeben.",
       "Auf GetYourGuide oder Viator nach Halbtagestouren zu Naturzielen suchen, die per Bus allein schwer zu erreichen sind.",
+      "Eine Wal- oder Delfin-Beobachtungstour per Boot, je nach Saison eine der Hauptattraktionen.",
+      "Eine Wein- oder Kulinarik-Tour ins Umland, wenn die Region für ihre Weingüter bekannt ist.",
+      "Eine geführte Wanderung im Nationalpark mit lokalem Guide, der euch Flora und Fauna erklärt.",
     ],
   },
 };
@@ -2086,11 +2146,13 @@ const HAFEN_DETAILS = {
       "Zu Fuß ist hier nichts erreichbar, der Terminal liegt in einem Industriegebiet ohne Fußweg in die Stadt.",
       "Wer selbst nach Manhattan will, braucht ein Taxi, Uber oder den Shuttle der Reederei zur nächsten Bahnstation — rechnet mit 45 bis 60 Minuten bis Midtown.",
       "Am Einschiffungstag lohnt sich ein früher Flug oder eine Nacht vorher in der Nähe, weil New Yorker Verkehr sich nicht verlässlich planen lässt.",
+      "Wer eine Nacht in Bayonne oder Jersey City übernachtet, findet dort ruhigere und günstigere Hotels als in Manhattan selbst.",
     ],
     gefuehrt: [
       "Ein Pre- oder Post-Cruise-Transfer der Reederei nach Manhattan, meist die stressfreieste Variante am An- oder Abreisetag.",
       "Wer noch Zeit in New York hat, bucht das separat als eigenen City-Trip vor oder nach der Kreuzfahrt statt als Landausflug am Terminal.",
       "Auf GetYourGuide oder Viator nach einem privaten Transfer Cape Liberty–Manhattan suchen, oft günstiger als ein Taxi vom Terminal.",
+      "Eine Stadtrundfahrt mit Skyline-Blick auf Manhattan von der New Jersey-Seite aus, für alle, die den Trubel selbst nicht brauchen.",
     ],
     tipp: "Der Terminal wird oft fälschlich mit „New York“ gleichgesetzt — es ist ein eigener Hafen in New Jersey. Prüft in euren Unterlagen genau, ob euer Schiff von hier oder vom Manhattan Cruise Terminal ablegt.",
   },
@@ -2100,11 +2162,13 @@ const HAFEN_DETAILS = {
       "Der Times Square ist von hier aus in 20 bis 25 Minuten zu Fuß erreichbar.",
       "Direkt am Terminal die U-Bahn Richtung Downtown nehmen, meist schneller als ein Taxi im New Yorker Verkehr.",
       "Rechnet am Einschiffungstag mit langen Wartezeiten, New York gehört zu den meistfrequentierten Terminals der Welt.",
+      "Ein Spaziergang am Hudson River Park direkt vor dem Terminal, gut für eine ruhige Stunde vor der Einschiffung.",
     ],
     gefuehrt: [
       "Eine Sightseeing-Tour zu Freiheitsstatue und Ellis Island, dafür lohnt sich wirklich ein ganzer Tag.",
       "Ein Hop-on-Hop-off-Bus, wenn ihr in kurzer Zeit viele Stadtteile sehen wollt.",
       "Auf GetYourGuide oder Viator nach Skip-the-Line-Tickets für Empire State Building oder Top of the Rock suchen, spart hier besonders viel Wartezeit.",
+      "Eine Bootstour rund um Manhattan, die euch die Skyline von allen Seiten zeigt.",
     ],
   },
   "Port Canaveral": {
@@ -2113,11 +2177,13 @@ const HAFEN_DETAILS = {
       "Zu Fuß erreicht ihr vom Terminal aus praktisch nichts, es gibt keinen Ort in Laufnähe.",
       "Wer einen freien Tag vor der Einschiffung hat, bleibt besser gleich in Cocoa Beach oder Orlando statt am Hafen selbst.",
       "Cocoa Beach ist mit Taxi oder Uber in etwa 15 Minuten erreichbar, für einen entspannten Strandtag reicht das gut.",
+      "Wer selbst surfen will, findet in Cocoa Beach mehrere Verleihstationen direkt am Strand.",
     ],
     gefuehrt: [
       "Ein Ausflug zum Kennedy Space Center, der Klassiker an diesem Hafen und für Familien besonders lohnend.",
       "Wer vor oder nach der Kreuzfahrt noch Zeit hat, verbindet den Hafen mit einem Abstecher nach Orlando zu den Themenparks.",
       "Auf GetYourGuide oder Viator nach einem Transfer Port Canaveral–Orlando suchen, wenn ihr Flughafen oder Parks anbinden wollt.",
+      "Ein Surfkurs oder ein entspannter Strandtag in Cocoa Beach, wenn Themenparks nicht euer Ding sind.",
     ],
   },
   "Miami": {
@@ -2126,11 +2192,13 @@ const HAFEN_DETAILS = {
       "Vom Terminal aus ist South Beach nicht fußläufig, aber ein kurzes Taxi oder Uber bringt euch in 15 bis 20 Minuten hin.",
       "Wer vor der Einschiffung noch Zeit hat, bummelt am besten durch die Art-déco-Viertel von South Beach statt am Hafen selbst.",
       "Bayside Marketplace liegt näher am Terminal, falls die Zeit für South Beach nicht reicht.",
+      "Little Havana mit kubanischem Kaffee und Live-Musik ist einen kurzen Taxi-Abstecher wert.",
     ],
     gefuehrt: [
       "Ein Ausflug nach South Beach mit Art-déco-Spaziergang, klassisch und meist auch auf eigene Faust gut machbar.",
       "Eine Bootstour durch Biscayne Bay entlang der Promi-Villen.",
       "Auf GetYourGuide oder Viator nach einer Everglades-Airboat-Tour suchen, wenn ihr vor oder nach der Reise noch einen Tag übrig habt.",
+      "Ein Kochkurs oder eine Food-Tour durch Little Havana, für einen kulinarischen statt touristischen Nachmittag.",
     ],
   },
   "Fort Lauderdale": {
@@ -2178,11 +2246,13 @@ const HAFEN_DETAILS = {
       "Direkt vom Terminal ins Zentrum laufen, Straw Market und Bay Street liegen nur wenige Minuten entfernt.",
       "Über die Brücke nach Paradise Island laufen, um von außen einen Blick auf das Atlantis-Resort zu werfen.",
       "Queen's Staircase und Fort Fincastle sind ebenfalls fußläufig, wenn auch mit einigen Stufen.",
+      "Ein Getränk an einer der Bars entlang der Bay Street einplanen, mit Blick auf die vor Anker liegenden Schiffe.",
     ],
     gefuehrt: [
       "Ein Tagesticket für die Wasserwelten des Atlantis-Resorts, wenn ihr das Budget dafür einplant.",
       "Ein Katamaran- oder Schnorchelausflug zu den vorgelagerten Cays.",
       "Auf GetYourGuide oder Viator nach Schweine-Insel-Touren (Exuma) suchen — die liegen zwar weiter weg, sind aber ein beliebter Tagesausflug ab Nassau.",
+      "Eine geführte Stadttour durch Downtown Nassau, die auch die koloniale Geschichte der Insel erklärt.",
     ],
   },
   "Freeport": {
@@ -2218,11 +2288,13 @@ const HAFEN_DETAILS = {
       "San Miguel, der Hauptort, ist von manchen Piers aus fußläufig mit Läden und Restaurants direkt an der Uferpromenade.",
       "Punta Langosta liegt zentral und ist gut zu Fuß vom Terminal erreichbar.",
       "Wer selbst schnorcheln will, findet auch am Stadtstrand brauchbare Sicht, auch wenn die besten Riffe weiter draußen liegen.",
+      "Ein Getränk oder Ceviche in einer der Strandbars am Malecón einplanen, meist unkompliziert und ohne Reservierung.",
     ],
     gefuehrt: [
       "Ein Tauch- oder Schnorchelausflug zum Palancar-Riff, einem der bekanntesten Riffe der Karibik.",
       "Ein Ausflug zu den Maya-Ruinen von Tulum per Fähre und Bus, wenn ihr genug Zeit habt.",
       "Auf GetYourGuide oder Viator nach Katamaran-Schnorcheltouren suchen, meist günstiger als das Bordangebot.",
+      "Eine Jeep- oder Buggy-Tour über die Insel, die auch die windige Ostküste zeigt.",
     ],
   },
   "Costa Maya": {
@@ -2469,11 +2541,13 @@ const HAFEN_DETAILS = {
     zuFuss: [
       "Front Street direkt am Hafen mit Shopping und Cafés ist gut zu Fuß erkundbar.",
       "Maho Beach, berühmt für die tief landenden Flugzeuge direkt über den Köpfen der Strandgäste, braucht ein Taxi.",
+      "Ein Cocktail an einer der Strandbars der Front Street für einen entspannten Ausklang vor der Rückfahrt.",
     ],
     gefuehrt: [
       "Ein Ausflug zum Maho Beach, um die berühmten Flugzeuglandungen aus nächster Nähe zu erleben.",
       "Ein Abstecher auf die französische Seite nach Marigot oder Grand Case, ruhiger und kulinarisch bekannt.",
       "Auf GetYourGuide oder Viator nach Insel-Rundfahrten suchen, die beide Seiten der Insel zeigen.",
+      "Eine Katamaran-Schnorcheltour zu vorgelagerten Buchten, meist ruhiger als die belebten Hauptstrände.",
     ],
   },
   "Basseterre (St. Kitts)": {
@@ -2481,11 +2555,13 @@ const HAFEN_DETAILS = {
     zuFuss: [
       "Das Zentrum von Basseterre mit dem Circus, dem zentralen Kreisverkehr, ist zu Fuß erkundbar.",
       "Independence Square mit Kolonialarchitektur liegt ebenfalls in Gehweite.",
+      "Ein Kaffee oder ein Rum Punch an einem der Cafés am Circus für eine ruhige Pause einplanen.",
     ],
     gefuehrt: [
       "Eine Fahrt mit der St. Kitts Scenic Railway, einer alten Zuckerrohrbahn mit Panoramablick.",
       "Ein Ausflug zum Brimstone Hill Fortress, einer der beeindruckendsten Festungsanlagen der Karibik.",
       "Auf GetYourGuide oder Viator nach Katamaran-Schnorcheltouren rund um die Nachbarinsel Nevis suchen.",
+      "Eine Wanderung oder Jeep-Tour zum Vulkankrater des Mount Liamuiga, für die etwas sportlicheren Gäste.",
     ],
   },
   "St. John's (Antigua)": {
@@ -2538,11 +2614,13 @@ const HAFEN_DETAILS = {
     zuFuss: [
       "Das Zentrum von Castries selbst ist eher unspektakulär, für die bekannten Ziele der Insel braucht ihr Transport.",
       "Der Markt direkt am Hafen lohnt sich für einen kurzen Bummel.",
+      "Wer bleibt, findet an der Vigie Beach in Hafennähe einen unkomplizierten Strandnachmittag.",
     ],
     gefuehrt: [
       "Ein Ganztagesausflug zu den Pitons im Süden der Insel, meist der Hauptgrund für einen Besuch auf St. Lucia.",
       "Ein Bad in den Schwefelquellen von Sulphur Springs, oft mit Schlammbad kombiniert.",
       "Auf GetYourGuide oder Viator nach Piton-Tagestouren suchen, da die Distanz für einen Landgang ohne Guide knapp werden kann.",
+      "Eine Katamaran-Tour die Westküste entlang bis zu den Pitons, als entspanntere Alternative zur Straße.",
     ],
   },
   "Bridgetown (Barbados)": {
@@ -2648,11 +2726,13 @@ const HAFEN_DETAILS = {
       "Die Ramblas hinunterschlendern bis zum alten Hafen, ein Klassiker, der sich nie abnutzt.",
       "Das Gotische Viertel zu Fuß erkunden, hier verläuft man sich am schönsten.",
       "Vorab-Ticket für die Sagrada Família online buchen, ohne Ticket wartet ihr oft stundenlang.",
+      "Die Markthalle La Boqueria für frisches Obst, Tapas und einen Kaffee zwischendurch ansteuern.",
     ],
     gefuehrt: [
       "Eine Gaudí-Tour mit Sagrada Família und Park Güell, beides mit Zeitfenster-Ticket.",
       "Ein Tapas- und Markt-Walk durch die Boqueria und umliegende Gassen.",
       "Auf GetYourGuide oder Viator nach Skip-the-Line-Tickets für die Sagrada Família suchen, das spart hier besonders viel Zeit.",
+      "Ein Ausflug an den Strand von Barceloneta, wenn ihr die Stadt schon kennt und lieber entspannt.",
     ],
   },
   "Civitavecchia (Rom)": {
@@ -2661,11 +2741,13 @@ const HAFEN_DETAILS = {
       "In Civitavecchia selbst gibt es wenig zu sehen, fast alle Gäste fahren weiter nach Rom.",
       "Zug oder Reederei-Bus früh nehmen, die Fahrt nach Rom dauert je nach Verbindung 45 bis 80 Minuten.",
       "Kolosseum-Ticket vorab online buchen, die Warteschlangen vor Ort sind sonst lang.",
+      "Wer bleibt, findet direkt in Civitavecchia eine ruhige Uferpromenade für einen entspannteren Alternativtag.",
     ],
     gefuehrt: [
       "Ein Ganztagesausflug nach Rom mit Kolosseum, Forum Romanum und Vatikan, klassisch über die Reederei wegen der garantierten Rückfahrt.",
       "Ein privater Fahrer oder Zug auf eigene Faust, wenn ihr die Reihenfolge selbst bestimmen wollt.",
       "Auf GetYourGuide oder Viator nach Kolosseum-Skip-the-Line mit Zugtransfer suchen, oft flexibler und günstiger als der Bordausflug.",
+      "Eine Vatikan-Tour mit Sixtinischer Kapelle und Petersdom, wenn euch das mehr interessiert als die Antike.",
     ],
     tipp: "Die Rückfahrzeit ist hier der kritische Punkt — plant für die Rückfahrt nach Civitavecchia mindestens zwei Stunden Puffer vor der Bordzeit ein.",
   },
@@ -2727,11 +2809,13 @@ const HAFEN_DETAILS = {
       "Von Fira nach Oia entlang der Caldera laufen, einer der schönsten Küstenwege Griechenlands, rund zwei bis drei Stunden.",
       "Die Seilbahn statt der 588 Stufen zum Hafen nehmen, wenn ihr Zeit sparen wollt.",
       "Sonnenuntergang in Oia einplanen, wird aber entsprechend voll — für einen Tagesausflug meist zeitlich knapp.",
+      "Ein Café mit Caldera-Blick in Fira für eine ruhige Pause vor dem Rückweg ansteuern.",
     ],
     gefuehrt: [
       "Eine Insel-Rundfahrt mit Stopp in Oia, dem bekanntesten Ort der Insel.",
       "Eine Weinverkostung bei einem der Weingüter auf vulkanischem Boden.",
       "Auf GetYourGuide oder Viator nach Katamaran-Touren um die Caldera suchen, mit Blick auf die Steilküste vom Wasser aus.",
+      "Eine Bootstour zu den heißen Quellen und der vulkanischen Insel Nea Kameni in der Caldera.",
     ],
   },
   "Mykonos": {
@@ -3139,28 +3223,47 @@ function Karte({ haefen, route, linie = true, nummern = true }) {
       }}>
         <svg viewBox={`0 0 ${breite} ${hoehe}`} width="100%" style={{ display: "block" }}
           role="img" aria-label={`Seekarte ${reg.name} mit euren Häfen`}>
-          <rect x="0" y="0" width={breite} height={hoehe} fill={C.wasser} />
+          <defs>
+            <linearGradient id="kartenWasser" x1="0" y1="0" x2="0.35" y2="1">
+              <stop offset="0%" stopColor="#EAF4F2" />
+              <stop offset="100%" stopColor="#C3DEDA" />
+            </linearGradient>
+            <linearGradient id="kartenLand" x1="0" y1="0" x2="0.4" y2="1">
+              <stop offset="0%" stopColor="#F3EBD6" />
+              <stop offset="100%" stopColor="#DFCB9C" />
+            </linearGradient>
+            <radialGradient id="kartenPin" cx="0.35" cy="0.3" r="0.8">
+              <stop offset="0%" stopColor={C.nachtblau} />
+              <stop offset="100%" stopColor={C.tiefsee} />
+            </radialGradient>
+            <filter id="kartenSchatten" x="-60%" y="-60%" width="220%" height="220%">
+              <feDropShadow dx="0" dy="2" stdDeviation="2.2" floodColor="#0B2338" floodOpacity="0.32" />
+            </filter>
+          </defs>
+
+          <rect x="0" y="0" width={breite} height={hoehe} fill="url(#kartenWasser)" />
 
           {linienX.map((v) => (
             <line key={"gx" + v} x1={zx(v)} y1="0" x2={zx(v)} y2={hoehe}
-              stroke={C.wasserLinie} strokeWidth="1" />
+              stroke={C.wasserLinie} strokeWidth="1" strokeDasharray="1 5" opacity="0.8" />
           ))}
           {linienY.map((v) => (
             <line key={"gy" + v} x1="0" y1={zy(v)} x2={breite} y2={zy(v)}
-              stroke={C.wasserLinie} strokeWidth="1" />
+              stroke={C.wasserLinie} strokeWidth="1" strokeDasharray="1 5" opacity="0.8" />
           ))}
 
           {reg.land.map((ring, i) => (
-            <path key={"l" + i} d={pfad(ring)} fill={C.land} stroke={C.landLinie} strokeWidth="1.8"
-              strokeLinejoin="round" />
+            <path key={"l" + i} d={pfad(ring)} fill="url(#kartenLand)" stroke={C.landLinie} strokeWidth="1.6"
+              strokeLinejoin="round" filter="url(#kartenSchatten)" />
           ))}
           {(reg.wasser || []).map((ring, i) => (
-            <path key={"w" + i} d={pfad(ring)} fill={C.wasser} stroke={C.landLinie} strokeWidth="1.8"
+            <path key={"w" + i} d={pfad(ring)} fill="url(#kartenWasser)" stroke={C.landLinie} strokeWidth="1.6"
               strokeLinejoin="round" />
           ))}
           {reg.inseln.map((s, i) => {
             const [x, y] = px({ lon: s[0], lat: s[1] });
-            return <circle key={"i" + i} cx={x} cy={y} r={s[2]} fill={C.land} stroke={C.landLinie} strokeWidth="1.4" />;
+            return <circle key={"i" + i} cx={x} cy={y} r={s[2]} fill="url(#kartenLand)" stroke={C.landLinie}
+              strokeWidth="1.3" filter="url(#kartenSchatten)" />;
           })}
 
           {linienX.map((v) => (
@@ -3172,8 +3275,9 @@ function Karte({ haefen, route, linie = true, nummern = true }) {
               fill={C.muted} opacity="0.85">{gradLat(v)}</text>
           ))}
 
-          <g opacity="0.9">
-            <circle cx={rx} cy={ry} r={rr} fill="none" stroke={C.messing} strokeWidth="1" opacity="0.6" />
+          <g opacity="0.85">
+            <circle cx={rx} cy={ry} r={rr + 8} fill="rgba(245,248,247,0.55)" />
+            <circle cx={rx} cy={ry} r={rr} fill="none" stroke={C.messing} strokeWidth="1" opacity="0.65" />
             {roseStriche}
             <polygon points={`${rx},${ry - rr + 4} ${rx - 5},${ry} ${rx},${ry - 9} ${rx + 5},${ry}`}
               fill={C.messing} />
@@ -3182,12 +3286,20 @@ function Karte({ haefen, route, linie = true, nummern = true }) {
           </g>
 
           {linie && punkte.length > 1 && (
-            <path d={punkte.map((p, i) => {
-              const [x, y] = px(p);
-              return (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1);
-            }).join(" ")}
-              fill="none" stroke={C.messing} strokeWidth="3.5" strokeDasharray="11 8"
-              strokeLinecap="round" strokeLinejoin="round" />
+            <>
+              <path d={punkte.map((p, i) => {
+                const [x, y] = px(p);
+                return (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1);
+              }).join(" ")}
+                fill="none" stroke={C.white} strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"
+                opacity="0.65" />
+              <path d={punkte.map((p, i) => {
+                const [x, y] = px(p);
+                return (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1);
+              }).join(" ")}
+                fill="none" stroke={C.messing} strokeWidth="3" strokeDasharray="2 8"
+                strokeLinecap="round" strokeLinejoin="round" />
+            </>
           )}
 
           {punkte.map((p, i) => {
@@ -3195,8 +3307,9 @@ function Karte({ haefen, route, linie = true, nummern = true }) {
             const rechts = x < breite * 0.62;
             const r = nummern ? 14 : 9;
             return (
-              <g key={"p" + i}>
-                <circle cx={x} cy={y} r={r} fill={C.tiefsee} />
+              <g key={"p" + i} filter="url(#kartenSchatten)">
+                <circle cx={x} cy={y} r={r + 2.5} fill={C.white} />
+                <circle cx={x} cy={y} r={r} fill="url(#kartenPin)" />
                 <circle cx={x} cy={y} r={r} fill="none" stroke={C.messing} strokeWidth="2" />
                 {nummern && (
                   <text x={x} y={y + 5} textAnchor="middle" fontSize="14" fill={C.messingHell}
@@ -3204,7 +3317,7 @@ function Karte({ haefen, route, linie = true, nummern = true }) {
                 )}
                 {punkte.length <= 12 && (
                   <text x={rechts ? x + r + 7 : x - r - 7} y={y + 6} textAnchor={rechts ? "start" : "end"}
-                    fontSize="21" fill={C.navy} fontFamily={SANS} stroke={C.wasser} strokeWidth="5"
+                    fontSize="21" fill={C.navy} fontFamily={SANS} stroke={C.white} strokeWidth="5"
                     paintOrder="stroke">{p.name || "Hafen"}</text>
                 )}
               </g>
@@ -3329,6 +3442,65 @@ function Steckbrief({ info }) {
 /* Der eigentliche Inhalt eines Hafenprofils — wird sowohl in der
    aufklappbaren Karte im Route-Tab als auch auf der vollen
    Hafen-Lexikon-Seite verwendet. */
+/* Grobe, keyword-basierte Einordnung der Ausflugsideen in Kategorien —
+   arbeitet auf dem bestehenden Freitext, ohne dass jeder einzelne Eintrag
+   von Hand neu getaggt werden muss. */
+const KATEGORIEN = [
+  { id: "wasser", icon: "🤿", label: "Wasser & Schnorcheln",
+    schluessel: ["schnorchel", "tauch", "riff", "kajak", "katamaran", "delfin", "wal-beobacht",
+      "walbeobacht", "buckelwal", "whale", "wale ", "walen ", "jetski",
+      "parasailing", "schwimm", "segel", "wasserpark", "boot", "fähre", "kanal", "paddle"] },
+  { id: "action", icon: "🥾", label: "Action & Abenteuer",
+    schluessel: ["zipline", "atv", "jeep", "dünenfahrt", "kletter", "wander", "cave", "höhle",
+      "nationalpark", "regenwald", "gletscher", "vulkan", "affenwald", "wildlife", "zahnradbahn",
+      "radtour", "safari"] },
+  { id: "kultur", icon: "🏛️", label: "Kultur & Geschichte",
+    schluessel: ["altstadt", "tempel", "ruine", "museum", "guide", "stadtführ", "kolonial",
+      "kathedrale", "kirche", "oldtimer", "ausgrabung", "maya", "unesco", "weltkulturerbe", "walk",
+      "stadttour", "sightseeing", "hafenrundfahrt", "skyline", "geschichte"] },
+  { id: "genuss", icon: "🛍️", label: "Shopping & Genuss",
+    schluessel: ["shopping", "einkauf", "souvenir", "food", "kochkurs", "restaurant", "rum", "wein",
+      "kulinar", "zigarr", "markt", "café", "kaffee", "verkostung"] },
+  { id: "ruhe", icon: "🌅", label: "Ruhe & Entspannung",
+    schluessel: ["strand", "cocktail", "liege", "sonnenuntergang", "entspann", "promenade", "ruhig",
+      "cabana", "spa", "lagune", "aussicht", "bucht", "blick", "pause"] },
+];
+function kategorisiere(text) {
+  const t = (text || "").toLowerCase();
+  for (const k of KATEGORIEN) {
+    if (k.schluessel.some((s) => t.indexOf(s) >= 0)) return k.id;
+  }
+  return "ruhe";
+}
+function gruppiereNachKategorie(liste) {
+  const gruppen = {};
+  (liste || []).forEach((t) => {
+    const k = kategorisiere(t);
+    if (!gruppen[k]) gruppen[k] = [];
+    gruppen[k].push(t);
+  });
+  return KATEGORIEN.map((k) => ({ ...k, items: gruppen[k.id] })).filter((g) => g.items && g.items.length > 0);
+}
+function IdeenGruppen({ liste }) {
+  const gruppen = gruppiereNachKategorie(liste);
+  return gruppen.map((g, gi) => (
+    <div key={g.id} style={{ marginBottom: gi === gruppen.length - 1 ? 0 : 15 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 7 }}>
+        <span style={{ fontSize: 12.5 }} aria-hidden="true">{g.icon}</span>
+        <span style={{
+          fontFamily: MONO, fontSize: 10, letterSpacing: 1.3, textTransform: "uppercase", color: C.muted,
+        }}>{g.label}</span>
+      </div>
+      {g.items.map((t, i) => (
+        <div key={i} style={{ display: "flex", gap: 9, marginBottom: 8 }}>
+          <span style={{ color: C.messing, flexShrink: 0 }} aria-hidden="true">·</span>
+          <span style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.6, color: C.body }}>{t}</span>
+        </div>
+      ))}
+    </div>
+  ));
+}
+
 function HafenInfoInhalt({ info, interessen, notiz, onNotizChange }) {
   const passt = (interessen || []).filter((i) => (INTERESSEN_ZU_TYP[i] || []).indexOf(info.typ) >= 0);
   const passtLabels = passt.map((v) => (INTERESSEN_OPTIONEN.find((o) => o.v === v) || {}).l).filter(Boolean);
@@ -3366,12 +3538,7 @@ function HafenInfoInhalt({ info, interessen, notiz, onNotizChange }) {
           <span style={{ fontSize: 19 }} aria-hidden="true">🥾</span>
           <H3 style={{ margin: 0, fontSize: 18 }}>Auf eigene Faust</H3>
         </div>
-        {info.zuFuss.map((t, i) => (
-          <div key={"z" + i} style={{ display: "flex", gap: 9, marginBottom: 9 }}>
-            <span style={{ color: C.messing, flexShrink: 0 }} aria-hidden="true">·</span>
-            <span style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.6, color: C.body }}>{t}</span>
-          </div>
-        ))}
+        <IdeenGruppen liste={info.zuFuss} />
       </div>
 
       <div style={{
@@ -3384,12 +3551,7 @@ function HafenInfoInhalt({ info, interessen, notiz, onNotizChange }) {
         <div style={{ fontFamily: SANS, fontSize: 12, color: C.muted, marginBottom: 13 }}>
           Reederei oder GetYourGuide/Viator
         </div>
-        {info.gefuehrt.map((t, i) => (
-          <div key={"g" + i} style={{ display: "flex", gap: 9, marginBottom: 9 }}>
-            <span style={{ color: C.messing, flexShrink: 0 }} aria-hidden="true">·</span>
-            <span style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.6, color: C.body }}>{t}</span>
-          </div>
-        ))}
+        <IdeenGruppen liste={info.gefuehrt} />
         <div style={{ display: "flex", gap: 10, marginTop: 12, flexWrap: "wrap" }}>
           <a href={gygUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
             <Btn small variant="outline">{info.name} auf GetYourGuide</Btn>
@@ -4533,7 +4695,7 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
             Landausflüge, Route und Countdown für eure nächste Kreuzfahrt
           </p>
 
-          <Windrose prozent={prozent} oben={mitte} unten={unterMitte} groesse={240} />
+          <Bullauge prozent={prozent} oben={mitte} unten={unterMitte} groesse={240} />
 
           {(schiffszeile || ab) && (
             <div style={{
@@ -4658,6 +4820,7 @@ function TeilenPostkarte({ daten, onClose }) {
   const s = daten.setup;
   const h = daten.haefen || [];
   const ab = alsDatum(s.abfahrt);
+  const tage = ab ? tageBis(ab) : null;
   const mitOrt = h.filter((x) => typeof x.lon === "number");
   const sm = mitOrt.reduce((a, p, i) => (i ? a + seemeilen(mitOrt[i - 1], p) : 0), 0);
   const schiffszeile = [s.reederei, s.schiff].filter(Boolean).join(" · ");
@@ -4665,13 +4828,14 @@ function TeilenPostkarte({ daten, onClose }) {
   return (
     <div role="dialog" aria-modal="true" className="no-print" style={{
       position: "fixed", inset: 0, zIndex: 80,
-      background: `radial-gradient(circle at 50% 38%, ${C.nachtblau} 0%, ${C.tiefsee} 72%)`,
+      background: `radial-gradient(circle at 50% 30%, ${C.white} 0%, ${C.sky} 78%)`,
       overflowY: "auto", padding: "26px 20px 44px",
     }}>
       <button type="button" onClick={onClose} aria-label="Schließen" style={{
-        position: "fixed", top: 18, right: 18, background: "transparent",
-        border: `1px solid ${C.messingLeise}`, borderRadius: 3, color: C.messingHell,
+        position: "fixed", top: 18, right: 18, background: C.white,
+        border: `1px solid ${C.line}`, borderRadius: 3, color: C.navy,
         width: 44, height: 44, display: "grid", placeItems: "center", cursor: "pointer", zIndex: 2,
+        boxShadow: "0 1px 3px rgba(11,35,56,0.12)",
       }}><X size={18} /></button>
 
       <div style={{ maxWidth: 480, margin: "0 auto" }}>
@@ -4682,36 +4846,43 @@ function TeilenPostkarte({ daten, onClose }) {
           }}>Logbuch · @wolken.wanderer</div>
           <h2 style={{
             fontFamily: SERIF, fontWeight: 500, fontSize: "clamp(30px, 8vw, 42px)",
-            lineHeight: 1.08, color: C.white, margin: "0 0 10px",
+            lineHeight: 1.08, color: C.navy, margin: "0 0 10px",
           }}>{schiffszeile || "Unsere Reise"}</h2>
           {ab && (
             <div style={{
-              fontFamily: MONO, fontSize: 11.5, letterSpacing: 1.4, color: C.messingHell,
+              fontFamily: MONO, fontSize: 11.5, letterSpacing: 1.4, color: C.blue,
               textTransform: "uppercase",
             }}>Auslaufen {kurz(ab)} · {s.naechte} Nächte</div>
           )}
         </div>
 
+        {tage !== null && tage > 0 && (
+          <div style={{ margin: "0 0 26px" }}>
+            <Bullauge prozent={0} oben={String(tage)} unten={tage === 1 ? "TAG BIS ABFAHRT" : "TAGE BIS ABFAHRT"}
+              groesse={200} hell />
+          </div>
+        )}
+
         <div style={{
-          background: "rgba(255,255,255,0.05)", borderRadius: RUND, padding: 12,
-          border: `1px solid ${C.messingLeise}`,
+          background: C.white, borderRadius: RUND, padding: 12,
+          border: `1px solid ${C.line}`, boxShadow: "0 2px 10px rgba(11,35,56,0.06)",
         }}>
           <Karte haefen={h} route={s.route} />
         </div>
 
-        <div style={{ display: "flex", justifyContent: "center", gap: 34, marginTop: 8, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", justifyContent: "center", gap: 34, marginTop: 22, flexWrap: "wrap" }}>
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontFamily: SERIF, fontSize: 30, color: C.white }}>{mitOrt.length}</div>
+            <div style={{ fontFamily: SERIF, fontSize: 30, color: C.navy }}>{mitOrt.length}</div>
             <div style={{
-              fontFamily: MONO, fontSize: 10, letterSpacing: 1.4, color: C.messingHell,
+              fontFamily: MONO, fontSize: 10, letterSpacing: 1.4, color: C.messing,
               textTransform: "uppercase", marginTop: 5,
             }}>{mitOrt.length === 1 ? "Hafen" : "Häfen"}</div>
           </div>
           {sm > 0 && (
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontFamily: SERIF, fontSize: 30, color: C.white }}>{sm.toLocaleString("de-DE")}</div>
+              <div style={{ fontFamily: SERIF, fontSize: 30, color: C.navy }}>{sm.toLocaleString("de-DE")}</div>
               <div style={{
-                fontFamily: MONO, fontSize: 10, letterSpacing: 1.4, color: C.messingHell,
+                fontFamily: MONO, fontSize: 10, letterSpacing: 1.4, color: C.messing,
                 textTransform: "uppercase", marginTop: 5,
               }}>Seemeilen</div>
             </div>
@@ -4720,7 +4891,7 @@ function TeilenPostkarte({ daten, onClose }) {
 
         <div style={{
           textAlign: "center", marginTop: 30, fontFamily: SANS, fontSize: 12.5,
-          lineHeight: 1.7, color: "#8FA9B8",
+          lineHeight: 1.7, color: C.muted,
         }}>Macht einen Screenshot und teilt ihn — dieses Fenster ist extra für genau das gemacht.</div>
       </div>
     </div>
