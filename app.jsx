@@ -727,48 +727,28 @@ function Warnung({ children }) {
 --------------------------------------------------------- */
 function Bullauge({ prozent, oben, unten, groesse = 260, hell = false }) {
   const M = 150;
-  const R = 108;
+  const R = 120;
   const anteil = Math.max(0, Math.min(100, prozent || 0)) / 100;
-  const umfang = 2 * Math.PI * (R - 10);
+  const umfang = 2 * Math.PI * R;
   const zahlGross = oben != null && String(oben).length > 3;
 
-  const glas = hell ? C.white : C.tiefsee;
-  const rahmen = C.messing;
-  const ring = hell ? C.blue : C.messingHell;
-  const zahl = hell ? C.navy : "#F5F8F7";
+  const ringSpur = hell ? C.line : "rgba(228,202,149,0.25)";
+  const zahl = hell ? C.navy : C.white;
   const beschriftung = hell ? C.muted : C.messingHell;
-
-  const nieten = [];
-  for (let i = 0; i < 12; i++) {
-    const a = (i * 30 * Math.PI) / 180;
-    nieten.push(
-      <circle key={i} cx={M + (R + 14) * Math.sin(a)} cy={M - (R + 14) * Math.cos(a)}
-        r="2.4" fill={rahmen} opacity={hell ? 0.5 : 0.85} />
-    );
-  }
 
   return (
     <svg viewBox="0 0 300 300" width={groesse} height={groesse} role="img"
       aria-label={`${oben}${unten ? " " + unten : ""}`}
       style={{ display: "block", margin: "0 auto", maxWidth: "100%" }}>
-      <circle cx={M} cy={M} r={R + 22} fill="none" stroke={rahmen} strokeWidth="1.5" opacity={hell ? 0.3 : 0.35} />
-      {nieten}
-      <circle cx={M} cy={M} r={R + 7} fill="none" stroke={rahmen} strokeWidth="6" opacity={hell ? 0.5 : 0.7} />
-      <circle cx={M} cy={M} r={R} fill={glas} stroke={rahmen} strokeWidth="1" />
-      <circle cx={M} cy={M} r={R - 10} fill="none" stroke={hell ? C.line : "rgba(228,202,149,0.2)"} strokeWidth="1" />
-      <circle cx={M} cy={M} r={R - 10} fill="none" stroke={ring} strokeWidth="3.5"
+      <circle cx={M} cy={M} r={R} fill="none" stroke={ringSpur} strokeWidth="2" />
+      <circle cx={M} cy={M} r={R} fill="none" stroke={C.messing} strokeWidth="3"
         strokeLinecap="round" strokeDasharray={`${umfang * anteil} ${umfang}`}
         transform={`rotate(-90 ${M} ${M})`} style={{ transition: "stroke-dasharray .6s ease" }} />
-      <path d={`M ${M - R * 0.55} ${M - R * 0.7} A ${R * 0.82} ${R * 0.82} 0 0 1 ${M + R * 0.15} ${M - R * 0.8}`}
-        fill="none" stroke={hell ? "rgba(11,35,56,0.06)" : "rgba(255,255,255,0.12)"} strokeWidth="14" strokeLinecap="round" />
-      <text x={M} y={unten ? M - 2 : M + 16} textAnchor="middle" fill={zahl}
-        fontFamily={SERIF} fontWeight="600" fontSize={zahlGross ? 40 : 76}>{oben}</text>
+      <text x={M} y={unten ? M - 2 : M + 20} textAnchor="middle" fill={zahl}
+        fontFamily={SANS} fontSize={zahlGross ? 56 : 96} letterSpacing="-3">{oben}</text>
       {unten && (
-        <g>
-          <text x={M} y={M + 42} textAnchor="middle" fill={beschriftung}
-            fontFamily={MONO} fontSize="10.5" letterSpacing="2.4">{unten}</text>
-          <line x1={M - 30} y1={M + 54} x2={M + 30} y2={M + 54} stroke={rahmen} strokeWidth="1" opacity={hell ? 0.4 : 0.5} />
-        </g>
+        <text x={M} y={M + 40} textAnchor="middle" fill={beschriftung}
+          fontFamily={MONO} fontSize="11" letterSpacing="2.4">{unten}</text>
       )}
     </svg>
   );
@@ -3204,6 +3184,38 @@ function Karte({ haefen, route, linie = true, nummern = true }) {
 
   const gesamt = punkte.reduce((a, p, i) => i ? a + seemeilen(punkte[i - 1], p) : 0, 0);
 
+  /* Pins dürfen sich nie überlappen, auch wenn Häfen geografisch dicht
+     beieinanderliegen (z. B. mehrere Karibikinseln). Sanfte, iterative
+     Abstoßung der projizierten Punkte — nur die Pins wandern, die
+     Küstenlinie bleibt an ihrem Platz. */
+  const pinPositionen = (() => {
+    const pos = punkte.map((p) => { const [x, y] = px(p); return { x, y }; });
+    const minAbstand = 36;
+    const rand = 20;
+    for (let iter = 0; iter < 60; iter++) {
+      let bewegt = false;
+      for (let i = 0; i < pos.length; i++) {
+        for (let j = i + 1; j < pos.length; j++) {
+          const dx = pos[j].x - pos[i].x, dy = pos[j].y - pos[i].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < minAbstand) {
+            bewegt = true;
+            const ux = dist < 0.01 ? 1 : dx / dist, uy = dist < 0.01 ? 0 : dy / dist;
+            const verschieb = (minAbstand - dist) / 2;
+            pos[i].x -= ux * verschieb; pos[i].y -= uy * verschieb;
+            pos[j].x += ux * verschieb; pos[j].y += uy * verschieb;
+          }
+        }
+      }
+      if (!bewegt) break;
+    }
+    pos.forEach((p) => {
+      p.x = Math.min(breite - rand, Math.max(rand, p.x));
+      p.y = Math.min(hoehe - rand, Math.max(rand, p.y));
+    });
+    return pos;
+  })();
+
   return (
     <div style={{ marginBottom: 22 }}>
       <div style={{
@@ -3230,16 +3242,15 @@ function Karte({ haefen, route, linie = true, nummern = true }) {
             })}
 
             {linie && punkte.length > 1 && (
-              <path d={punkte.map((p, i) => {
-                const [x, y] = px(p);
-                return (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1);
-              }).join(" ")}
+              <path d={pinPositionen.map((p, i) =>
+                (i ? "L" : "M") + p.x.toFixed(1) + " " + p.y.toFixed(1)
+              ).join(" ")}
                 fill="none" stroke={C.messing} strokeWidth="2.5"
                 strokeLinecap="round" strokeLinejoin="round" />
             )}
 
             {punkte.map((p, i) => {
-              const [x, y] = px(p);
+              const { x, y } = pinPositionen[i];
               const rechts = x < breite * 0.62;
               const r = 8;
               return (
@@ -4718,11 +4729,16 @@ function KachelLink({ Icon, titel, unter, onClick }) {
   return (
     <button type="button" onClick={onClick} style={{
       flex: 1, minWidth: 0, textAlign: "left", cursor: "pointer",
-      background: C.white, border: "none", borderRadius: RUND, padding: "18px 16px",
+      background: C.white, border: "none", borderRadius: RUND, padding: "20px 16px",
       boxShadow: "0 1px 2px rgba(11,35,56,0.05)",
-      display: "flex", flexDirection: "column", gap: 10,
+      display: "flex", flexDirection: "column", gap: 12,
     }}>
-      <Icon size={20} color={C.messing} />
+      <span style={{
+        width: 42, height: 42, borderRadius: "50%", background: C.sand,
+        display: "grid", placeItems: "center", flexShrink: 0,
+      }}>
+        <Icon size={19} color={C.messing} />
+      </span>
       <div>
         <div style={{ fontFamily: SERIF, fontSize: 18, color: C.navy }}>{titel}</div>
         <div style={{ fontFamily: SANS, fontSize: 12.5, color: C.muted, marginTop: 3 }}>{unter}</div>
@@ -5001,11 +5017,16 @@ function TabBar({ screen, gehe }) {
           return (
             <button key={t.id} type="button" onClick={() => gehe(t.id)} aria-current={aktiv ? "page" : undefined}
               style={{
-                flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
-                background: "transparent", border: "none", cursor: "pointer", padding: "9px 4px",
+                flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
+                background: "transparent", border: "none", cursor: "pointer", padding: "7px 4px",
                 minHeight: 54,
               }}>
-              <t.Icon size={20} color={farbe} />
+              <span style={{
+                width: 34, height: 30, borderRadius: 10, display: "grid", placeItems: "center",
+                background: aktiv ? "rgba(228,202,149,0.16)" : "transparent",
+              }}>
+                <t.Icon size={19} color={farbe} />
+              </span>
               <span style={{
                 fontFamily: MONO, fontSize: 9.5, letterSpacing: 1, textTransform: "uppercase", color: farbe,
               }}>{t.label}</span>
