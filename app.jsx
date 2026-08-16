@@ -3103,6 +3103,64 @@ function typenInRoute(haefen) {
   return Array.from(typen);
 }
 
+/* Elektronische Vorab-Einreisegenehmigungen — bewusst nur Länder mit
+   offizieller Online-Anmeldung, und nur mit der echten Regierungsseite
+   verlinkt. Ob und was genau nötig ist, hängt von der Staatsangehörigkeit
+   ab, deshalb als Hinweis formuliert statt als feste Aussage. */
+const EINREISE_HINWEISE = {
+  USA: { programm: "ESTA", url: "https://esta.cbp.dhs.gov/",
+    hinweis: "Für die meisten europäischen Reisepässe nötig, am besten rechtzeitig vor der Reise beantragen." },
+  Kanada: { programm: "eTA", url: "https://www.canada.ca/en/immigration-refugees-citizenship/services/visit-canada/eta.html",
+    hinweis: "Bei Einreise über einen kanadischen Hafen für viele Staatsangehörigkeiten nötig." },
+  "Vereinigtes Königreich": { programm: "ETA", url: "https://www.gov.uk/eta",
+    hinweis: "Seit Einführung der britischen ETA auch für die meisten EU-Bürger nötig." },
+};
+function laenderMitEinreiseHinweis(haefen) {
+  const laender = new Set();
+  (haefen || []).forEach((h) => {
+    if (!h.name) return;
+    const eintrag = HAFENLISTE.find((x) => normText(x.n) === normText(h.name));
+    if (eintrag && EINREISE_HINWEISE[eintrag.land]) laender.add(eintrag.land);
+  });
+  return Array.from(laender);
+}
+function EinreiseHinweisKarte({ laender }) {
+  if (!laender.length) return null;
+  return (
+    <div style={{
+      background: C.sand, borderRadius: RUND, padding: "16px 18px 18px", marginBottom: 18,
+      borderLeft: `2px solid ${C.messing}`,
+    }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 3 }}>
+        <span style={{ fontSize: 18 }} aria-hidden="true">🛂</span>
+        <div style={{ fontFamily: SANS, fontSize: 15.5, color: C.navy }}>
+          Einreisegenehmigung nötig?
+        </div>
+      </div>
+      <P style={{ fontSize: 13, marginBottom: 14 }}>
+        Eure Route berührt Länder mit elektronischer Vorab-Einreisegenehmigung. Ob und was genau ihr
+        braucht, hängt von eurer Staatsangehörigkeit ab — bitte immer auf der offiziellen Seite prüfen.
+      </P>
+      {laender.map((land) => {
+        const info = EINREISE_HINWEISE[land];
+        return (
+          <div key={land} style={{ marginBottom: 12 }}>
+            <div style={{ fontFamily: SANS, fontSize: 14.5, color: C.navy, marginBottom: 3 }}>
+              {land} <span style={{ color: C.muted }}>· {info.programm}</span>
+            </div>
+            <div style={{ fontFamily: SANS, fontSize: 13, color: C.muted, lineHeight: 1.55, marginBottom: 8 }}>
+              {info.hinweis}
+            </div>
+            <a href={info.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
+              <Btn small variant="outline">{info.programm} auf der offiziellen Seite prüfen</Btn>
+            </a>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 /* Entfernung in Seemeilen */
 function seemeilen(a, b) {
   const R = 3440.065;
@@ -3806,6 +3864,8 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
       </P>
 
       <Karte haefen={h} route={daten.setup.route} />
+
+      <EinreiseHinweisKarte laender={laenderMitEinreiseHinweis(h)} />
 
       {h.length > 1 && (
         <Card tone="white" style={{ padding: "16px 16px 8px" }}>
