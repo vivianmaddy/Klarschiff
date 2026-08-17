@@ -115,6 +115,32 @@ function heute() { const n = new Date(); return new Date(n.getFullYear(), n.getM
 function tageBis(d) { return Math.round((d - heute()) / 86400000); }
 function euro(n) { return Math.round(n).toLocaleString("de-DE") + " €"; }
 
+/* Werte fürs Countdown-Kärtchen — mit Abfahrtszeit auf Tage+Stunden
+   genau, ohne Abfahrtszeit auf ganze Kalendertage (wie überall sonst
+   in der App). Gibt null zurück, wenn kein Abfahrtsdatum bekannt ist
+   oder die Abfahrt schon vorbei ist. */
+function countdownWerte(s) {
+  const ab = alsDatum(s.abfahrt);
+  if (!ab) return null;
+  const tageKalendarisch = tageBis(ab);
+  if (tageKalendarisch < 0) return null;
+
+  if (s.abfahrtZeit) {
+    const [hh, mm] = s.abfahrtZeit.split(":").map(Number);
+    const ziel = new Date(ab.getFullYear(), ab.getMonth(), ab.getDate(), hh || 0, mm || 0).getTime();
+    const diffMs = ziel - Date.now();
+    if (diffMs <= 0) return null;
+    const stundenGesamt = Math.floor(diffMs / 3600000);
+    const tage = Math.floor(stundenGesamt / 24);
+    const stunden = stundenGesamt % 24;
+    return [
+      { zahl: String(tage), label: tage === 1 ? "Tag" : "Tage" },
+      { zahl: String(stunden), label: stunden === 1 ? "Stunde" : "Stunden" },
+    ];
+  }
+  return [{ zahl: String(tageKalendarisch), label: tageKalendarisch === 1 ? "Tag" : "Tage" }];
+}
+
 /* =========================================================
    MODUL 1 – COUNTDOWN
 ========================================================= */
@@ -425,8 +451,9 @@ const MODULE = [
    LEERER STAND
 ========================================================= */
 const LEER = {
+  nutzerName: "",
   setup: {
-    reederei: "", schiff: "", route: "", abfahrt: "", naechte: "7",
+    reederei: "", schiff: "", route: "", abfahrt: "", abfahrtZeit: "", naechte: "7",
     personen: "2", kind: false, anreise: "", saison: "", gala: false, reisepreis: "",
     interessen: [],
   },
@@ -535,7 +562,7 @@ function Lead({ children }) {
   );
 }
 
-function Btn({ children, onClick, variant = "solid", small, full, style, title }) {
+function Btn({ children, onClick, variant = "solid", small, full, style, title, disabled }) {
   const solide = variant === "solid";
   const skin = solide
     ? { background: C.tiefsee, color: C.white, borderColor: C.tiefsee,
@@ -544,12 +571,12 @@ function Btn({ children, onClick, variant = "solid", small, full, style, title }
       ? { background: "transparent", color: C.body, borderColor: "transparent" }
       : { background: C.white, color: C.navy, borderColor: C.line };
   return (
-    <button type="button" onClick={onClick} title={title} style={{
+    <button type="button" onClick={onClick} title={title} disabled={disabled} style={{
       fontFamily: SANS, fontSize: small ? 13.5 : 15, letterSpacing: 0.1,
       padding: small ? "11px 18px" : "15px 26px", minHeight: 46,
-      borderWidth: 1, borderStyle: "solid", borderRadius: 999, cursor: "pointer",
+      borderWidth: 1, borderStyle: "solid", borderRadius: 999, cursor: disabled ? "default" : "pointer",
       display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 8,
-      width: full ? "100%" : "auto", ...skin, ...style,
+      width: full ? "100%" : "auto", opacity: disabled ? 0.5 : 1, ...skin, ...style,
     }}>{children}</button>
   );
 }
@@ -723,35 +750,49 @@ function Warnung({ children }) {
 }
 
 /* ---------------------------------------------------------
-   Bullauge – großer, plakativer Countdown, screenshot-tauglich
+   UrlaubsCountdown – ruhiges, glasiges Kärtchen mit ein oder zwei
+   nebeneinanderstehenden Kennzahlen (z. B. Tage | Stunden),
    für Start-Titelbild (dunkel) und Teilen-Postkarte (hell)
 --------------------------------------------------------- */
-function Bullauge({ prozent, oben, unten, groesse = 260, hell = false }) {
-  const M = 150;
-  const R = 120;
-  const anteil = Math.max(0, Math.min(100, prozent || 0)) / 100;
-  const umfang = 2 * Math.PI * R;
-  const zahlGross = oben != null && String(oben).length > 3;
-
-  const ringSpur = hell ? C.line : "rgba(228,202,149,0.25)";
-  const zahl = hell ? C.navy : C.white;
-  const beschriftung = hell ? C.muted : C.messingHell;
+function UrlaubsCountdown({ titel, werte, hell = false }) {
+  const kartenBg = hell ? "rgba(255,255,255,0.72)" : "rgba(255,255,255,0.08)";
+  const kartenRand = hell ? "rgba(11,35,56,0.10)" : "rgba(228,202,149,0.22)";
+  const titelFarbe = hell ? C.muted : "#A9C0CE";
+  const zahlFarbe = hell ? C.navy : C.white;
+  const labelFarbe = hell ? C.muted : C.messingHell;
+  const trennerFarbe = hell ? "rgba(11,35,56,0.14)" : "rgba(228,202,149,0.28)";
 
   return (
-    <svg viewBox="0 0 300 300" width={groesse} height={groesse} role="img"
-      aria-label={`${oben}${unten ? " " + unten : ""}`}
-      style={{ display: "block", margin: "0 auto", maxWidth: "100%" }}>
-      <circle cx={M} cy={M} r={R} fill="none" stroke={ringSpur} strokeWidth="2" />
-      <circle cx={M} cy={M} r={R} fill="none" stroke={C.messing} strokeWidth="3"
-        strokeLinecap="round" strokeDasharray={`${umfang * anteil} ${umfang}`}
-        transform={`rotate(-90 ${M} ${M})`} style={{ transition: "stroke-dasharray .6s ease" }} />
-      <text x={M} y={unten ? M - 2 : M + 20} textAnchor="middle" fill={zahl}
-        fontFamily={SANS} fontSize={zahlGross ? 56 : 96} letterSpacing="-3">{oben}</text>
-      {unten && (
-        <text x={M} y={M + 40} textAnchor="middle" fill={beschriftung}
-          fontFamily={MONO} fontSize="11" letterSpacing="2.4">{unten}</text>
+    <div style={{
+      background: kartenBg, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
+      border: `1px solid ${kartenRand}`, borderRadius: RUND, padding: "22px 20px",
+      maxWidth: 320, margin: "0 auto",
+    }}>
+      {titel && (
+        <div style={{
+          fontFamily: SANS, fontSize: 14, color: titelFarbe, textAlign: "center", marginBottom: 16,
+        }}>{titel}</div>
       )}
-    </svg>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        {werte.map((w, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center" }}>
+            {i > 0 && (
+              <span aria-hidden="true" style={{ width: 1, height: 50, background: trennerFarbe, margin: "0 22px" }} />
+            )}
+            <div style={{ textAlign: "center" }}>
+              <div style={{
+                fontFamily: DISPLAY, fontWeight: 700, fontSize: 44, lineHeight: 1,
+                color: zahlFarbe, letterSpacing: "-0.02em",
+              }}>{w.zahl}</div>
+              <div style={{
+                fontFamily: MONO, fontSize: 11, letterSpacing: 2, textTransform: "uppercase",
+                color: labelFarbe, marginTop: 7,
+              }}>{w.label}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -4717,10 +4758,17 @@ function Setup({ daten, setze }) {
       </P>
 
       <Card tone="white">
+        <Feld label="Dein Name" wert={daten.nutzerName || ""} onChange={(v) => setze("nutzerName", v)}
+          placeholder="z. B. Vivi" hinweis="Für die persönliche Begrüßung auf dem Startbildschirm." />
+      </Card>
+
+      <Card tone="white">
         <ReedereiFeld wert={s.reederei} onChange={(v) => set("reederei", v)} />
         <ReedereiInfo reederei={s.reederei} />
         <Feld label="Schiff" wert={s.schiff} onChange={(v) => set("schiff", v)} />
         <Feld label="Abfahrtsdatum" type="date" wert={s.abfahrt} onChange={(v) => set("abfahrt", v)} />
+        <Feld label="Abfahrtszeit (optional)" type="time" wert={s.abfahrtZeit} onChange={(v) => set("abfahrtZeit", v)}
+          hinweis="Für die genaue Stunden-Anzeige im Countdown." />
         <div style={{ display: "flex", gap: 10 }}>
           <div style={{ flex: 1, minWidth: 0 }}><Feld label="Nächte" type="number" wert={s.naechte} onChange={(v) => set("naechte", v)} /></div>
           <div style={{ flex: 1, minWidth: 0 }}><Feld label="Personen" type="number" wert={s.personen} onChange={(v) => set("personen", v)} /></div>
@@ -4812,7 +4860,6 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
   const s = daten.setup;
   const bilanz = archivStatistik(daten.archiv || []);
   const ab = alsDatum(s.abfahrt);
-  const tage = ab ? tageBis(ab) : null;
   const hafenZahl = daten.haefen.filter((x) => x.typ !== "see").length;
   const seetagZahl = daten.haefen.filter((x) => x.typ === "see").length;
   const routeZeile = [
@@ -4824,8 +4871,9 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
   Object.keys(fortschritt).forEach((k) => { wert += fortschritt[k].wert; gesamt += fortschritt[k].gesamt; });
   const prozent = gesamt ? (wert / gesamt) * 100 : 0;
 
-  const mitte = tage !== null && tage > 0 ? String(tage) : `${Math.round(prozent)}%`;
-  const unterMitte = tage !== null && tage > 0 ? "BIS ABFAHRT" : "VORBEREITET";
+  const cdWerte = countdownWerte(s);
+  const countdownTitel = cdWerte ? "Euer Urlaubs-Countdown" : "Euer Vorbereitungsstand";
+  const countdownAnzeige = cdWerte || [{ zahl: `${Math.round(prozent)}%`, label: "Vorbereitet" }];
 
   const schiffszeile = [s.reederei, s.schiff].filter(Boolean).join(" · ");
 
@@ -4836,6 +4884,12 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
         margin: "-22px -20px 24px", padding: "34px 20px 30px",
       }}>
         <div style={{ textAlign: "center" }}>
+          {daten.nutzerName && (
+            <div style={{
+              fontFamily: MONO, fontSize: 12, letterSpacing: 1.6, textTransform: "uppercase",
+              color: C.messingHell, marginBottom: 10,
+            }}>Hallo, {daten.nutzerName} 👋</div>
+          )}
           <h1 style={{
             fontFamily: DISPLAY, fontWeight: 700, fontSize: "clamp(38px, 11vw, 54px)",
             lineHeight: 0.96, letterSpacing: "-0.03em", color: C.white, margin: "0 0 8px",
@@ -4848,7 +4902,7 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
             Landausflüge, Route und Countdown für eure nächste Kreuzfahrt
           </p>
 
-          <Bullauge prozent={prozent} oben={mitte} unten={unterMitte} groesse={240} />
+          <UrlaubsCountdown titel={countdownTitel} werte={countdownAnzeige} />
 
           {(schiffszeile || ab) && (
             <div style={{
@@ -4973,7 +5027,7 @@ function TeilenPostkarte({ daten, onClose }) {
   const s = daten.setup;
   const h = daten.haefen || [];
   const ab = alsDatum(s.abfahrt);
-  const tage = ab ? tageBis(ab) : null;
+  const cdWerte = countdownWerte(s);
   const mitOrt = h.filter((x) => typeof x.lon === "number");
   const sm = mitOrt.reduce((a, p, i) => (i ? a + seemeilen(mitOrt[i - 1], p) : 0), 0);
   const schiffszeile = [s.reederei, s.schiff].filter(Boolean).join(" · ");
@@ -5009,10 +5063,9 @@ function TeilenPostkarte({ daten, onClose }) {
           )}
         </div>
 
-        {tage !== null && tage > 0 && (
+        {cdWerte && (
           <div style={{ margin: "0 0 26px" }}>
-            <Bullauge prozent={0} oben={String(tage)} unten={tage === 1 ? "TAG BIS ABFAHRT" : "TAGE BIS ABFAHRT"}
-              groesse={200} hell />
+            <UrlaubsCountdown titel="Euer Urlaubs-Countdown" werte={cdWerte} hell />
           </div>
         )}
 
@@ -5144,7 +5197,10 @@ function App() {
   const [bewertung, setBewertung] = useState({ essen: 0, service: 0, kabine: 0, preis: 0 });
   const [teilen, setTeilen] = useState(false);
   const [haefenAnfang, setHaefenAnfang] = useState(null);
+  const [namePopupGeschlossen, setNamePopupGeschlossen] = useState(false);
+  const [nameEntwurf, setNameEntwurf] = useState("");
   const timer = useRef(null);
+  const namePopupOffen = geladen && !daten.nutzerName && !namePopupGeschlossen;
 
   useEffect(() => {
     store.get(STORAGE_KEY)
@@ -5211,7 +5267,7 @@ function App() {
      aktiven Reise passiert (neu, geparkt, ins Fahrtenbuch gelegt). */
   const uebergreifend = (d) => ({
     archiv: d.archiv || [], geplant: d.geplant || [], wunschliste: d.wunschliste || [],
-    hafenNotizen: d.hafenNotizen || {},
+    hafenNotizen: d.hafenNotizen || {}, nutzerName: d.nutzerName || "",
   });
   const reiseSnapshot = (d) => ({
     id: "g" + Date.now(), setup: d.setup, kabine: d.kabine, haefen: d.haefen,
@@ -5383,6 +5439,36 @@ function App() {
             <div style={{ display: "flex", gap: 10 }}>
               <Btn small variant="outline" onClick={() => setFrage(false)} style={{ flex: 1 }}>Abbrechen</Btn>
               <Btn small onClick={neueReise} style={{ flex: 1 }}>Zurücksetzen</Btn>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {namePopupOffen && (
+        <div role="dialog" aria-modal="true" style={{
+          position: "fixed", inset: 0, zIndex: 70, background: "rgba(11,35,56,0.62)",
+          display: "grid", placeItems: "center", padding: 22,
+        }}>
+          <div style={{
+            background: C.paper, borderRadius: RUND, border: `1px solid ${C.line}`,
+            borderTop: `2px solid ${C.messing}`, padding: "28px 24px 24px", maxWidth: 400, width: "100%",
+          }}>
+            <H3>Schön, dass ihr da seid!</H3>
+            <P style={{ fontSize: 14.5 }}>
+              Wie dürfen wir dich nennen? Dann begrüßen wir dich beim nächsten Mal persönlich.
+            </P>
+            <Feld label="Dein Name" wert={nameEntwurf} onChange={setNameEntwurf}
+              placeholder="z. B. Vivi" />
+            <div style={{ display: "flex", gap: 10 }}>
+              <Btn small variant="outline" onClick={() => setNamePopupGeschlossen(true)} style={{ flex: 1 }}>
+                Vielleicht später
+              </Btn>
+              <Btn small onClick={() => {
+                setDaten((d) => ({ ...d, nutzerName: nameEntwurf.trim() }));
+                setNamePopupGeschlossen(true);
+              }} style={{ flex: 1 }} disabled={!nameEntwurf.trim()}>
+                Speichern
+              </Btn>
             </div>
           </div>
         </div>
