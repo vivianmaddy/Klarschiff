@@ -30,6 +30,21 @@ const MapPin = (p) => (
   <Svg {...p}><path d="M19.5 10.5c0 6-7.5 11-7.5 11s-7.5-5-7.5-11a7.5 7.5 0 0 1 15 0z" /><circle cx="12" cy="10.5" r="2.6" /></Svg>
 );
 const Menu = (p) => <Svg {...p}><line x1="4" y1="7" x2="20" y2="7" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="17" x2="20" y2="17" /></Svg>;
+const Anchor = (p) => (
+  <Svg {...p}><circle cx="12" cy="5" r="2.2" /><line x1="12" y1="7.2" x2="12" y2="21" />
+    <path d="M5 13a7 7 0 0 0 14 0" /><line x1="5" y1="13" x2="5" y2="10" /><line x1="19" y1="13" x2="19" y2="10" /></Svg>
+);
+const Waves = (p) => (
+  <Svg {...p}><path d="M2 8c1.8-1.6 3.6-1.6 5.4 0s3.6 1.6 5.4 0 3.6-1.6 5.4 0 3.6 1.6 5.4 0" />
+    <path d="M2 15c1.8-1.6 3.6-1.6 5.4 0s3.6 1.6 5.4 0 3.6-1.6 5.4 0 3.6 1.6 5.4 0" /></Svg>
+);
+const Compass = (p) => (
+  <Svg {...p}><circle cx="12" cy="12" r="9" /><polygon points="14.5 9.5 12 12 9.5 14.5 12 12 14.5 9.5" /></Svg>
+);
+const Ship = (p) => (
+  <Svg {...p}><path d="M3 16l1.6 4.2c.3.7 1 1.1 1.7 1.1h11.4c.7 0 1.4-.4 1.7-1.1L21 16" />
+    <path d="M5 16V9h14v7" /><path d="M8 9V5h8v4" /><line x1="12" y1="2" x2="12" y2="5" /></Svg>
+);
 
 /* =========================================================
    DESIGNSYSTEM – Logbuch an Bord
@@ -4834,6 +4849,21 @@ function GeplantKarte({ eintrag, onAktivieren, onLoeschen }) {
   );
 }
 
+function StatChip({ Icon, wert, label }) {
+  return (
+    <div style={{ flex: 1, textAlign: "center", minWidth: 0 }}>
+      <Icon size={16} color={C.messingHell} style={{ display: "block", margin: "0 auto 6px" }} />
+      <div style={{
+        fontFamily: DISPLAY, fontWeight: 700, fontSize: 15, color: C.white,
+        overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+      }}>{wert}</div>
+      <div style={{
+        fontFamily: MONO, fontSize: 8.5, letterSpacing: 1, textTransform: "uppercase", color: "#8FA9B8", marginTop: 2,
+      }}>{label}</div>
+    </div>
+  );
+}
+
 function KachelLink({ Icon, titel, unter, onClick }) {
   return (
     <button type="button" onClick={onClick} style={{
@@ -4843,13 +4873,15 @@ function KachelLink({ Icon, titel, unter, onClick }) {
       display: "flex", flexDirection: "column", gap: 12,
     }}>
       <span style={{
-        width: 42, height: 42, borderRadius: "50%", background: C.sand,
+        width: 42, height: 42, borderRadius: "50%",
+        background: "linear-gradient(135deg, #F3E7C9 0%, #E2C68F 100%)",
         display: "grid", placeItems: "center", flexShrink: 0,
+        boxShadow: "inset 0 0 0 1px rgba(200,160,85,0.35)",
       }}>
-        <Icon size={19} color={C.messing} />
+        <Icon size={19} color={C.tiefsee} />
       </span>
       <div>
-        <div style={{ fontFamily: SERIF, fontSize: 18, color: C.navy }}>{titel}</div>
+        <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 17, color: C.navy }}>{titel}</div>
         <div style={{ fontFamily: SANS, fontSize: 12.5, color: C.muted, marginTop: 3 }}>{unter}</div>
       </div>
     </button>
@@ -4876,11 +4908,13 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
   const countdownAnzeige = cdWerte || [{ zahl: `${Math.round(prozent)}%`, label: "Vorbereitet" }];
 
   const schiffszeile = [s.reederei, s.schiff].filter(Boolean).join(" · ");
+  const routePunkte = daten.haefen.filter((x) => typeof x.lon === "number");
+  const routeSm = routePunkte.reduce((a, p, i) => (i ? a + seemeilen(routePunkte[i - 1], p) : 0), 0);
 
   return (
     <div>
       <div style={{
-        background: `linear-gradient(180deg, ${C.tiefsee} 0%, ${C.nachtblau} 100%)`,
+        background: `radial-gradient(ellipse 150% 55% at 50% 40%, rgba(200,160,85,0.28) 0%, ${C.nachtblau} 48%, ${C.tiefsee} 85%)`,
         margin: "-22px -20px 24px", padding: "34px 20px 30px",
       }}>
         <div style={{ textAlign: "center" }}>
@@ -4897,20 +4931,78 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
 
           <p style={{
             fontFamily: SANS, fontSize: 14.5, lineHeight: 1.55, color: "#A9C0CE",
-            margin: "0 auto 28px", maxWidth: 300,
+            margin: "0 auto 26px", maxWidth: 300,
           }}>
             Landausflüge, Route und Countdown für eure nächste Kreuzfahrt
           </p>
+
+          <div aria-hidden="true" style={{ position: "relative", margin: "0 0 22px" }}>
+            <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(228,202,149,0.5), transparent)" }} />
+            <div style={{
+              position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
+              width: 38, height: 38, borderRadius: "50%", background: C.tiefsee,
+              border: `1px solid ${C.messingLeise}`, display: "grid", placeItems: "center",
+            }}>
+              <Compass size={17} color={C.messingHell} />
+            </div>
+          </div>
 
           <UrlaubsCountdown titel={countdownTitel} werte={countdownAnzeige} />
 
           {(schiffszeile || ab) && (
             <div style={{
-              fontFamily: MONO, fontSize: 11, letterSpacing: 1.4, color: C.messingHell,
-              textTransform: "uppercase", marginTop: 22, lineHeight: 1.9,
+              background: "rgba(255,255,255,0.06)", border: `1px solid ${C.messingLeise}`,
+              borderRadius: RUND, padding: "18px 18px 16px", marginTop: 18, textAlign: "left",
             }}>
-              {schiffszeile && <div>{schiffszeile}</div>}
-              {ab && <div style={{ color: "#8FA9B8" }}>Auslaufen {kurz(ab)} · {s.naechte} Nächte</div>}
+              {schiffszeile && (
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: ab ? 14 : 0 }}>
+                  <span style={{
+                    width: 34, height: 34, borderRadius: "50%", background: "rgba(228,202,149,0.14)",
+                    display: "grid", placeItems: "center", flexShrink: 0,
+                  }}><Ship size={16} color={C.messingHell} /></span>
+                  <div style={{ minWidth: 0 }}>
+                    {s.reederei && (
+                      <div style={{
+                        fontFamily: MONO, fontSize: 10, letterSpacing: 1.4, textTransform: "uppercase", color: "#8FA9B8",
+                      }}>{s.reederei}</div>
+                    )}
+                    <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 17, color: C.white, marginTop: 2 }}>
+                      {s.schiff || "Euer Schiff"}
+                    </div>
+                  </div>
+                </div>
+              )}
+              {ab && (
+                <div style={{
+                  display: "flex", gap: 20, paddingTop: schiffszeile ? 14 : 0,
+                  borderTop: schiffszeile ? `1px solid rgba(228,202,149,0.15)` : "none",
+                }}>
+                  <div>
+                    <div style={{
+                      fontFamily: MONO, fontSize: 9.5, letterSpacing: 1.2, textTransform: "uppercase",
+                      color: "#8FA9B8", marginBottom: 3,
+                    }}>Auslaufen</div>
+                    <div style={{ fontFamily: SANS, fontSize: 14, color: C.white }}>{kurz(ab)}</div>
+                  </div>
+                  <div>
+                    <div style={{
+                      fontFamily: MONO, fontSize: 9.5, letterSpacing: 1.2, textTransform: "uppercase",
+                      color: "#8FA9B8", marginBottom: 3,
+                    }}>Nächte</div>
+                    <div style={{ fontFamily: SANS, fontSize: 14, color: C.white }}>{s.naechte}</div>
+                  </div>
+                </div>
+              )}
+              {(hafenZahl > 0 || seetagZahl > 0 || routeSm > 0) && (
+                <div style={{
+                  display: "flex", gap: 8, marginTop: 14, paddingTop: 14,
+                  borderTop: `1px solid rgba(228,202,149,0.15)`,
+                }}>
+                  {hafenZahl > 0 && <StatChip Icon={MapPin} wert={hafenZahl} label={hafenZahl === 1 ? "Hafen" : "Häfen"} />}
+                  {seetagZahl > 0 && <StatChip Icon={Waves} wert={seetagZahl} label={seetagZahl === 1 ? "Seetag" : "Seetage"} />}
+                  {routeSm > 0 && <StatChip Icon={Compass} wert={routeSm.toLocaleString("de-DE")} label="Seemeilen" />}
+                </div>
+              )}
             </div>
           )}
 
@@ -4920,7 +5012,7 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
               fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.6, textTransform: "uppercase",
               color: C.messingHell, lineHeight: 1.9,
             }}>
-              {bilanz.reisen} {bilanz.reisen === 1 ? "Reise" : "Reisen"} · {bilanz.naechte} Nächte · {bilanz.einzigartig} Häfen
+              {bilanz.reisen} {bilanz.reisen === 1 ? "Reise" : "Reisen"} bisher · {bilanz.naechte} Nächte · {bilanz.einzigartig} Häfen
               {bilanz.sm > 0 && <div style={{ color: "#8FA9B8" }}>{bilanz.sm.toLocaleString("de-DE")} Seemeilen im Kielwasser</div>}
             </div>
           )}
@@ -5137,7 +5229,7 @@ function TabBar({ screen, gehe }) {
               }}>
               <span style={{
                 width: 34, height: 30, borderRadius: 10, display: "grid", placeItems: "center",
-                background: aktiv ? "rgba(228,202,149,0.16)" : "transparent",
+                background: aktiv ? "linear-gradient(135deg, rgba(228,202,149,0.30), rgba(200,160,85,0.12))" : "transparent",
               }}>
                 <t.Icon size={19} color={farbe} />
               </span>
