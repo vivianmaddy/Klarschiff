@@ -858,6 +858,26 @@ function UrlaubsCountdown({ titel, werte, hell = false }) {
   );
 }
 
+/* Ring-Fortschrittsanzeige fürs Start-Bildschirm-Hero: der Goldbogen zeigt
+   den echten Vorbereitungsstand (dieselbe Zahl wie auf den Kicker-Balken
+   der Module), die Zahl daneben bleibt der Tage-Countdown. */
+function CountdownRing({ prozent }) {
+  const size = 92, stroke = 7, r = (size - stroke) / 2, umfang = 2 * Math.PI * r;
+  const dash = Math.max(0, Math.min(100, prozent)) / 100 * umfang;
+  return (
+    <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }} aria-hidden="true">
+      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(228,202,149,0.2)" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={C.messing} strokeWidth={stroke}
+          strokeDasharray={`${dash} ${umfang - dash}`} strokeLinecap="round" />
+      </svg>
+      <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center" }}>
+        <Anchor size={26} color={C.messingHell} />
+      </div>
+    </div>
+  );
+}
+
 /* =========================================================
    MODUL 1 – COUNTDOWN
 ========================================================= */
@@ -1787,6 +1807,41 @@ const HAFENLISTE_ROH = [
   ["Tauranga", 176.17, -37.68, "Neuseeland", "AS"],
 ];
 const HAFENLISTE = HAFENLISTE_ROH.map((h) => ({ n: h[0], lon: h[1], lat: h[2], land: h[3], typ: h[4] }));
+
+/* Echte Hafenfotos statt Freitext-Häfen mit Bild: Klarschiff hat keine
+   Fotolizenz für jeden der 256 Häfen einzeln, deshalb wird stattdessen aus
+   vier Bild-Kategorien passend zum bestehenden typ-Code ausgewählt (der auch
+   die Packliste/Landgang-Vorlage steuert, siehe TYP_VORLAGEN) — Großstadt,
+   Altstadt/Hafenstädtchen, Insel und Fjord. Welches Bild einer Kategorie ein
+   Hafen bekommt, hängt deterministisch vom Namen ab: derselbe Hafen zeigt
+   also immer dasselbe Bild, aber verschiedene Häfen wiederholen sich nicht
+   ständig mit demselben Foto. */
+const HAFEN_BILD_KATEGORIEN = {
+  grossstadt: Array.from({ length: 13 }, (_, i) => `fotos/grossstadt-${i + 1}.jpg`),
+  altstadt: Array.from({ length: 22 }, (_, i) => `fotos/altstadt-${i + 1}.jpg`),
+  insel: Array.from({ length: 10 }, (_, i) => `fotos/insel-${i + 1}.jpg`),
+  fjord: Array.from({ length: 4 }, (_, i) => `fotos/fjord-${i + 1}.jpg`),
+};
+const HERO_BILDER = ["fotos/hero-1.jpg", "fotos/hero-2.jpg"];
+const TYP_ZU_BILDKATEGORIE = {
+  AS: "altstadt", RU: "altstadt", TK: "altstadt",
+  HK: "grossstadt", GM: "grossstadt", WU: "grossstadt", SA: "grossstadt", AU: "grossstadt",
+  SI: "insel", PI: "insel", DJ: "insel",
+  FJ: "fjord", NA: "fjord",
+};
+function textHash(s) {
+  let h = 0;
+  for (let i = 0; i < (s || "").length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+function hafenBild(typ, name) {
+  const kategorie = TYP_ZU_BILDKATEGORIE[typ] || "altstadt";
+  const pool = HAFEN_BILD_KATEGORIEN[kategorie];
+  return pool[textHash(name) % pool.length];
+}
+function heroBild(name) {
+  return HERO_BILDER[textHash(name || "") % HERO_BILDER.length];
+}
 
 function normText(s) {
   return (s || "").toLowerCase()
@@ -3760,18 +3815,24 @@ const BELIEBTE_HAEFEN = [
 ];
 
 function HafenSucheZeile({ eintrag, onClick }) {
+  const typ = eintrag.typ || (HAFENLISTE.find((h) => h.n === eintrag.n) || {}).typ;
   return (
     <button type="button" onClick={onClick} style={{
       display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%",
       textAlign: "left", background: C.white, border: "none", cursor: "pointer",
-      padding: "15px 16px", minHeight: 46, borderRadius: RUND_KLEIN, marginBottom: 8,
+      padding: "10px 12px", minHeight: 46, borderRadius: RUND_KLEIN, marginBottom: 8,
       boxShadow: "0 1px 2px rgba(11,35,56,0.05)",
     }}>
-      <span style={{ minWidth: 0 }}>
-        <div style={{ fontFamily: SANS, fontSize: 16.5, color: C.navy }}>{eintrag.n}</div>
-        {eintrag.land && (
-          <div style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, marginTop: 2 }}>{eintrag.land}</div>
-        )}
+      <span style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+        <img src={hafenBild(typ, eintrag.n)} alt="" aria-hidden="true" style={{
+          width: 46, height: 46, borderRadius: RUND_KLEIN, objectFit: "cover", flexShrink: 0,
+        }} />
+        <span style={{ minWidth: 0 }}>
+          <div style={{ fontFamily: SANS, fontSize: 16.5, color: C.navy }}>{eintrag.n}</div>
+          {eintrag.land && (
+            <div style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, marginTop: 2 }}>{eintrag.land}</div>
+          )}
+        </span>
       </span>
       <ChevronRight size={16} color={C.messing} style={{ flexShrink: 0 }} />
     </button>
@@ -3804,6 +3865,13 @@ function HafenDetailSeite({ daten, setze, name, onZurueck }) {
         <Card><P style={{ margin: 0 }}>Diesen Hafen kennen wir noch nicht.</P></Card>
       ) : (
         <div>
+          <div style={{
+            margin: "0 0 18px", borderRadius: RUND, overflow: "hidden", height: 180,
+          }}>
+            <img src={hafenBild(info.typ, info.name)} alt="" style={{
+              width: "100%", height: "100%", objectFit: "cover",
+            }} />
+          </div>
           <Kicker>{info.land}{info.kontinent ? ` · ${info.kontinent}` : ""}</Kicker>
           <H2 style={{ marginBottom: 12 }}>{info.name}</H2>
           {info.waehrung && (
@@ -4975,13 +5043,29 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
   const routePunkte = daten.haefen.filter((x) => typeof x.lon === "number");
   const routeSm = routePunkte.reduce((a, p, i) => (i ? a + seemeilen(routePunkte[i - 1], p) : 0), 0);
 
+  const heroFoto = heroBild(s.schiff || s.reederei || daten.nutzerName);
+
   return (
     <div>
       <div style={{
-        background: `radial-gradient(ellipse 150% 55% at 50% 40%, rgba(200,160,85,0.28) 0%, ${C.nachtblau} 48%, ${C.tiefsee} 85%)`,
-        margin: "-22px -20px 24px", padding: "34px 20px 30px",
+        position: "relative", margin: "-22px -20px 24px", padding: "34px 20px 30px",
+        background: C.tiefsee, overflow: "hidden",
       }}>
-        <div style={{ textAlign: "center" }}>
+        <img src={heroFoto} alt="" aria-hidden="true" style={{
+          position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover",
+        }} />
+        <div aria-hidden="true" style={{
+          position: "absolute", inset: 0,
+          background: `linear-gradient(180deg, rgba(9,22,36,0.9) 0%, rgba(9,22,36,0.62) 26%, rgba(9,22,36,0.22) 48%, rgba(9,22,36,0.65) 74%, ${C.tiefsee} 100%)`,
+        }} />
+        <div style={{ position: "relative", textAlign: "center" }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 6 }}>
+            <button type="button" onClick={() => gehe(8)} aria-label="Fahrtenbuch" title="Fahrtenbuch" style={{
+              width: 38, height: 38, borderRadius: "50%", background: "rgba(11,35,56,0.5)",
+              border: `1px solid ${C.messingLeise}`, display: "grid", placeItems: "center", cursor: "pointer",
+            }}><Anchor size={16} color={C.messingHell} /></button>
+          </div>
+
           {daten.nutzerName && (
             <div style={{
               fontFamily: MONO, fontSize: 12, letterSpacing: 1.6, textTransform: "uppercase",
@@ -5000,6 +5084,8 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
             Landausflüge, Route und Countdown für eure nächste Kreuzfahrt
           </p>
 
+          <div style={{ height: 200 }} aria-hidden="true" />
+
           <div aria-hidden="true" style={{ position: "relative", margin: "0 0 22px" }}>
             <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(228,202,149,0.5), transparent)" }} />
             <div style={{
@@ -5011,12 +5097,34 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
             </div>
           </div>
 
-          <UrlaubsCountdown titel={countdownTitel} werte={countdownAnzeige} />
+          <div style={{
+            display: "flex", alignItems: "center", gap: 18, textAlign: "left",
+            background: "rgba(255,255,255,0.06)", border: `1px solid ${C.messingLeise}`,
+            borderRadius: RUND, padding: "20px 22px", maxWidth: 320, margin: "0 auto",
+          }}>
+            <CountdownRing prozent={cdWerte ? prozent : (prozent || 0)} />
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontFamily: SANS, fontSize: 13, color: "#A9C0CE" }}>{countdownTitel}</div>
+              <div style={{
+                fontFamily: DISPLAY, fontWeight: 700, fontSize: 40, lineHeight: 1,
+                color: C.white, letterSpacing: "-0.02em", marginTop: 5,
+              }}>{countdownAnzeige[0].zahl}</div>
+              <div style={{
+                fontFamily: MONO, fontSize: 11.5, letterSpacing: 2, textTransform: "uppercase",
+                color: C.messingHell, marginTop: 4,
+              }}>{countdownAnzeige[0].label}</div>
+              {countdownAnzeige[1] && (
+                <div style={{ fontFamily: SANS, fontSize: 12.5, color: "#8FA9B8", marginTop: 3 }}>
+                  + {countdownAnzeige[1].zahl} {countdownAnzeige[1].label}
+                </div>
+              )}
+            </div>
+          </div>
 
           {(schiffszeile || ab) && (
             <div style={{
               background: "rgba(255,255,255,0.06)", border: `1px solid ${C.messingLeise}`,
-              borderRadius: RUND, padding: "18px 18px 16px", marginTop: 18, textAlign: "left",
+              borderRadius: RUND, padding: "18px 18px 16px", marginTop: 14, textAlign: "left",
             }}>
               {schiffszeile && (
                 <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: ab ? 14 : 0 }}>
@@ -5059,8 +5167,8 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
               )}
               {(hafenZahl > 0 || seetagZahl > 0 || routeSm > 0) && (
                 <div style={{
-                  display: "flex", gap: 8, marginTop: 14, paddingTop: 14,
-                  borderTop: `1px solid rgba(228,202,149,0.15)`,
+                  display: "flex", gap: 8, marginTop: 14, padding: "12px 10px",
+                  background: "rgba(0,0,0,0.16)", borderRadius: RUND_KLEIN,
                 }}>
                   {hafenZahl > 0 && <StatChip Icon={MapPin} wert={hafenZahl} label={hafenZahl === 1 ? "Hafen" : "Häfen"} />}
                   {seetagZahl > 0 && <StatChip Icon={Waves} wert={seetagZahl} label={seetagZahl === 1 ? "Seetag" : "Seetage"} />}
