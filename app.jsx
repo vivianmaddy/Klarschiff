@@ -702,6 +702,53 @@ function Wahl({ label, wert, onChange, optionen, hinweis }) {
   );
 }
 
+/* Echtes Auswahlfeld statt Freitext — mit "Andere"-Ausweg für Fälle,
+   die unsere Liste nicht abdeckt, damit niemand blockiert wird. */
+function Auswahl({ label, wert, onChange, optionen, platzhalter, deaktiviert, hinweis }) {
+  const bekannt = optionen.indexOf(wert) >= 0;
+  const [andereOffen, setAndereOffen] = useState(wert !== "" && !bekannt);
+  return (
+    <div style={{ marginBottom: 16, minWidth: 0 }}>
+      <label style={{
+        display: "block", fontFamily: MONO, fontSize: 11, letterSpacing: 1.4,
+        textTransform: "uppercase", color: C.muted, marginBottom: 7,
+      }}>{label}</label>
+      {andereOffen ? (
+        <div>
+          <input type="text" value={wert} placeholder={label}
+            onChange={(e) => onChange(e.target.value)}
+            style={{ ...eingabeStil, fontFamily: SANS, fontSize: 16 }} />
+          <button type="button" onClick={() => { setAndereOffen(false); onChange(""); }} style={{
+            background: "transparent", border: "none", cursor: "pointer", color: C.muted,
+            fontFamily: SANS, fontSize: 12.5, padding: "8px 0", textDecoration: "underline",
+          }}>Doch aus der Liste wählen</button>
+        </div>
+      ) : (
+        <div style={{ position: "relative" }}>
+          <select value={bekannt ? wert : ""} disabled={deaktiviert}
+            onChange={(e) => { if (e.target.value === "__andere__") { setAndereOffen(true); onChange(""); } else onChange(e.target.value); }}
+            style={{
+              ...eingabeStil, fontFamily: SANS, fontSize: 16, appearance: "none", WebkitAppearance: "none",
+              paddingRight: 40, opacity: deaktiviert ? 0.55 : 1, cursor: deaktiviert ? "default" : "pointer",
+              color: wert ? C.navy : C.muted,
+            }}>
+            <option value="" disabled>{platzhalter || "Bitte wählen"}</option>
+            {optionen.map((o) => <option key={o} value={o}>{o}</option>)}
+            <option value="__andere__">Andere / nicht gelistet …</option>
+          </select>
+          <ChevronRight size={15} color={C.messing} style={{
+            position: "absolute", right: 14, top: "50%", transform: "translateY(-50%) rotate(90deg)",
+            pointerEvents: "none",
+          }} />
+        </div>
+      )}
+      {hinweis && (
+        <div style={{ fontFamily: SANS, fontSize: 12.5, color: C.muted, marginTop: 6 }}>{hinweis}</div>
+      )}
+    </div>
+  );
+}
+
 function WahlMehr({ label, werte, onChange, optionen, hinweis }) {
   const liste = werte || [];
   const um = (v) => onChange(liste.indexOf(v) >= 0 ? liste.filter((x) => x !== v) : [...liste, v]);
@@ -1899,24 +1946,55 @@ function trinkgeldTippFuer(land) {
 /* Reederei-Eigenheiten — Richtwerte, die sich ändern können.
    Aktuelle Zahlen bitte immer bei der Reederei selbst prüfen. */
 const REEDEREIEN = [
-  { n: "AIDA Cruises", puffer: 45, trinkgeldAutomatik: true, trinkgeldProNacht: 12, kidsClubAb: 3 },
-  { n: "TUI Cruises (Mein Schiff)", puffer: 45, trinkgeldAutomatik: true, trinkgeldProNacht: 10, kidsClubAb: 1 },
-  { n: "MSC Cruises", puffer: 60, trinkgeldAutomatik: true, trinkgeldProNacht: 12, kidsClubAb: 2 },
-  { n: "Costa Crociere", puffer: 60, trinkgeldAutomatik: true, trinkgeldProNacht: 10, kidsClubAb: 3 },
-  { n: "Royal Caribbean", puffer: 90, trinkgeldAutomatik: true, trinkgeldProNacht: 18, kidsClubAb: 3 },
-  { n: "Celebrity Cruises", puffer: 90, trinkgeldAutomatik: true, trinkgeldProNacht: 18, kidsClubAb: 3 },
-  { n: "Norwegian Cruise Line", puffer: 90, trinkgeldAutomatik: true, trinkgeldProNacht: 19, kidsClubAb: 3 },
-  { n: "Princess Cruises", puffer: 90, trinkgeldAutomatik: true, trinkgeldProNacht: 16, kidsClubAb: 3 },
-  { n: "Carnival Cruise Line", puffer: 90, trinkgeldAutomatik: true, trinkgeldProNacht: 16, kidsClubAb: 2 },
-  { n: "Holland America Line", puffer: 60, trinkgeldAutomatik: true, trinkgeldProNacht: 16, kidsClubAb: 3 },
-  { n: "Disney Cruise Line", puffer: 90, trinkgeldAutomatik: true, trinkgeldProNacht: 16, kidsClubAb: 3 },
-  { n: "Hurtigruten / HX", puffer: 45, trinkgeldAutomatik: false, trinkgeldProNacht: 0, kidsClubAb: null },
+  { n: "AIDA Cruises", puffer: 45, trinkgeldAutomatik: true, trinkgeldProNacht: 12, kidsClubAb: 3,
+    schiffe: ["AIDAcosma", "AIDAnova", "AIDAprima", "AIDAperla", "AIDAstella", "AIDAsol", "AIDAmar",
+      "AIDAblu", "AIDAluna", "AIDAdiva", "AIDAaura", "AIDAvita"] },
+  { n: "TUI Cruises (Mein Schiff)", puffer: 45, trinkgeldAutomatik: true, trinkgeldProNacht: 10, kidsClubAb: 1,
+    schiffe: ["Mein Schiff 1", "Mein Schiff 2", "Mein Schiff 3", "Mein Schiff 4", "Mein Schiff 5",
+      "Mein Schiff 6", "Mein Schiff 7"] },
+  { n: "MSC Cruises", puffer: 60, trinkgeldAutomatik: true, trinkgeldProNacht: 12, kidsClubAb: 2,
+    schiffe: ["MSC World Europa", "MSC World America", "MSC Euribia", "MSC Virtuosa", "MSC Grandiosa",
+      "MSC Bellissima", "MSC Meraviglia", "MSC Seaside", "MSC Seaview", "MSC Divina", "MSC Preziosa",
+      "MSC Splendida", "MSC Fantasia", "MSC Magnifica", "MSC Musica", "MSC Poesia", "MSC Orchestra"] },
+  { n: "Costa Crociere", puffer: 60, trinkgeldAutomatik: true, trinkgeldProNacht: 10, kidsClubAb: 3,
+    schiffe: ["Costa Smeralda", "Costa Toscana", "Costa Firenze", "Costa Venezia", "Costa Diadema",
+      "Costa Fascinosa", "Costa Favolosa", "Costa Pacifica", "Costa Deliziosa", "Costa Fortuna", "Costa Luminosa"] },
+  { n: "Royal Caribbean", puffer: 90, trinkgeldAutomatik: true, trinkgeldProNacht: 18, kidsClubAb: 3,
+    schiffe: ["Icon of the Seas", "Utopia of the Seas", "Wonder of the Seas", "Symphony of the Seas",
+      "Harmony of the Seas", "Oasis of the Seas", "Allure of the Seas", "Odyssey of the Seas",
+      "Spectrum of the Seas", "Anthem of the Seas", "Ovation of the Seas", "Quantum of the Seas",
+      "Independence of the Seas", "Freedom of the Seas", "Liberty of the Seas", "Voyager of the Seas",
+      "Explorer of the Seas", "Adventure of the Seas", "Navigator of the Seas", "Mariner of the Seas",
+      "Brilliance of the Seas", "Radiance of the Seas", "Serenade of the Seas", "Jewel of the Seas"] },
+  { n: "Celebrity Cruises", puffer: 90, trinkgeldAutomatik: true, trinkgeldProNacht: 18, kidsClubAb: 3,
+    schiffe: ["Celebrity Ascent", "Celebrity Beyond", "Celebrity Apex", "Celebrity Edge",
+      "Celebrity Silhouette", "Celebrity Reflection", "Celebrity Eclipse", "Celebrity Equinox",
+      "Celebrity Solstice", "Celebrity Constellation", "Celebrity Infinity", "Celebrity Millennium",
+      "Celebrity Summit"] },
+  { n: "Norwegian Cruise Line", puffer: 90, trinkgeldAutomatik: true, trinkgeldProNacht: 19, kidsClubAb: 3,
+    schiffe: ["Norwegian Aqua", "Norwegian Viva", "Norwegian Prima", "Norwegian Encore", "Norwegian Bliss",
+      "Norwegian Joy", "Norwegian Escape", "Norwegian Getaway", "Norwegian Breakaway", "Norwegian Epic",
+      "Norwegian Gem", "Norwegian Jade", "Norwegian Jewel", "Norwegian Pearl", "Norwegian Dawn",
+      "Norwegian Star", "Norwegian Sun", "Norwegian Sky", "Norwegian Spirit"] },
+  { n: "Princess Cruises", puffer: 90, trinkgeldAutomatik: true, trinkgeldProNacht: 16, kidsClubAb: 3,
+    schiffe: ["Sun Princess", "Star Princess", "Discovery Princess", "Enchanted Princess", "Sky Princess",
+      "Majestic Princess", "Regal Princess", "Royal Princess", "Crown Princess", "Emerald Princess",
+      "Caribbean Princess", "Island Princess", "Coral Princess", "Diamond Princess", "Sapphire Princess",
+      "Ruby Princess", "Grand Princess", "Golden Princess"] },
+  { n: "Carnival Cruise Line", puffer: 90, trinkgeldAutomatik: true, trinkgeldProNacht: 16, kidsClubAb: 2,
+    schiffe: ["Carnival Jubilee", "Carnival Celebration", "Mardi Gras", "Carnival Venezia", "Carnival Firenze",
+      "Carnival Panorama", "Carnival Horizon", "Carnival Vista", "Carnival Breeze", "Carnival Magic",
+      "Carnival Dream", "Carnival Sunshine", "Carnival Radiance", "Carnival Miracle", "Carnival Legend",
+      "Carnival Spirit", "Carnival Freedom", "Carnival Liberty", "Carnival Valor", "Carnival Glory"] },
+  { n: "Holland America Line", puffer: 60, trinkgeldAutomatik: true, trinkgeldProNacht: 16, kidsClubAb: 3,
+    schiffe: ["Rotterdam", "Nieuw Statendam", "Koningsdam", "Eurodam", "Nieuw Amsterdam", "Oosterdam",
+      "Westerdam", "Zuiderdam", "Volendam", "Zaandam", "Noordam"] },
+  { n: "Disney Cruise Line", puffer: 90, trinkgeldAutomatik: true, trinkgeldProNacht: 16, kidsClubAb: 3,
+    schiffe: ["Disney Treasure", "Disney Wish", "Disney Fantasy", "Disney Dream", "Disney Wonder", "Disney Magic"] },
+  { n: "Hurtigruten / HX", puffer: 45, trinkgeldAutomatik: false, trinkgeldProNacht: 0, kidsClubAb: null,
+    schiffe: ["MS Trollfjord", "MS Finnmarken", "MS Nordnorge", "MS Nordkapp", "MS Polarlys", "MS Kong Harald",
+      "MS Richard With", "MS Nordlys", "MS Spitsbergen", "MS Roald Amundsen", "MS Fridtjof Nansen", "MS Maud"] },
 ];
-function reedereiVorschlaege(q) {
-  const s = normText(q || "");
-  if (s.length < 2) return [];
-  return REEDEREIEN.filter((r) => normText(r.n).indexOf(s) >= 0).slice(0, 5);
-}
 function reedereiFinden(name) {
   const s = normText(name || "");
   if (s.length < 2) return null;
@@ -4708,35 +4786,6 @@ function ModulFahrtenbuch({ daten, setze }) {
 /* =========================================================
    REISE-SETUP
 ========================================================= */
-function ReedereiFeld({ wert, onChange }) {
-  const [offen, setOffen] = useState(false);
-  const vorschlaege = offen ? reedereiVorschlaege(wert) : [];
-  return (
-    <div style={{ marginBottom: 4, position: "relative" }}>
-      <Feld label="Reederei" wert={wert} placeholder="z. B. Mein Schiff, AIDA …"
-        onChange={(v) => { onChange(v); setOffen(true); }} />
-      {vorschlaege.length > 0 && (
-        <div style={{
-          position: "absolute", left: 0, right: 0, top: 76, zIndex: 20,
-          background: C.white, border: `1px solid ${C.line}`, borderRadius: 3,
-          overflow: "hidden", boxShadow: "0 8px 24px rgba(18,57,92,0.14)",
-        }}>
-          {vorschlaege.map((r) => (
-            <button key={r.n} type="button"
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => { onChange(r.n); setOffen(false); }}
-              style={{
-                display: "block", width: "100%", textAlign: "left", cursor: "pointer",
-                background: "transparent", border: "none", borderBottom: `1px solid ${C.line}`,
-                padding: "13px 14px", minHeight: 46, fontFamily: SANS, fontSize: 15, color: C.navy,
-              }}>{r.n}</button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
 function ReedereiInfo({ reederei }) {
   const r = reedereiFinden(reederei);
   if (!r) return null;
@@ -4761,51 +4810,66 @@ function ReedereiInfo({ reederei }) {
   );
 }
 
-function Setup({ daten, setze }) {
+function Setup({ daten, setze, gehe }) {
   const s = daten.setup;
   const set = (k, v) => setze("setup", { ...s, [k]: v });
+  const reedereiEintrag = reedereiFinden(s.reederei);
+  const schiffOptionen = reedereiEintrag ? reedereiEintrag.schiffe : [];
+
   return (
     <div>
       <Kicker>Reise-Setup</Kicker>
       <H2>Eure Reise</H2>
       <P style={{ marginTop: 14 }}>
-        Diese Angaben steuern alles Weitere: Der Countdown rechnet daraus echte Termine, die Packliste passt sich an, und der Bordkonto-Rechner rechnet mit euren Zahlen.
+        Reederei, Schiff und Termin braucht Klarschiff, um für euch zu rechnen: Der Countdown auf dem
+        Startbildschirm zählt zu eurem Abfahrtstermin runter, das Fahrtgebiet bestimmt den Kartenausschnitt
+        und die Packliste, und Personenzahl sowie Nächte fließen in den Bordkonto-Rechner ein.
       </P>
 
       <Card tone="white">
         <Feld label="Dein Name" wert={daten.nutzerName || ""} onChange={(v) => setze("nutzerName", v)}
-          placeholder="z. B. Vivi" hinweis="Für die persönliche Begrüßung auf dem Startbildschirm." />
+          placeholder="z. B. Vivi" hinweis="So begrüßen wir euch beim nächsten Öffnen der App." />
       </Card>
 
       <Card tone="white">
-        <ReedereiFeld wert={s.reederei} onChange={(v) => set("reederei", v)} />
+        <Auswahl label="Reederei" wert={s.reederei}
+          onChange={(v) => setze("setup", { ...s, reederei: v, schiff: "" })}
+          optionen={REEDEREIEN.map((r) => r.n)} platzhalter="Reederei wählen" />
         <ReedereiInfo reederei={s.reederei} />
-        <Feld label="Schiff" wert={s.schiff} onChange={(v) => set("schiff", v)} />
+        <Auswahl label="Schiff" wert={s.schiff} onChange={(v) => set("schiff", v)}
+          optionen={schiffOptionen} deaktiviert={!s.reederei}
+          platzhalter={s.reederei ? "Schiff wählen" : "Zuerst Reederei wählen"} />
+
         <Feld label="Abfahrtsdatum" type="date" wert={s.abfahrt} onChange={(v) => set("abfahrt", v)} />
         <Feld label="Abfahrtszeit (optional)" type="time" wert={s.abfahrtZeit} onChange={(v) => set("abfahrtZeit", v)}
-          hinweis="Für die genaue Stunden-Anzeige im Countdown." />
+          hinweis="Nur nötig, wenn der Countdown neben den Tagen auch die Stunden zeigen soll." />
         <div style={{ display: "flex", gap: 10 }}>
           <div style={{ flex: 1, minWidth: 0 }}><Feld label="Nächte" type="number" wert={s.naechte} onChange={(v) => set("naechte", v)} /></div>
           <div style={{ flex: 1, minWidth: 0 }}><Feld label="Personen" type="number" wert={s.personen} onChange={(v) => set("personen", v)} /></div>
         </div>
         <Feld label="Reisepreis gesamt" type="number" wert={s.reisepreis} onChange={(v) => set("reisepreis", v)}
-          hinweis="Freiwillig — damit euch der Rechner zeigt, wie viel oben drauf kommt." />
+          hinweis="Freiwillig — der Bordkonto-Rechner zeigt euch damit, wie viel Prozent eure Extras an Bord noch zum Reisepreis dazukommen." />
 
-        <Wahl label="Route" wert={s.route} onChange={(v) => set("route", v)}
+        <Wahl label="Fahrtgebiet" wert={s.route} onChange={(v) => set("route", v)}
           optionen={[
             { v: "karibik", l: "Karibik / Kanaren" }, { v: "mittel", l: "Mittelmeer" },
             { v: "nord", l: "Nordland / Ostsee" }, { v: "trans", l: "Transatlantik" }, { v: "andere", l: "Andere" },
-          ]} />
+          ]}
+          hinweis="Bestimmt den Kartenausschnitt in Route & Postkarte und die Packlisten-Empfehlungen." />
         <Wahl label="Saison" wert={s.saison} onChange={(v) => set("saison", v)}
           optionen={[{ v: "sommer", l: "Sommer" }, { v: "neben", l: "Nebensaison" }, { v: "winter", l: "Winter" }]} />
         <Wahl label="Anreise" wert={s.anreise} onChange={(v) => set("anreise", v)}
           optionen={[{ v: "flug", l: "Fly & Cruise" }, { v: "boden", l: "Auto oder Bahn" }]} />
         <WahlMehr label="Worauf freut ihr euch am meisten?" werte={s.interessen} onChange={(v) => set("interessen", v)}
           optionen={INTERESSEN_OPTIONEN}
-          hinweis="Passende Häfen markieren wir im Hafen-Lexikon mit einem kleinen Hinweis." />
+          hinweis="Häfen, die dazu passen, sind im Hafen-Lexikon extra markiert." />
 
         <Schalter label="Ein Kind unter drei Jahren ist dabei" an={s.kind} onChange={(v) => set("kind", v)} />
         <Schalter label="Es gibt Gala-Abende" an={s.gala} onChange={(v) => set("gala", v)} />
+
+        <Btn full onClick={() => gehe("start")} style={{ marginTop: 10 }}>
+          <Check size={16} /> Speichern
+        </Btn>
       </Card>
     </div>
   );
@@ -5465,7 +5529,7 @@ function App() {
             anfangsHafen={haefenAnfang} onAnfangVerbraucht={() => setHaefenAnfang(null)} />}
           {screen === "route" && <ModulLandgang daten={daten} setze={setze} onZeigeHafen={zeigeHafen} />}
           {screen === "mehr" && <ModulMehr gehe={setScreen} fortschritt={fortschritt} />}
-          {screen === "setup" && <Setup daten={daten} setze={setze} />}
+          {screen === "setup" && <Setup daten={daten} setze={setze} gehe={setScreen} />}
           {screen === 1 && <ModulCountdown daten={daten} setzeHaken={setzeHaken} />}
           {screen === 2 && <ModulKabine daten={daten} setze={setze} />}
           {screen === 3 && <ModulPack daten={daten} setze={setze} setzeHaken={setzeHaken} />}
