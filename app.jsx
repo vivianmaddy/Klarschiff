@@ -519,7 +519,7 @@ function Kicker({ children, color, hell }) {
     <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
       <span aria-hidden="true" style={{ width: 20, height: 1, background: C.messing, flexShrink: 0 }} />
       <span style={{
-        fontFamily: MONO, fontSize: 10.5, letterSpacing: 2.4, fontWeight: 500,
+        fontFamily: MONO, fontSize: 11.5, letterSpacing: 2.4, fontWeight: 500,
         textTransform: "uppercase", color: color || (hell ? C.messingHell : C.muted),
       }}>{children}</span>
     </div>
@@ -547,7 +547,7 @@ function H3({ children, style }) {
 function P({ children, style }) {
   return (
     <p style={{
-      fontFamily: SANS, fontSize: 15.5, lineHeight: 1.72,
+      fontFamily: SANS, fontSize: 16.5, lineHeight: 1.72,
       color: C.body, margin: "0 0 16px", ...style,
     }}>{children}</p>
   );
@@ -604,7 +604,7 @@ function Balken({ wert, gesamt }) {
         <div style={{ width: `${p}%`, height: "100%", background: C.tiefsee, transition: "width .35s ease" }} />
       </div>
       <div style={{
-        fontFamily: MONO, fontSize: 11, letterSpacing: 0.6, color: C.muted, marginTop: 7,
+        fontFamily: MONO, fontSize: 12, letterSpacing: 0.6, color: C.muted, marginTop: 7,
       }}>{wert} / {gesamt} erledigt</div>
     </div>
   );
@@ -625,7 +625,7 @@ function Haken({ an, onToggle, titel, text, stern, extra, onDelete }) {
       </button>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{
-          fontFamily: SANS, fontSize: 15.5, lineHeight: 1.5,
+          fontFamily: SANS, fontSize: 16.5, lineHeight: 1.5,
           color: an ? C.muted : C.navy, textDecoration: an ? "line-through" : "none",
         }}>
           {stern && <span style={{ color: C.messing, marginRight: 7 }} aria-hidden="true">✦</span>}
@@ -659,7 +659,7 @@ function Feld({ label, wert, onChange, placeholder, type = "text", hinweis }) {
   return (
     <div style={{ marginBottom: 16, minWidth: 0 }}>
       <label style={{
-        display: "block", fontFamily: MONO, fontSize: 11, letterSpacing: 1.4,
+        display: "block", fontFamily: MONO, fontSize: 12, letterSpacing: 1.4,
         textTransform: "uppercase", color: C.muted, marginBottom: 7,
         overflowWrap: "anywhere",
       }}>{label}</label>
@@ -668,7 +668,7 @@ function Feld({ label, wert, onChange, placeholder, type = "text", hinweis }) {
         inputMode={type === "number" ? "numeric" : undefined}
         style={{ ...eingabeStil, fontFamily: daten ? MONO : SANS, fontSize: daten ? 15 : 16 }} />
       {hinweis && (
-        <div style={{ fontFamily: SANS, fontSize: 12.5, color: C.muted, marginTop: 6 }}>{hinweis}</div>
+        <div style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, marginTop: 6 }}>{hinweis}</div>
       )}
     </div>
   );
@@ -678,7 +678,7 @@ function Wahl({ label, wert, onChange, optionen, hinweis }) {
   return (
     <div style={{ marginBottom: 20 }}>
       <div style={{
-        fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.6, textTransform: "uppercase",
+        fontFamily: MONO, fontSize: 11.5, letterSpacing: 1.6, textTransform: "uppercase",
         color: C.muted, marginBottom: 9,
       }}>{label}</div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
@@ -686,7 +686,7 @@ function Wahl({ label, wert, onChange, optionen, hinweis }) {
           const an = wert === o.v;
           return (
             <button key={o.v} type="button" onClick={() => onChange(an ? "" : o.v)} style={{
-              fontFamily: SANS, fontSize: 14, cursor: "pointer", minHeight: 44,
+              fontFamily: SANS, fontSize: 15, cursor: "pointer", minHeight: 44,
               padding: "11px 16px", borderRadius: 3,
               border: `1px solid ${an ? C.tiefsee : C.line}`,
               background: an ? C.tiefsee : "transparent", color: an ? C.white : C.body,
@@ -696,7 +696,7 @@ function Wahl({ label, wert, onChange, optionen, hinweis }) {
         })}
       </div>
       {hinweis && (
-        <div style={{ fontFamily: SANS, fontSize: 12.5, color: C.muted, marginTop: 8 }}>{hinweis}</div>
+        <div style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, marginTop: 8 }}>{hinweis}</div>
       )}
     </div>
   );
@@ -710,7 +710,7 @@ function Auswahl({ label, wert, onChange, optionen, platzhalter, deaktiviert, hi
   return (
     <div style={{ marginBottom: 16, minWidth: 0 }}>
       <label style={{
-        display: "block", fontFamily: MONO, fontSize: 11, letterSpacing: 1.4,
+        display: "block", fontFamily: MONO, fontSize: 12, letterSpacing: 1.4,
         textTransform: "uppercase", color: C.muted, marginBottom: 7,
       }}>{label}</label>
       {andereOffen ? (
@@ -720,7 +720,7 @@ function Auswahl({ label, wert, onChange, optionen, platzhalter, deaktiviert, hi
             style={{ ...eingabeStil, fontFamily: SANS, fontSize: 16 }} />
           <button type="button" onClick={() => { setAndereOffen(false); onChange(""); }} style={{
             background: "transparent", border: "none", cursor: "pointer", color: C.muted,
-            fontFamily: SANS, fontSize: 12.5, padding: "8px 0", textDecoration: "underline",
+            fontFamily: SANS, fontSize: 13.5, padding: "8px 0", textDecoration: "underline",
           }}>Doch aus der Liste wählen</button>
         </div>
       ) : (
@@ -743,7 +743,7 @@ function Auswahl({ label, wert, onChange, optionen, platzhalter, deaktiviert, hi
         </div>
       )}
       {hinweis && (
-        <div style={{ fontFamily: SANS, fontSize: 12.5, color: C.muted, marginTop: 6 }}>{hinweis}</div>
+        <div style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, marginTop: 6 }}>{hinweis}</div>
       )}
     </div>
   );
@@ -756,7 +756,7 @@ function WahlMehr({ label, werte, onChange, optionen, hinweis }) {
     <div style={{ marginBottom: 20 }}>
       {label && (
         <div style={{
-          fontFamily: MONO, fontSize: 11, letterSpacing: 1.4, textTransform: "uppercase",
+          fontFamily: MONO, fontSize: 12, letterSpacing: 1.4, textTransform: "uppercase",
           color: C.muted, marginBottom: 9,
         }}>{label}</div>
       )}
@@ -765,7 +765,7 @@ function WahlMehr({ label, werte, onChange, optionen, hinweis }) {
           const an = liste.indexOf(o.v) >= 0;
           return (
             <button key={o.v} type="button" onClick={() => um(o.v)} aria-pressed={an} style={{
-              fontFamily: SANS, fontSize: 14, cursor: "pointer", minHeight: 44,
+              fontFamily: SANS, fontSize: 15, cursor: "pointer", minHeight: 44,
               padding: "11px 16px", borderRadius: 3,
               border: `1px solid ${an ? C.tiefsee : C.line}`,
               background: an ? C.tiefsee : "transparent", color: an ? C.white : C.body,
@@ -776,7 +776,7 @@ function WahlMehr({ label, werte, onChange, optionen, hinweis }) {
         })}
       </div>
       {hinweis && (
-        <div style={{ fontFamily: SANS, fontSize: 12.5, color: C.muted, marginTop: 8 }}>{hinweis}</div>
+        <div style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, marginTop: 8 }}>{hinweis}</div>
       )}
     </div>
   );
@@ -832,7 +832,7 @@ function UrlaubsCountdown({ titel, werte, hell = false }) {
     }}>
       {titel && (
         <div style={{
-          fontFamily: SANS, fontSize: 14, color: titelFarbe, textAlign: "center", marginBottom: 16,
+          fontFamily: SANS, fontSize: 15, color: titelFarbe, textAlign: "center", marginBottom: 16,
         }}>{titel}</div>
       )}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -847,7 +847,7 @@ function UrlaubsCountdown({ titel, werte, hell = false }) {
                 color: zahlFarbe, letterSpacing: "-0.02em",
               }}>{w.zahl}</div>
               <div style={{
-                fontFamily: MONO, fontSize: 11, letterSpacing: 2, textTransform: "uppercase",
+                fontFamily: MONO, fontSize: 12, letterSpacing: 2, textTransform: "uppercase",
                 color: labelFarbe, marginTop: 7,
               }}>{w.label}</div>
             </div>
@@ -1107,7 +1107,7 @@ function ModulPack({ daten, setze, setzeHaken }) {
         return (
           <Card key={b.id} tone="white">
             <H3 style={{ marginBottom: b.hinweis ? 8 : 12 }}>{b.titel}</H3>
-            {b.hinweis && <P style={{ fontSize: 14, marginBottom: 8 }}>{b.hinweis}</P>}
+            {b.hinweis && <P style={{ fontSize: 15, marginBottom: 8 }}>{b.hinweis}</P>}
             {punkte.map((p) => (
               <Haken key={p.id} an={!!daten.haken[`p-${p.id}`]}
                 onToggle={() => setzeHaken(`p-${p.id}`)}
@@ -1247,7 +1247,7 @@ function ModulBord({ daten, setze }) {
       </Lead>
 
       <Card tone="white">
-        <P style={{ fontSize: 14, color: C.muted }}>
+        <P style={{ fontSize: 15, color: C.muted }}>
           Gerechnet wird mit {r.personen} {r.personen === 1 ? "Person" : "Personen"} und {r.naechte} Nächten aus eurem Reise-Setup.
         </P>
         <WahlMehr label="Was ist in eurem Tarif schon enthalten?" werte={b.inklusive}
@@ -3267,7 +3267,7 @@ function EinreiseHinweisKarte({ laender }) {
     }}>
       <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 3 }}>
         <span style={{ fontSize: 18 }} aria-hidden="true">🛂</span>
-        <div style={{ fontFamily: SANS, fontSize: 15.5, color: C.navy }}>
+        <div style={{ fontFamily: SANS, fontSize: 16.5, color: C.navy }}>
           Einreisegenehmigung nötig?
         </div>
       </div>
@@ -3468,7 +3468,7 @@ function Karte({ haefen, route, linie = true, nummern = true }) {
 
       <div style={{
         display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap",
-        fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.3, textTransform: "uppercase",
+        fontFamily: MONO, fontSize: 11.5, letterSpacing: 1.3, textTransform: "uppercase",
         color: C.muted, marginTop: 10,
       }}>
         <span>{reg.name}{punkte.length < 2 ? " · noch keine Route" : ""}</span>
@@ -3521,7 +3521,7 @@ function HafenFeld({ eintrag, onAendern }) {
           background: C.white, border: `1px solid ${hatKoordinaten ? C.green : C.line}`,
           borderRadius: 10, padding: "13px 14px", minHeight: 46,
         }} />
-      <div style={{ fontFamily: SANS, fontSize: 12.5, color: hatKoordinaten ? C.green : C.muted, marginTop: 6 }}>
+      <div style={{ fontFamily: SANS, fontSize: 13.5, color: hatKoordinaten ? C.green : C.muted, marginTop: 6 }}>
         {hatKoordinaten ? "Steht auf der Karte" : "Wählt einen Vorschlag, dann erscheint der Hafen auf der Karte."}
       </div>
       {vorschlaege.length > 0 && (
@@ -3618,7 +3618,7 @@ function IdeenGruppen({ liste }) {
   return gruppen.map((g, gi) => (
     <div key={g.id} style={{ marginBottom: gi === gruppen.length - 1 ? 0 : 15 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 7 }}>
-        <span style={{ fontSize: 12.5 }} aria-hidden="true">{g.icon}</span>
+        <span style={{ fontSize: 13.5 }} aria-hidden="true">{g.icon}</span>
         <span style={{
           fontFamily: MONO, fontSize: 10, letterSpacing: 1.3, textTransform: "uppercase", color: C.muted,
         }}>{g.label}</span>
@@ -3626,7 +3626,7 @@ function IdeenGruppen({ liste }) {
       {g.items.map((t, i) => (
         <div key={i} style={{ display: "flex", gap: 9, marginBottom: 8 }}>
           <span style={{ color: C.messing, flexShrink: 0 }} aria-hidden="true">·</span>
-          <span style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.6, color: C.body }}>{t}</span>
+          <span style={{ fontFamily: SANS, fontSize: 15, lineHeight: 1.6, color: C.body }}>{t}</span>
         </div>
       ))}
     </div>
@@ -3643,7 +3643,7 @@ function AusflugAbhaken({ info, ausgewaehlt, onToggle }) {
       {gruppen.map((g) => (
         <div key={g.id} style={{ marginBottom: 12 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 7 }}>
-            <span style={{ fontSize: 12.5 }} aria-hidden="true">{g.icon}</span>
+            <span style={{ fontSize: 13.5 }} aria-hidden="true">{g.icon}</span>
             <span style={{
               fontFamily: MONO, fontSize: 10, letterSpacing: 1.2, textTransform: "uppercase", color: C.muted,
             }}>{g.label}</span>
@@ -3681,7 +3681,7 @@ function HafenInfoInhalt({ info, interessen, notiz, onNotizChange }) {
           borderRadius: 999, padding: "7px 12px", marginBottom: 14,
         }}>
           <Check size={13} color={C.green} />
-          <span style={{ fontFamily: SANS, fontSize: 12.5, color: C.green }}>
+          <span style={{ fontFamily: SANS, fontSize: 13.5, color: C.green }}>
             Passt zu euren Interessen: {passtLabels.join(", ")}
           </span>
         </div>
@@ -3723,7 +3723,7 @@ function HafenInfoInhalt({ info, interessen, notiz, onNotizChange }) {
         </div>
         <IdeenGruppen liste={info.gefuehrt} />
         <div style={{
-          fontFamily: SANS, fontSize: 12.5, color: C.muted, margin: "14px 0 10px",
+          fontFamily: SANS, fontSize: 13.5, color: C.muted, margin: "14px 0 10px",
         }}>Selbst buchen statt über die Reederei:</div>
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
           <a href={gygUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: "none" }}>
@@ -3738,7 +3738,7 @@ function HafenInfoInhalt({ info, interessen, notiz, onNotizChange }) {
       {onNotizChange && (
         <div>
           <div style={{
-            fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.4, textTransform: "uppercase",
+            fontFamily: MONO, fontSize: 11.5, letterSpacing: 1.4, textTransform: "uppercase",
             color: C.muted, marginBottom: 8,
           }}>Eure eigene Notiz zu {info.name}</div>
           <textarea value={notiz || ""} rows={2} onChange={(e) => onNotizChange(e.target.value)}
@@ -3768,9 +3768,9 @@ function HafenSucheZeile({ eintrag, onClick }) {
       boxShadow: "0 1px 2px rgba(11,35,56,0.05)",
     }}>
       <span style={{ minWidth: 0 }}>
-        <div style={{ fontFamily: SANS, fontSize: 15.5, color: C.navy }}>{eintrag.n}</div>
+        <div style={{ fontFamily: SANS, fontSize: 16.5, color: C.navy }}>{eintrag.n}</div>
         {eintrag.land && (
-          <div style={{ fontFamily: SANS, fontSize: 12.5, color: C.muted, marginTop: 2 }}>{eintrag.land}</div>
+          <div style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, marginTop: 2 }}>{eintrag.land}</div>
         )}
       </span>
       <ChevronRight size={16} color={C.messing} style={{ flexShrink: 0 }} />
@@ -3797,7 +3797,7 @@ function HafenDetailSeite({ daten, setze, name, onZurueck }) {
     <div>
       <button type="button" onClick={onZurueck} style={{
         display: "inline-flex", alignItems: "center", gap: 7, background: "transparent", border: "none",
-        cursor: "pointer", fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.8, textTransform: "uppercase",
+        cursor: "pointer", fontFamily: MONO, fontSize: 11.5, letterSpacing: 1.8, textTransform: "uppercase",
         color: C.muted, padding: "6px 0", minHeight: 44, marginBottom: 8,
       }}><ChevronLeft size={14} color={C.messing} /> Alle Häfen</button>
       {!info ? (
@@ -3904,7 +3904,7 @@ function TagebuchEingabe({ eintraege, onAdd, onLoeschen }) {
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <label style={{
-            display: "block", fontFamily: MONO, fontSize: 11, letterSpacing: 1.4,
+            display: "block", fontFamily: MONO, fontSize: 12, letterSpacing: 1.4,
             textTransform: "uppercase", color: C.muted, marginBottom: 7,
           }}>Was war heute?</label>
           <textarea value={text} rows={2} onChange={(e) => setText(e.target.value)}
@@ -3949,7 +3949,7 @@ function Aufklappbar({ titel, children }) {
         padding: "6px 0", minHeight: 44, gap: 10,
       }}>
         <span style={{
-          fontFamily: MONO, fontSize: 11, letterSpacing: 1.4, textTransform: "uppercase", color: C.muted,
+          fontFamily: MONO, fontSize: 12, letterSpacing: 1.4, textTransform: "uppercase", color: C.muted,
         }}>{titel}</span>
         <ChevronRight size={14} color={C.messing}
           style={{ transform: auf ? "rotate(90deg)" : "none", transition: "transform .2s" }} />
@@ -4004,7 +4004,7 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
       {h.length > 1 && (
         <Card tone="white" style={{ padding: "16px 16px 8px" }}>
           <div style={{
-            fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.4, textTransform: "uppercase",
+            fontFamily: MONO, fontSize: 11.5, letterSpacing: 1.4, textTransform: "uppercase",
             color: C.muted, marginBottom: 10,
           }}>Übersicht — auf einen Blick</div>
           {h.map((x, i) => {
@@ -4020,12 +4020,12 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
                   background: istSee ? C.blue : (rasterAmp ? rasterAmp.farbe : C.line),
                 }} />
                 <span style={{
-                  fontFamily: SANS, fontSize: 14, color: C.navy, flex: 1, minWidth: 0,
+                  fontFamily: SANS, fontSize: 15, color: C.navy, flex: 1, minWidth: 0,
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                 }}>{istSee ? "🌊 Seetag" : (x.name || `Hafen ${i + 1}`)}</span>
                 {!istSee && (
                   <span style={{
-                    fontFamily: MONO, fontSize: 10.5, letterSpacing: 0.8, textTransform: "uppercase",
+                    fontFamily: MONO, fontSize: 11.5, letterSpacing: 0.8, textTransform: "uppercase",
                     color: x.gebucht ? C.green : C.muted, whiteSpace: "nowrap",
                   }}>{x.gebucht ? "gebucht" : rasterAmp ? "offen" : "noch keine Wahl"}</span>
                 )}
@@ -4048,11 +4048,11 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
           <span style={{ fontSize: 19 }} aria-hidden="true">🌊</span>
           <H3 style={{ margin: 0 }}>Ideen für Seetage</H3>
         </div>
-        <P style={{ fontSize: 14, marginBottom: 12 }}>Nicht jeder Tag hat einen Hafen — dafür ist der hier.</P>
+        <P style={{ fontSize: 15, marginBottom: 12 }}>Nicht jeder Tag hat einen Hafen — dafür ist der hier.</P>
         {SEETAG_IDEEN.map((t, i) => (
           <div key={i} style={{ display: "flex", gap: 9, marginBottom: 9 }}>
             <span style={{ color: C.messing, flexShrink: 0 }} aria-hidden="true">·</span>
-            <span style={{ fontFamily: SANS, fontSize: 14, lineHeight: 1.6, color: C.body }}>{t}</span>
+            <span style={{ fontFamily: SANS, fontSize: 15, lineHeight: 1.6, color: C.body }}>{t}</span>
           </div>
         ))}
       </Card>
@@ -4103,7 +4103,7 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
             <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
               <span style={{
                 width: 30, height: 30, borderRadius: "50%", background: C.navy, color: C.white,
-                display: "grid", placeItems: "center", fontFamily: SANS, fontSize: 14, flexShrink: 0,
+                display: "grid", placeItems: "center", fontFamily: SANS, fontSize: 15, flexShrink: 0,
               }}>{hafenNummern[i]}</span>
               <div style={{ flex: 1, fontFamily: SANS, fontSize: 13, color: C.muted, minWidth: 0 }}>
                 {strecke ? `${strecke.toLocaleString("de-DE")} sm ab ${vor.name || "vorherigem Hafen"}` : "Reihenfolge der Route"}
@@ -4148,7 +4148,7 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
                 <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 6 }}>
                   <Sterne wert={notizen[normText(x.name)].sterne} />
                   {notizen[normText(x.name)].schiff && (
-                    <span style={{ fontFamily: SANS, fontSize: 12.5, color: C.muted }}>
+                    <span style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted }}>
                       {notizen[normText(x.name)].schiff}
                     </span>
                   )}
@@ -4168,7 +4168,7 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
             </div>
 
             <div style={{ background: C.skySoft, borderRadius: 12, padding: "16px", marginBottom: 18 }}>
-              <div style={{ fontFamily: SANS, fontSize: 14, color: C.body, marginBottom: 6 }}>
+              <div style={{ fontFamily: SANS, fontSize: 15, color: C.body, marginBottom: 6 }}>
                 Bordzeit: <strong style={{ color: C.navy }}>{alsZeit(bord)}</strong> — und nur die zählt.
               </div>
               <div style={{ fontFamily: SERIF, fontSize: 22, color: C.navy }}>
@@ -4208,7 +4208,7 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
                 </div>
               </div>
               <div style={{
-                fontFamily: MONO, fontSize: 11, letterSpacing: 1.4, textTransform: "uppercase",
+                fontFamily: MONO, fontSize: 12, letterSpacing: 1.4, textTransform: "uppercase",
                 color: C.muted, marginBottom: 8,
               }}>Notiz fürs Fahrtenbuch</div>
               <textarea value={x.note || ""} rows={2}
@@ -4217,7 +4217,7 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
                 style={{ ...eingabeStil, fontFamily: SANS, resize: "vertical", lineHeight: 1.6 }} />
               <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 8 }}>
                 <span style={{
-                  fontFamily: MONO, fontSize: 11, letterSpacing: 1.4, textTransform: "uppercase", color: C.muted,
+                  fontFamily: MONO, fontSize: 12, letterSpacing: 1.4, textTransform: "uppercase", color: C.muted,
                 }}>Hafen</span>
                 <Sterne wert={x.sterne} onChange={(v) => upd(x.id, { sterne: v })} />
               </div>
@@ -4238,7 +4238,7 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
           </Btn>
         </div>
       </div>
-      <P style={{ fontSize: 12.5, color: C.muted, marginTop: 0, marginBottom: 26 }}>
+      <P style={{ fontSize: 13.5, color: C.muted, marginTop: 0, marginBottom: 26 }}>
         Mehrere Seetage am Stück? Einfach mehrfach auf „Seetag hinzufügen" tippen und mit den Pfeilen
         an die richtige Stelle in der Route schieben.
       </P>
@@ -4252,7 +4252,7 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
 
       <Card tone="white">
         <H3>Euer Tagebuch</H3>
-        <P style={{ fontSize: 14, marginBottom: 16 }}>
+        <P style={{ fontSize: 15, marginBottom: 16 }}>
           Kurze Notizen zu jedem Tag an Bord, unabhängig von den Häfen — wandert automatisch mit ins Fahrtenbuch.
         </P>
         <TagebuchEingabe eintraege={daten.tagebuch || []}
@@ -4279,7 +4279,7 @@ function ModulTag1({ daten, setzeHaken }) {
       {TAG1.map((b) => (
         <Card key={b.id} tone="white">
           <H3 style={{ marginBottom: b.hinweis ? 8 : 12 }}>{b.titel}</H3>
-          {b.hinweis && <P style={{ fontSize: 14, marginBottom: 8 }}>{b.hinweis}</P>}
+          {b.hinweis && <P style={{ fontSize: 15, marginBottom: 8 }}>{b.hinweis}</P>}
           {b.punkte.map((p) => (
             <Haken key={p.id} an={!!daten.haken[`t-${p.id}`]}
               onToggle={() => setzeHaken(`t-${p.id}`)}
@@ -4330,7 +4330,7 @@ function ModulDoks({ daten, setze }) {
         <H3>Die Notfallpläne</H3>
         {NOTFALL.map((n) => (
           <div key={n.id} style={{ marginBottom: 20 }}>
-            <div style={{ fontFamily: SANS, fontSize: 15.5, color: C.navy, marginBottom: 7 }}>{n.titel}</div>
+            <div style={{ fontFamily: SANS, fontSize: 16.5, color: C.navy, marginBottom: 7 }}>{n.titel}</div>
             <P style={{ fontSize: 14.5, marginBottom: 0 }}>{n.text}</P>
           </div>
         ))}
@@ -4654,7 +4654,7 @@ function ModulFahrtenbuch({ daten, setze }) {
                                 {!istSee && <Sterne wert={h.sterne} />}
                               </div>
                               {h.note && (
-                                <P style={{ fontSize: 14, marginBottom: 6 }}>{h.note}</P>
+                                <P style={{ fontSize: 15, marginBottom: 6 }}>{h.note}</P>
                               )}
                               {!istSee && info && (
                                 <Aufklappbar titel={
@@ -4685,7 +4685,7 @@ function ModulFahrtenbuch({ daten, setze }) {
                     )}
                     {r.sm > 0 && (
                       <div style={{
-                        fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.4, textTransform: "uppercase",
+                        fontFamily: MONO, fontSize: 11.5, letterSpacing: 1.4, textTransform: "uppercase",
                         color: C.muted, marginTop: 12,
                       }}>{r.sm.toLocaleString("de-DE")} Seemeilen</div>
                     )}
@@ -4696,7 +4696,7 @@ function ModulFahrtenbuch({ daten, setze }) {
                           color: C.muted, marginBottom: 8,
                         }}>Euer Tagebuch</div>
                         {r.tagebuch.slice().reverse().map((e) => (
-                          <P key={e.id} style={{ fontSize: 14, marginBottom: 8 }}>
+                          <P key={e.id} style={{ fontSize: 15, marginBottom: 8 }}>
                             {e.datum && <strong style={{ color: C.navy }}>{e.datum}: </strong>}{e.text}
                           </P>
                         ))}
@@ -4743,12 +4743,12 @@ function ModulFahrtenbuch({ daten, setze }) {
       <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "28px 0 16px" }}>
         <span aria-hidden="true" style={{ width: 20, height: 1, background: C.messing }} />
         <span style={{
-          fontFamily: MONO, fontSize: 10.5, letterSpacing: 2.4, textTransform: "uppercase", color: C.muted,
+          fontFamily: MONO, fontSize: 11.5, letterSpacing: 2.4, textTransform: "uppercase", color: C.muted,
         }}>Eure Traumhäfen</span>
         <span aria-hidden="true" style={{ flex: 1, height: 1, background: C.line }} />
       </div>
       <Card tone="white">
-        <P style={{ fontSize: 14, marginBottom: 16 }}>
+        <P style={{ fontSize: 15, marginBottom: 16 }}>
           Eine Wunschliste, unabhängig von der aktuellen Route — für alles, wo ihr irgendwann mal hinwollt.
         </P>
         <WunschlisteEingabe onAdd={(name) => {
@@ -4798,7 +4798,7 @@ function ReedereiInfo({ reederei }) {
         fontFamily: MONO, fontSize: 10, letterSpacing: 1.5, textTransform: "uppercase",
         color: C.muted, marginBottom: 8,
       }}>Was wir über {r.n} wissen</div>
-      <P style={{ fontSize: 14, marginBottom: 0, lineHeight: 1.6 }}>
+      <P style={{ fontSize: 15, marginBottom: 0, lineHeight: 1.6 }}>
         Bordzeit meist {r.puffer} Minuten vor Abfahrt fällig.{" "}
         {r.trinkgeldAutomatik
           ? `Trinkgeld läuft automatisch übers Bordkonto, Richtwert rund ${r.trinkgeldProNacht} € pro Person und Nacht.`
@@ -4828,7 +4828,7 @@ function Setup({ daten, setze, gehe }) {
 
       <Card tone="white">
         <Feld label="Dein Name" wert={daten.nutzerName || ""} onChange={(v) => setze("nutzerName", v)}
-          placeholder="z. B. Vivi" hinweis="So begrüßen wir euch beim nächsten Öffnen der App." />
+          placeholder="Dein Vorname" hinweis="So begrüßen wir euch beim nächsten Öffnen der App." />
       </Card>
 
       <Card tone="white">
@@ -4899,7 +4899,7 @@ function GeplantKarte({ eintrag, onAktivieren, onLoeschen }) {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, marginBottom: 8 }}>
         <div style={{ fontFamily: SERIF, fontSize: 19, color: C.navy }}>{zeile || "Reise ohne Namen"}</div>
         {tage !== null && tage > 0 && (
-          <div style={{ fontFamily: MONO, fontSize: 11, color: C.blue, whiteSpace: "nowrap" }}>{tage} Tage</div>
+          <div style={{ fontFamily: MONO, fontSize: 12, color: C.blue, whiteSpace: "nowrap" }}>{tage} Tage</div>
         )}
       </div>
       <div style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, marginBottom: 14 }}>
@@ -4946,7 +4946,7 @@ function KachelLink({ Icon, titel, unter, onClick }) {
       </span>
       <div>
         <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 17, color: C.navy }}>{titel}</div>
-        <div style={{ fontFamily: SANS, fontSize: 12.5, color: C.muted, marginTop: 3 }}>{unter}</div>
+        <div style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, marginTop: 3 }}>{unter}</div>
       </div>
     </button>
   );
@@ -5046,14 +5046,14 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
                       fontFamily: MONO, fontSize: 9.5, letterSpacing: 1.2, textTransform: "uppercase",
                       color: "#8FA9B8", marginBottom: 3,
                     }}>Auslaufen</div>
-                    <div style={{ fontFamily: SANS, fontSize: 14, color: C.white }}>{kurz(ab)}</div>
+                    <div style={{ fontFamily: SANS, fontSize: 15, color: C.white }}>{kurz(ab)}</div>
                   </div>
                   <div>
                     <div style={{
                       fontFamily: MONO, fontSize: 9.5, letterSpacing: 1.2, textTransform: "uppercase",
                       color: "#8FA9B8", marginBottom: 3,
                     }}>Nächte</div>
-                    <div style={{ fontFamily: SANS, fontSize: 14, color: C.white }}>{s.naechte}</div>
+                    <div style={{ fontFamily: SANS, fontSize: 15, color: C.white }}>{s.naechte}</div>
                   </div>
                 </div>
               )}
@@ -5073,7 +5073,7 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
           {bilanz.reisen > 0 && (
             <div style={{
               marginTop: 16, paddingTop: 14, borderTop: `1px solid rgba(200,160,85,0.22)`,
-              fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.6, textTransform: "uppercase",
+              fontFamily: MONO, fontSize: 11.5, letterSpacing: 1.6, textTransform: "uppercase",
               color: C.messingHell, lineHeight: 1.9,
             }}>
               {bilanz.reisen} {bilanz.reisen === 1 ? "Reise" : "Reisen"} bisher · {bilanz.naechte} Nächte · {bilanz.einzigartig} Häfen
@@ -5116,7 +5116,7 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
         <span style={{ fontSize: 24, lineHeight: 1, flexShrink: 0 }} aria-hidden="true">📸</span>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontFamily: SERIF, fontSize: 17, color: C.navy }}>Route als Postkarte teilen</div>
-          <div style={{ fontFamily: SANS, fontSize: 12.5, color: C.muted, marginTop: 2 }}>Perfekt für Insta Stories</div>
+          <div style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, marginTop: 2 }}>Perfekt für Insta Stories</div>
         </div>
         <ChevronRight size={16} color={C.messing} style={{ flexShrink: 0 }} />
       </button>
@@ -5133,7 +5133,7 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
           <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "28px 0 16px" }}>
             <span aria-hidden="true" style={{ width: 20, height: 1, background: C.messing }} />
             <span style={{
-              fontFamily: MONO, fontSize: 10.5, letterSpacing: 2.4, textTransform: "uppercase", color: C.muted,
+              fontFamily: MONO, fontSize: 11.5, letterSpacing: 2.4, textTransform: "uppercase", color: C.muted,
             }}>Weitere Reisen in Planung</span>
             <span aria-hidden="true" style={{ flex: 1, height: 1, background: C.line }} />
           </div>
@@ -5149,7 +5149,7 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
           <Btn small variant="outline" onClick={onAbschliessen} full>
             Reise ins Fahrtenbuch legen
           </Btn>
-          <div style={{ fontFamily: SANS, fontSize: 12.5, color: C.muted, marginTop: 10, lineHeight: 1.6 }}>
+          <div style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, marginTop: 10, lineHeight: 1.6 }}>
             Häfen, Notizen und Seemeilen wandern ins Fahrtenbuch, der Planer wird für die nächste Reise leer.
           </div>
         </div>
@@ -5163,7 +5163,7 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
       </div>
 
       <div style={{
-        fontFamily: SANS, fontSize: 12.5, lineHeight: 1.75, color: C.muted,
+        fontFamily: SANS, fontSize: 13.5, lineHeight: 1.75, color: C.muted,
         textAlign: "center", padding: "22px 8px 8px",
       }}>
         Alle Eingaben bleiben auf eurem Gerät. Klarschiff läuft offline — legt es euch auf den
@@ -5252,7 +5252,7 @@ function TeilenPostkarte({ daten, onClose }) {
         </div>
 
         <div style={{
-          textAlign: "center", marginTop: 30, fontFamily: SANS, fontSize: 12.5,
+          textAlign: "center", marginTop: 30, fontFamily: SANS, fontSize: 13.5,
           lineHeight: 1.7, color: C.muted,
         }}>Macht einen Screenshot und teilt ihn — dieses Fenster ist extra für genau das gemacht.</div>
       </div>
@@ -5355,8 +5355,13 @@ function App() {
   const [haefenAnfang, setHaefenAnfang] = useState(null);
   const [namePopupGeschlossen, setNamePopupGeschlossen] = useState(false);
   const [nameEntwurf, setNameEntwurf] = useState("");
+  const [einstiegSchritt, setEinstiegSchritt] = useState("name");
+  /* Wird einmalig beim Laden anhand des gespeicherten Stands gesetzt — ändert
+     sich NICHT mehr live mit daten.nutzerName, sonst würde das Popup beim
+     Zwischenspeichern des Namens (Schritt 1 -> 2) sofort wieder zuklappen. */
+  const [zeigeOnboarding, setZeigeOnboarding] = useState(false);
   const timer = useRef(null);
-  const namePopupOffen = geladen && !daten.nutzerName && !namePopupGeschlossen;
+  const namePopupOffen = geladen && zeigeOnboarding && !namePopupGeschlossen;
 
   useEffect(() => {
     store.get(STORAGE_KEY)
@@ -5366,8 +5371,9 @@ function App() {
           kabine: { ...LEER.kabine, ...(d.kabine || {}) },
           bord: { ...LEER.bord, ...(d.bord || {}) },
           doks: { ...LEER.doks, ...(d.doks || {}) } });
+        setZeigeOnboarding(!d.nutzerName);
       })
-      .catch(() => {})
+      .catch(() => setZeigeOnboarding(true))
       .finally(() => setGeladen(true));
   }, []);
 
@@ -5509,12 +5515,12 @@ function App() {
             <button type="button" onClick={() => setScreen(zurueckZiel)} style={{
               display: "inline-flex", alignItems: "center", gap: 7,
               background: "transparent", border: "none", cursor: "pointer",
-              fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.8, textTransform: "uppercase",
+              fontFamily: MONO, fontSize: 11.5, letterSpacing: 1.8, textTransform: "uppercase",
               color: C.muted, padding: "6px 10px 6px 0", minHeight: 44,
             }}><ChevronLeft size={14} color={C.messing} /> Zurück</button>
             <span style={{ flex: 1 }} />
             <span style={{
-              fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.8, textTransform: "uppercase",
+              fontFamily: MONO, fontSize: 11.5, letterSpacing: 1.8, textTransform: "uppercase",
               color: C.muted, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
             }}>{titel}</span>
           </div>
@@ -5564,7 +5570,7 @@ function App() {
                 }}>Wie war {daten.setup.reederei}? (freiwillig)</div>
                 {[["essen", "Essen"], ["service", "Service"], ["kabine", "Kabine"], ["preis", "Preis-Leistung"]].map(([k, l]) => (
                   <div key={k} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-                    <span style={{ fontFamily: SANS, fontSize: 14, color: C.navy }}>{l}</span>
+                    <span style={{ fontFamily: SANS, fontSize: 15, color: C.navy }}>{l}</span>
                     <Sterne wert={bewertung[k]} onChange={(v) => setBewertung({ ...bewertung, [k]: v })} />
                   </div>
                 ))}
@@ -5609,23 +5615,42 @@ function App() {
             background: C.paper, borderRadius: RUND, border: `1px solid ${C.line}`,
             borderTop: `2px solid ${C.messing}`, padding: "28px 24px 24px", maxWidth: 400, width: "100%",
           }}>
-            <H3>Schön, dass ihr da seid!</H3>
-            <P style={{ fontSize: 14.5 }}>
-              Wie dürfen wir dich nennen? Dann begrüßen wir dich beim nächsten Mal persönlich.
-            </P>
-            <Feld label="Dein Name" wert={nameEntwurf} onChange={setNameEntwurf}
-              placeholder="z. B. Vivi" />
-            <div style={{ display: "flex", gap: 10 }}>
-              <Btn small variant="outline" onClick={() => setNamePopupGeschlossen(true)} style={{ flex: 1 }}>
-                Vielleicht später
-              </Btn>
-              <Btn small onClick={() => {
-                setDaten((d) => ({ ...d, nutzerName: nameEntwurf.trim() }));
-                setNamePopupGeschlossen(true);
-              }} style={{ flex: 1 }} disabled={!nameEntwurf.trim()}>
-                Speichern
-              </Btn>
-            </div>
+            {einstiegSchritt === "name" ? (
+              <>
+                <H3>Schön, dass ihr da seid!</H3>
+                <P style={{ fontSize: 15.5 }}>
+                  Wie dürfen wir dich nennen? Dann begrüßen wir dich beim nächsten Mal persönlich.
+                </P>
+                <Feld label="Dein Name" wert={nameEntwurf} onChange={setNameEntwurf}
+                  placeholder="Dein Vorname" />
+                <div style={{ display: "flex", gap: 10 }}>
+                  <Btn small variant="outline" onClick={() => setNamePopupGeschlossen(true)} style={{ flex: 1 }}>
+                    Vielleicht später
+                  </Btn>
+                  <Btn small onClick={() => {
+                    setDaten((d) => ({ ...d, nutzerName: nameEntwurf.trim() }));
+                    setEinstiegSchritt("buchung");
+                  }} style={{ flex: 1 }} disabled={!nameEntwurf.trim()}>
+                    Weiter
+                  </Btn>
+                </div>
+              </>
+            ) : (
+              <>
+                <H3>Fast fertig, {(daten.nutzerName || nameEntwurf).trim()}!</H3>
+                <P style={{ fontSize: 15.5 }}>
+                  Habt ihr eure Kreuzfahrt schon gebucht?
+                </P>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  <Btn onClick={() => { setNamePopupGeschlossen(true); setScreen("setup"); }} full>
+                    Ja, Reise eintragen
+                  </Btn>
+                  <Btn variant="outline" onClick={() => setNamePopupGeschlossen(true)} full>
+                    Noch nicht — erst mal umschauen
+                  </Btn>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -5636,7 +5661,7 @@ function App() {
         position: "fixed", bottom: 88, left: "50%",
         transform: `translateX(-50%) translateY(${gespeichert ? "0" : "16px"})`,
         opacity: gespeichert ? 1 : 0, transition: "all .3s", pointerEvents: "none", zIndex: 50,
-        background: C.tiefsee, color: C.messingHell, fontFamily: MONO, fontSize: 10.5,
+        background: C.tiefsee, color: C.messingHell, fontFamily: MONO, fontSize: 11.5,
         letterSpacing: 1.6, textTransform: "uppercase", padding: "10px 18px", borderRadius: 3,
         border: `1px solid ${C.messingLeise}`, display: "flex", alignItems: "center", gap: 8,
       }}>
