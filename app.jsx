@@ -1808,16 +1808,27 @@ const HAFENLISTE_ROH = [
 ];
 const HAFENLISTE = HAFENLISTE_ROH.map((h) => ({ n: h[0], lon: h[1], lat: h[2], land: h[3], typ: h[4] }));
 
-/* Echte Hafenfotos statt Freitext-Häfen mit Bild: Klarschiff hat keine
-   Fotolizenz für jeden der 256 Häfen einzeln, deshalb wird stattdessen aus
-   Bild-Kategorien passend zum bestehenden typ-Code ausgewählt (der auch
-   die Packliste/Landgang-Vorlage steuert, siehe TYP_VORLAGEN) — Großstadt,
-   Altstadt/Hafenstädtchen, Insel (getrennt nach Mittelmeer- und
-   Tropen-Optik, damit kein griechisches Kirchendach an einer Karibikinsel
-   auftaucht) und Fjord. Welches Bild einer Kategorie ein Hafen bekommt,
-   hängt deterministisch vom Namen ab: derselbe Hafen zeigt also immer
-   dasselbe Bild, aber verschiedene Häfen wiederholen sich nicht ständig
-   mit demselben Foto. */
+/* Echte, hafenspezifische Fotos — werden nach und nach ergänzt (siehe
+   HAFEN_FOTOS unten). Solange für einen Hafen noch kein eigenes Foto
+   hinterlegt ist, greift die Kategorie-Auswahl darunter als Übergangslösung. */
+const HAFEN_FOTOS = {
+  "Barcelona": "fotos/haefen/barcelona.jpg",
+  "Palma de Mallorca": "fotos/haefen/palma-de-mallorca.jpg",
+  "Ibiza": "fotos/haefen/ibiza.jpg",
+  "Valencia": "fotos/haefen/valencia.jpg",
+  "Málaga": "fotos/haefen/malaga.jpg",
+};
+
+/* Übergangslösung für alle Häfen ohne eigenes Foto in HAFEN_FOTOS: Klarschiff
+   hat keine Fotolizenz für jeden der 256 Häfen einzeln, deshalb wird
+   stattdessen aus Bild-Kategorien passend zum bestehenden typ-Code
+   ausgewählt (der auch die Packliste/Landgang-Vorlage steuert, siehe
+   TYP_VORLAGEN) — Großstadt, Altstadt/Hafenstädtchen, Insel (getrennt nach
+   Mittelmeer- und Tropen-Optik, damit kein griechisches Kirchendach an
+   einer Karibikinsel auftaucht) und Fjord. Welches Bild einer Kategorie ein
+   Hafen bekommt, hängt deterministisch vom Namen ab: derselbe Hafen zeigt
+   also immer dasselbe Bild, aber verschiedene Häfen wiederholen sich nicht
+   ständig mit demselben Foto. */
 const HAFEN_BILD_KATEGORIEN = {
   grossstadt: Array.from({ length: 13 }, (_, i) => `fotos/grossstadt-${i + 1}.jpg`),
   altstadt: Array.from({ length: 22 }, (_, i) => `fotos/altstadt-${i + 1}.jpg`),
@@ -1841,6 +1852,7 @@ function textHash(s) {
   return Math.abs(h);
 }
 function hafenBild(typ, name, kontinent) {
+  if (HAFEN_FOTOS[name]) return HAFEN_FOTOS[name];
   const kategorie = INSEL_TYPEN.includes(typ)
     ? (kontinent === "Europa" ? "inselMittelmeer" : "inselTropen")
     : (TYP_ZU_BILDKATEGORIE[typ] || "altstadt");
