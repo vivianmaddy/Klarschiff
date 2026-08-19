@@ -1810,32 +1810,40 @@ const HAFENLISTE = HAFENLISTE_ROH.map((h) => ({ n: h[0], lon: h[1], lat: h[2], l
 
 /* Echte Hafenfotos statt Freitext-Häfen mit Bild: Klarschiff hat keine
    Fotolizenz für jeden der 256 Häfen einzeln, deshalb wird stattdessen aus
-   vier Bild-Kategorien passend zum bestehenden typ-Code ausgewählt (der auch
+   Bild-Kategorien passend zum bestehenden typ-Code ausgewählt (der auch
    die Packliste/Landgang-Vorlage steuert, siehe TYP_VORLAGEN) — Großstadt,
-   Altstadt/Hafenstädtchen, Insel und Fjord. Welches Bild einer Kategorie ein
-   Hafen bekommt, hängt deterministisch vom Namen ab: derselbe Hafen zeigt
-   also immer dasselbe Bild, aber verschiedene Häfen wiederholen sich nicht
-   ständig mit demselben Foto. */
+   Altstadt/Hafenstädtchen, Insel (getrennt nach Mittelmeer- und
+   Tropen-Optik, damit kein griechisches Kirchendach an einer Karibikinsel
+   auftaucht) und Fjord. Welches Bild einer Kategorie ein Hafen bekommt,
+   hängt deterministisch vom Namen ab: derselbe Hafen zeigt also immer
+   dasselbe Bild, aber verschiedene Häfen wiederholen sich nicht ständig
+   mit demselben Foto. */
 const HAFEN_BILD_KATEGORIEN = {
   grossstadt: Array.from({ length: 13 }, (_, i) => `fotos/grossstadt-${i + 1}.jpg`),
   altstadt: Array.from({ length: 22 }, (_, i) => `fotos/altstadt-${i + 1}.jpg`),
-  insel: Array.from({ length: 10 }, (_, i) => `fotos/insel-${i + 1}.jpg`),
+  inselTropen: Array.from({ length: 8 }, (_, i) => `fotos/insel-tropen-${i + 1}.jpg`),
+  inselMittelmeer: Array.from({ length: 2 }, (_, i) => `fotos/insel-mittelmeer-${i + 1}.jpg`),
   fjord: Array.from({ length: 4 }, (_, i) => `fotos/fjord-${i + 1}.jpg`),
 };
 const HERO_BILDER = ["fotos/hero-1.jpg", "fotos/hero-2.jpg"];
 const TYP_ZU_BILDKATEGORIE = {
-  AS: "altstadt", RU: "altstadt", TK: "altstadt",
-  HK: "grossstadt", GM: "grossstadt", WU: "grossstadt", SA: "grossstadt", AU: "grossstadt",
-  SI: "insel", PI: "insel", DJ: "insel",
+  AS: "altstadt", RU: "altstadt",
+  HK: "grossstadt", GM: "grossstadt", WU: "grossstadt", SA: "grossstadt", AU: "grossstadt", TK: "grossstadt",
   FJ: "fjord", NA: "fjord",
 };
+/* SI/PI/DJ (Inselziele) hängen zusätzlich vom Kontinent ab, damit die
+   Bildwelt zur echten Region passt statt Santorin an eine Karibikinsel
+   zu hängen. */
+const INSEL_TYPEN = ["SI", "PI", "DJ"];
 function textHash(s) {
   let h = 0;
   for (let i = 0; i < (s || "").length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
   return Math.abs(h);
 }
-function hafenBild(typ, name) {
-  const kategorie = TYP_ZU_BILDKATEGORIE[typ] || "altstadt";
+function hafenBild(typ, name, kontinent) {
+  const kategorie = INSEL_TYPEN.includes(typ)
+    ? (kontinent === "Europa" ? "inselMittelmeer" : "inselTropen")
+    : (TYP_ZU_BILDKATEGORIE[typ] || "altstadt");
   const pool = HAFEN_BILD_KATEGORIEN[kategorie];
   return pool[textHash(name) % pool.length];
 }
@@ -3815,7 +3823,9 @@ const BELIEBTE_HAEFEN = [
 ];
 
 function HafenSucheZeile({ eintrag, onClick }) {
-  const typ = eintrag.typ || (HAFENLISTE.find((h) => h.n === eintrag.n) || {}).typ;
+  const hafenEintrag = HAFENLISTE.find((h) => h.n === eintrag.n);
+  const typ = eintrag.typ || (hafenEintrag || {}).typ;
+  const kontinent = kontinentFuer((hafenEintrag || {}).land || eintrag.land);
   return (
     <button type="button" onClick={onClick} style={{
       display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%",
@@ -3824,7 +3834,7 @@ function HafenSucheZeile({ eintrag, onClick }) {
       boxShadow: "0 1px 2px rgba(11,35,56,0.05)",
     }}>
       <span style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
-        <img src={hafenBild(typ, eintrag.n)} alt="" aria-hidden="true" style={{
+        <img src={hafenBild(typ, eintrag.n, kontinent)} alt="" aria-hidden="true" style={{
           width: 46, height: 46, borderRadius: RUND_KLEIN, objectFit: "cover", flexShrink: 0,
         }} />
         <span style={{ minWidth: 0 }}>
@@ -3868,7 +3878,7 @@ function HafenDetailSeite({ daten, setze, name, onZurueck }) {
           <div style={{
             margin: "0 0 18px", borderRadius: RUND, overflow: "hidden", height: 180,
           }}>
-            <img src={hafenBild(info.typ, info.name)} alt="" style={{
+            <img src={hafenBild(info.typ, info.name, info.kontinent)} alt="" style={{
               width: "100%", height: "100%", objectFit: "cover",
             }} />
           </div>
@@ -5099,7 +5109,8 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
 
           <div style={{
             display: "flex", alignItems: "center", gap: 18, textAlign: "left",
-            background: "rgba(255,255,255,0.06)", border: `1px solid ${C.messingLeise}`,
+            background: "rgba(9,22,36,0.68)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+            border: `1px solid ${C.messingLeise}`,
             borderRadius: RUND, padding: "20px 22px", maxWidth: 320, margin: "0 auto",
           }}>
             <CountdownRing prozent={cdWerte ? prozent : (prozent || 0)} />
@@ -5123,7 +5134,8 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
 
           {(schiffszeile || ab) && (
             <div style={{
-              background: "rgba(255,255,255,0.06)", border: `1px solid ${C.messingLeise}`,
+              background: "rgba(9,22,36,0.68)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+              border: `1px solid ${C.messingLeise}`,
               borderRadius: RUND, padding: "18px 18px 16px", marginTop: 14, textAlign: "left",
             }}>
               {schiffszeile && (
