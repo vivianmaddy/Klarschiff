@@ -1817,6 +1817,11 @@ const HAFEN_FOTOS = {
   "Ibiza": "fotos/haefen/ibiza.jpg",
   "Valencia": "fotos/haefen/valencia.jpg",
   "Málaga": "fotos/haefen/malaga.jpg",
+  "Cartagena": "fotos/haefen/cartagena.jpg",
+  "Marseille": "fotos/haefen/marseille.jpg",
+  "Toulon": "fotos/haefen/toulon.jpg",
+  "Nizza": "fotos/haefen/nizza.jpg",
+  "Cannes": "fotos/haefen/cannes.jpg",
 };
 
 /* Übergangslösung für alle Häfen ohne eigenes Foto in HAFEN_FOTOS: Klarschiff
@@ -4083,8 +4088,10 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
       <Kicker>Eure Route</Kicker>
       <H2 style={{ marginBottom: 14 }}>Route & Zeitplan</H2>
       <P style={{ marginBottom: 20 }}>
-        Reihenfolge, Uhrzeiten und wie viel Zeit ihr an Land wirklich habt. Alles zum Hafen selbst — Ausflüge,
-        Währung, Ausflugsideen — steht drüben im Hafen-Lexikon.
+        Tragt einfach die Häfen in der richtigen Reihenfolge ein — mit ↑ und ↓ könnt ihr sie jederzeit
+        umsortieren. Uhrzeiten, Budget und Notizen sind freiwillig und stecken pro Hafen hinter „Zeiten,
+        Ausflug & Budget". Alles zum Hafen selbst — Ausflüge, Währung, Ausflugsideen — steht drüben im
+        Hafen-Lexikon.
       </P>
 
       <Karte haefen={h} route={daten.setup.route} />
@@ -4128,7 +4135,7 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
       {h.length === 0 && (
         <Card>
           <P style={{ margin: 0, fontSize: 14.5 }}>
-            Legt für jeden Hafen einen Eintrag an, tragt Ankunft und Abfahrt ein, und wir zeichnen euch die Route auf die Karte und rechnen aus, wie viel Zeit ihr wirklich habt statt der Zeit, die auf dem Papier steht.
+            Legt für jeden Hafen einen Eintrag an und tippt den Namen ein — mehr braucht es nicht, wir zeichnen ihn euch direkt auf die Karte. Uhrzeiten und Budget könnt ihr optional dazu eintragen, wenn ihr mögt.
           </P>
         </Card>
       )}
@@ -4195,14 +4202,7 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
                 width: 30, height: 30, borderRadius: "50%", background: C.navy, color: C.white,
                 display: "grid", placeItems: "center", fontFamily: SANS, fontSize: 15, flexShrink: 0,
               }}>{hafenNummern[i]}</span>
-              <div style={{ flex: 1, fontFamily: SANS, fontSize: 13, color: C.muted, minWidth: 0 }}>
-                {strecke ? `${strecke.toLocaleString("de-DE")} sm ab ${vor.name || "vorherigem Hafen"}` : "Reihenfolge der Route"}
-                {zeitDiff !== null && zeitDiff !== 0 && (
-                  <div style={{ color: C.warn, marginTop: 2 }}>
-                    Vermutlich {zeitDiff > 0 ? "+" : ""}{zeitDiff} Std. Zeitverschiebung — an Bord genau ansagen lassen
-                  </div>
-                )}
-              </div>
+              <span style={{ flex: 1 }} />
               <button type="button" onClick={() => schieben(i, -1)} aria-label="nach oben" style={{
                 background: "transparent", border: `1px solid ${C.line}`, borderRadius: 3,
                 cursor: "pointer", color: C.body, width: 44, height: 44, fontSize: 15,
@@ -4219,6 +4219,17 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
             </div>
 
             <HafenFeld eintrag={x} onAendern={(teil) => upd(x.id, teil)} />
+
+            {(strecke || (zeitDiff !== null && zeitDiff !== 0)) && (
+              <div style={{ fontFamily: SANS, fontSize: 13, color: C.muted, marginTop: -6, marginBottom: 16 }}>
+                {strecke ? `${strecke.toLocaleString("de-DE")} sm ab ${vor.name || "vorherigem Hafen"}` : null}
+                {zeitDiff !== null && zeitDiff !== 0 && (
+                  <div style={{ color: C.warn, marginTop: 2 }}>
+                    Vermutlich {zeitDiff > 0 ? "+" : ""}{zeitDiff} Std. Zeitverschiebung — an Bord genau ansagen lassen
+                  </div>
+                )}
+              </div>
+            )}
 
             {typeof x.lon === "number" && (
               <Btn small variant="outline" onClick={() => onZeigeHafen(x.name)} style={{ marginBottom: 18 }}>
@@ -4251,37 +4262,37 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
               </div>
             )}
 
-            <div style={{ display: "flex", gap: 10 }}>
-              <div style={{ flex: 1, minWidth: 0 }}><Feld label="Ankunft" type="time" wert={x.an} onChange={(v) => upd(x.id, { an: v })} /></div>
-              <div style={{ flex: 1, minWidth: 0 }}><Feld label="Abfahrt" type="time" wert={x.ab} onChange={(v) => upd(x.id, { ab: v })} /></div>
-              <div style={{ flex: 1, minWidth: 0 }}><Feld label="Bordzeit" type="number" wert={x.puffer} onChange={(v) => upd(x.id, { puffer: v })} hinweis="Min. vorher" /></div>
-            </div>
-
-            <div style={{ background: C.skySoft, borderRadius: 12, padding: "16px", marginBottom: 18 }}>
-              <div style={{ fontFamily: SANS, fontSize: 15, color: C.body, marginBottom: 6 }}>
-                Bordzeit: <strong style={{ color: C.navy }}>{alsZeit(bord)}</strong> — und nur die zählt.
+            <Aufklappbar titel="Zeiten, Ausflug & Budget (optional)">
+              <div style={{ display: "flex", gap: 10 }}>
+                <div style={{ flex: 1, minWidth: 0 }}><Feld label="Ankunft" type="time" wert={x.an} onChange={(v) => upd(x.id, { an: v })} /></div>
+                <div style={{ flex: 1, minWidth: 0 }}><Feld label="Abfahrt" type="time" wert={x.ab} onChange={(v) => upd(x.id, { ab: v })} /></div>
+                <div style={{ flex: 1, minWidth: 0 }}><Feld label="Bordzeit" type="number" wert={x.puffer} onChange={(v) => upd(x.id, { puffer: v })} hinweis="Min. vorher" /></div>
               </div>
-              <div style={{ fontFamily: SERIF, fontSize: 22, color: C.navy }}>
-                {netto !== null && netto > 0
-                  ? `Ihr habt realistisch ${Math.floor(netto / 60)} Std. ${zwei(netto % 60)} Min.`
-                  : "Zeiten eintragen"}
-              </div>
-              <div style={{ fontFamily: SANS, fontSize: 13, color: C.muted, marginTop: 6 }}>
-                Ausschiffung, Wege und Rückpuffer sind bereits abgezogen.
-              </div>
-            </div>
 
-            <Wahl label="Wie weit wollt ihr weg vom Hafen?" wert={x.weg} onChange={(v) => upd(x.id, { weg: v })}
-              optionen={[{ v: "nah", l: "Zentrum, zu Fuß" }, { v: "mittel", l: "bis eine Stunde" }, { v: "weit", l: "weiter weg" }]} />
-
-            {amp && (
-              <div style={{ background: amp.bg, borderRadius: 3, padding: "16px", marginBottom: 18 }}>
-                <div style={{ fontFamily: SANS, fontSize: 15, color: amp.farbe, marginBottom: 7 }}>{amp.titel}</div>
-                <div style={{ fontFamily: SANS, fontSize: 14.5, lineHeight: 1.62, color: C.navy }}>{amp.text}</div>
+              <div style={{ background: C.skySoft, borderRadius: 12, padding: "16px", marginBottom: 18 }}>
+                <div style={{ fontFamily: SANS, fontSize: 15, color: C.body, marginBottom: 6 }}>
+                  Bordzeit: <strong style={{ color: C.navy }}>{alsZeit(bord)}</strong> — und nur die zählt.
+                </div>
+                <div style={{ fontFamily: SERIF, fontSize: 22, color: C.navy }}>
+                  {netto !== null && netto > 0
+                    ? `Ihr habt realistisch ${Math.floor(netto / 60)} Std. ${zwei(netto % 60)} Min.`
+                    : "Zeiten eintragen"}
+                </div>
+                <div style={{ fontFamily: SANS, fontSize: 13, color: C.muted, marginTop: 6 }}>
+                  Ausschiffung, Wege und Rückpuffer sind bereits abgezogen.
+                </div>
               </div>
-            )}
 
-            <Aufklappbar titel="Buchung, Budget & Notiz">
+              <Wahl label="Wie weit wollt ihr weg vom Hafen?" wert={x.weg} onChange={(v) => upd(x.id, { weg: v })}
+                optionen={[{ v: "nah", l: "Zentrum, zu Fuß" }, { v: "mittel", l: "bis eine Stunde" }, { v: "weit", l: "weiter weg" }]} />
+
+              {amp && (
+                <div style={{ background: amp.bg, borderRadius: 3, padding: "16px", marginBottom: 18 }}>
+                  <div style={{ fontFamily: SANS, fontSize: 15, color: amp.farbe, marginBottom: 7 }}>{amp.titel}</div>
+                  <div style={{ fontFamily: SANS, fontSize: 14.5, lineHeight: 1.62, color: C.navy }}>{amp.text}</div>
+                </div>
+              )}
+
               <Schalter label="Ausflug ist gebucht" an={!!x.gebucht} onChange={(v) => upd(x.id, { gebucht: v })} />
               {x.gebucht && (
                 <Feld label="Treffpunkt" wert={x.treffpunkt || ""} onChange={(v) => upd(x.id, { treffpunkt: v })}
