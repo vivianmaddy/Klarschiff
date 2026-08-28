@@ -5089,7 +5089,7 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
         }} />
         <div aria-hidden="true" style={{
           position: "absolute", inset: 0,
-          background: `linear-gradient(180deg, rgba(9,22,36,0.9) 0%, rgba(9,22,36,0.62) 26%, rgba(9,22,36,0.22) 48%, rgba(9,22,36,0.65) 74%, ${C.tiefsee} 100%)`,
+          background: `linear-gradient(180deg, rgba(9,22,36,0.82) 0%, rgba(9,22,36,0.42) 16%, rgba(9,22,36,0.1) 32%, rgba(9,22,36,0.06) 50%, rgba(9,22,36,0.16) 62%, rgba(9,22,36,0.5) 80%, ${C.tiefsee} 100%)`,
         }} />
         <div style={{ position: "relative", textAlign: "center" }}>
           <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 6 }}>
@@ -5329,13 +5329,17 @@ function TeilenPostkarte({ daten, onClose }) {
   const cdWerte = countdownWerte(s);
   const mitOrt = h.filter((x) => typeof x.lon === "number");
   const sm = mitOrt.reduce((a, p, i) => (i ? a + seemeilen(mitOrt[i - 1], p) : 0), 0);
-  const schiffszeile = [s.reederei, s.schiff].filter(Boolean).join(" · ");
+  /* Schiffsname ist die Hauptüberschrift, Reederei nur als kleine Zeile
+     darüber — sonst wiederholt sich z. B. "Mein Schiff" bei TUI Cruises
+     doppelt in einer einzigen, kaum lesbaren Zeile. */
+  const grossTitel = s.schiff || s.reederei || "Unsere Reise";
+  const kickerReederei = s.schiff && s.reederei ? s.reederei : null;
 
   return (
     <div role="dialog" aria-modal="true" className="no-print" style={{
       position: "fixed", inset: 0, zIndex: 80,
       background: `radial-gradient(circle at 50% 30%, ${C.white} 0%, ${C.sky} 78%)`,
-      overflowY: "auto", padding: "26px 20px 44px",
+      overflowY: "auto", padding: "20px 18px 30px",
     }}>
       <button type="button" onClick={onClose} aria-label="Schließen" style={{
         position: "fixed", top: 18, right: 18, background: C.white,
@@ -5345,15 +5349,21 @@ function TeilenPostkarte({ daten, onClose }) {
       }}><X size={18} /></button>
 
       <div style={{ maxWidth: 480, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", margin: "20px 0 22px" }}>
+        <div style={{ textAlign: "center", margin: "16px 0 14px" }}>
           <div style={{
             fontFamily: MONO, fontSize: 10, letterSpacing: 3.2, color: C.messing,
-            textTransform: "uppercase", marginBottom: 12,
+            textTransform: "uppercase", marginBottom: 10,
           }}>Logbuch · @wolken.wanderer</div>
+          {kickerReederei && (
+            <div style={{
+              fontFamily: MONO, fontSize: 11, letterSpacing: 1.6, color: C.blue,
+              textTransform: "uppercase", marginBottom: 4,
+            }}>{kickerReederei}</div>
+          )}
           <h2 style={{
-            fontFamily: SERIF, fontWeight: 500, fontSize: "clamp(30px, 8vw, 42px)",
-            lineHeight: 1.08, color: C.navy, margin: "0 0 10px",
-          }}>{schiffszeile || "Unsere Reise"}</h2>
+            fontFamily: DISPLAY, fontWeight: 700, fontSize: "clamp(28px, 8vw, 38px)",
+            lineHeight: 1.05, letterSpacing: "-0.02em", color: C.navy, margin: "0 0 8px",
+          }}>{grossTitel}</h2>
           {ab && (
             <div style={{
               fontFamily: MONO, fontSize: 11.5, letterSpacing: 1.4, color: C.blue,
@@ -5363,39 +5373,34 @@ function TeilenPostkarte({ daten, onClose }) {
         </div>
 
         {cdWerte && (
-          <div style={{ margin: "0 0 26px" }}>
+          <div style={{ margin: "0 0 18px" }}>
             <UrlaubsCountdown titel="Euer Urlaubs-Countdown" werte={cdWerte} hell />
           </div>
         )}
 
-        <div style={{
-          background: C.white, borderRadius: RUND, padding: 12,
-          border: `1px solid ${C.line}`, boxShadow: "0 2px 10px rgba(11,35,56,0.06)",
-        }}>
-          <Karte haefen={h} route={s.route} />
-        </div>
+        <Karte haefen={h} route={s.route} />
 
-        <div style={{ display: "flex", justifyContent: "center", gap: 34, marginTop: 22, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", justifyContent: "center", gap: 34, marginTop: 2, flexWrap: "wrap" }}>
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontFamily: SERIF, fontSize: 30, color: C.navy }}>{mitOrt.length}</div>
+            <div style={{ fontFamily: SERIF, fontSize: 28, color: C.navy }}>{mitOrt.length}</div>
             <div style={{
               fontFamily: MONO, fontSize: 10, letterSpacing: 1.4, color: C.messing,
-              textTransform: "uppercase", marginTop: 5,
+              textTransform: "uppercase", marginTop: 4,
             }}>{mitOrt.length === 1 ? "Hafen" : "Häfen"}</div>
           </div>
           {sm > 0 && (
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontFamily: SERIF, fontSize: 30, color: C.navy }}>{sm.toLocaleString("de-DE")}</div>
+              <div style={{ fontFamily: SERIF, fontSize: 28, color: C.navy }}>{sm.toLocaleString("de-DE")}</div>
               <div style={{
                 fontFamily: MONO, fontSize: 10, letterSpacing: 1.4, color: C.messing,
-                textTransform: "uppercase", marginTop: 5,
+                textTransform: "uppercase", marginTop: 4,
               }}>Seemeilen</div>
             </div>
           )}
         </div>
 
         <div style={{
-          textAlign: "center", marginTop: 30, fontFamily: SANS, fontSize: 13.5,
+          textAlign: "center", marginTop: 18, fontFamily: SANS, fontSize: 13.5,
           lineHeight: 1.7, color: C.muted,
         }}>Macht einen Screenshot und teilt ihn — dieses Fenster ist extra für genau das gemacht.</div>
       </div>
