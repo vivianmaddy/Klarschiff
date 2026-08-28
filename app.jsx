@@ -3442,7 +3442,12 @@ function Karte({ haefen, route, linie = true, nummern = true }) {
   const hProj = by1 - by0;
   let skala = breite / wProj;
   let hoehe = hProj * skala;
-  if (hoehe > 820) { skala = 820 / hProj; hoehe = 820; }
+  /* Routen, die sich über viele Breitengrade erstrecken (z. B. US-Ostküste
+     bis in die Karibik), brauchen einen deutlich höheren Ausschnitt, sonst
+     bleibt bei einer zu niedrigen Deckelung viel Ausschnitt als leere
+     Wasserfläche links und rechts stehen, statt von der Route ausgefüllt
+     zu werden. */
+  if (hoehe > 1300) { skala = 1300 / hProj; hoehe = 1300; }
   if (hoehe < 360) hoehe = 360;
   hoehe = Math.round(hoehe);
   const offX = (breite - wProj * skala) / 2;
@@ -5084,13 +5089,6 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
         position: "relative", margin: "-22px -20px 24px", padding: "34px 20px 30px",
         background: C.tiefsee, overflow: "hidden",
       }}>
-        <img src={heroFoto} alt="" aria-hidden="true" style={{
-          position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover",
-        }} />
-        <div aria-hidden="true" style={{
-          position: "absolute", inset: 0,
-          background: `linear-gradient(180deg, rgba(9,22,36,0.82) 0%, rgba(9,22,36,0.42) 16%, rgba(9,22,36,0.1) 32%, rgba(9,22,36,0.06) 50%, rgba(9,22,36,0.16) 62%, rgba(9,22,36,0.5) 80%, ${C.tiefsee} 100%)`,
-        }} />
         <div style={{ position: "relative", textAlign: "center" }}>
           <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 6 }}>
             <button type="button" onClick={() => gehe(8)} aria-label="Fahrtenbuch" title="Fahrtenbuch" style={{
@@ -5112,12 +5110,28 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
 
           <p style={{
             fontFamily: SANS, fontSize: 14.5, lineHeight: 1.55, color: "#A9C0CE",
-            margin: "0 auto 26px", maxWidth: 300,
+            margin: "0 auto 22px", maxWidth: 300,
           }}>
             Landausflüge, Route und Countdown für eure nächste Kreuzfahrt
           </p>
 
-          <div style={{ height: 200 }} aria-hidden="true" />
+          {/* Eigenständiges Foto-Band statt Foto über die ganze Hero-Höhe:
+              so bleibt das Schiff im sichtbaren Bereich, statt hinter der
+              Countdown-Karte zu verschwinden, und der Text darüber sitzt
+              auf reinem Marineblau statt auf einem Verlauf — immer lesbar,
+              egal welches Foto gerade gewählt ist. */}
+          <div style={{
+            position: "relative", height: 220, margin: "0 -20px 24px", overflow: "hidden",
+          }}>
+            <img src={heroFoto} alt="" aria-hidden="true" style={{
+              position: "absolute", inset: 0, width: "100%", height: "100%",
+              objectFit: "cover", objectPosition: "50% 65%",
+            }} />
+            <div aria-hidden="true" style={{
+              position: "absolute", inset: 0,
+              background: `linear-gradient(180deg, ${C.tiefsee} 0%, rgba(9,22,36,0) 22%, rgba(9,22,36,0) 78%, ${C.tiefsee} 100%)`,
+            }} />
+          </div>
 
           <div aria-hidden="true" style={{ position: "relative", margin: "0 0 22px" }}>
             <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(228,202,149,0.5), transparent)" }} />
