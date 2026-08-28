@@ -2083,6 +2083,14 @@ function reedereiFinden(name) {
     || null;
 }
 
+/* Reedereiname ohne die Klammer-Marke, z. B. "TUI Cruises (Mein Schiff)"
+   -> "TUI Cruises". Wird dort verwendet, wo der Reedereiname direkt neben
+   dem Schiffsnamen steht (der die Marke, z. B. "Mein Schiff 1", ohnehin
+   schon enthält) — sonst taucht "Mein Schiff" doppelt auf. */
+function reedereiKurz(name) {
+  return (name || "").replace(/\s*\([^)]*\)\s*$/, "");
+}
+
 /* Generische Vorlage je Hafentyp, greift überall dort, wo es noch keine
    eigenen Inhalte gibt — damit hat wirklich jeder Hafen etwas Nützliches. */
 const TYP_VORLAGEN = {
@@ -3412,19 +3420,22 @@ function regionWaehlen(punkte, route) {
   return zuordnung[route] || "mittel";
 }
 
-function Karte({ haefen, route, linie = true, nummern = true }) {
+function Karte({ haefen, route, linie = true, nummern = true, maxHoehe = 1300 }) {
   const punkte = haefen.filter((h) => typeof h.lon === "number" && typeof h.lat === "number");
   const regKey = regionWaehlen(punkte, route);
   const reg = REGIONEN[regKey];
 
   /* Ausschnitt bestimmen — richtet sich nach den eingetragenen Häfen,
      nicht nach der Standard-Box der Region, damit nie ein Hafen
-     außerhalb des sichtbaren Kartenausschnitts landet. */
+     außerhalb des sichtbaren Kartenausschnitts landet. Der Rand um die
+     Häfen bleibt bewusst knapp (12 %), sonst reicht der Ausschnitt bei
+     Routen mit weiten Sprüngen (z. B. US-Ostküste) über die gezeichnete
+     Landfläche hinaus und es bleibt oben/unten leere Wasserfläche stehen. */
   let [bx0, by0, bx1, by1] = reg.box;
   if (punkte.length >= 2) {
     const lons = punkte.map((p) => p.lon), lats = punkte.map((p) => p.lat);
-    const pufX = Math.max(2.5, (Math.max(...lons) - Math.min(...lons)) * 0.25);
-    const pufY = Math.max(1.5, (Math.max(...lats) - Math.min(...lats)) * 0.25);
+    const pufX = Math.max(1.5, (Math.max(...lons) - Math.min(...lons)) * 0.12);
+    const pufY = Math.max(1, (Math.max(...lats) - Math.min(...lats)) * 0.12);
     bx0 = Math.min(...lons) - pufX; bx1 = Math.max(...lons) + pufX;
     by0 = Math.min(...lats) - pufY; by1 = Math.max(...lats) + pufY;
   } else if (punkte.length === 1) {
@@ -3446,8 +3457,9 @@ function Karte({ haefen, route, linie = true, nummern = true }) {
      bis in die Karibik), brauchen einen deutlich höheren Ausschnitt, sonst
      bleibt bei einer zu niedrigen Deckelung viel Ausschnitt als leere
      Wasserfläche links und rechts stehen, statt von der Route ausgefüllt
-     zu werden. */
-  if (hoehe > 1300) { skala = 1300 / hProj; hoehe = 1300; }
+     zu werden. maxHoehe ist einstellbar, damit z. B. die Teilen-Postkarte
+     bewusst kompakter bleiben kann als der volle Route-Tab. */
+  if (hoehe > maxHoehe) { skala = maxHoehe / hProj; hoehe = maxHoehe; }
   if (hoehe < 360) hoehe = 360;
   hoehe = Math.round(hoehe);
   const offX = (breite - wProj * skala) / 2;
@@ -5185,7 +5197,7 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
                     {s.reederei && (
                       <div style={{
                         fontFamily: MONO, fontSize: 10, letterSpacing: 1.4, textTransform: "uppercase", color: "#8FA9B8",
-                      }}>{s.reederei}</div>
+                      }}>{reedereiKurz(s.reederei)}</div>
                     )}
                     <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 17, color: C.white, marginTop: 2 }}>
                       {s.schiff || "Euer Schiff"}
@@ -5347,7 +5359,7 @@ function TeilenPostkarte({ daten, onClose }) {
      darüber — sonst wiederholt sich z. B. "Mein Schiff" bei TUI Cruises
      doppelt in einer einzigen, kaum lesbaren Zeile. */
   const grossTitel = s.schiff || s.reederei || "Unsere Reise";
-  const kickerReederei = s.schiff && s.reederei ? s.reederei : null;
+  const kickerReederei = s.schiff && s.reederei ? reedereiKurz(s.reederei) : null;
 
   return (
     <div role="dialog" aria-modal="true" className="no-print" style={{
@@ -5356,11 +5368,11 @@ function TeilenPostkarte({ daten, onClose }) {
       overflowY: "auto", padding: "20px 18px 30px",
     }}>
       <button type="button" onClick={onClose} aria-label="Schließen" style={{
-        position: "fixed", top: 18, right: 18, background: C.white,
-        border: `1px solid ${C.line}`, borderRadius: 3, color: C.navy,
-        width: 44, height: 44, display: "grid", placeItems: "center", cursor: "pointer", zIndex: 2,
-        boxShadow: "0 1px 3px rgba(11,35,56,0.12)",
-      }}><X size={18} /></button>
+        position: "fixed", top: 14, right: 14, background: "rgba(255,255,255,0.7)",
+        backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)",
+        border: "none", borderRadius: "50%", color: C.muted,
+        width: 34, height: 34, display: "grid", placeItems: "center", cursor: "pointer", zIndex: 2,
+      }}><X size={15} /></button>
 
       <div style={{ maxWidth: 480, margin: "0 auto" }}>
         <div style={{ textAlign: "center", margin: "16px 0 14px" }}>
@@ -5392,7 +5404,7 @@ function TeilenPostkarte({ daten, onClose }) {
           </div>
         )}
 
-        <Karte haefen={h} route={s.route} />
+        <Karte haefen={h} route={s.route} maxHoehe={1000} />
 
         <div style={{ display: "flex", justifyContent: "center", gap: 34, marginTop: 2, flexWrap: "wrap" }}>
           <div style={{ textAlign: "center" }}>
