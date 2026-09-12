@@ -45,35 +45,43 @@ const Ship = (p) => (
   <Svg {...p}><path d="M3 16l1.6 4.2c.3.7 1 1.1 1.7 1.1h11.4c.7 0 1.4-.4 1.7-1.1L21 16" />
     <path d="M5 16V9h14v7" /><path d="M8 9V5h8v4" /><line x1="12" y1="2" x2="12" y2="5" /></Svg>
 );
+const Share = (p) => (
+  <Svg {...p}><circle cx="18" cy="5" r="2.6" /><circle cx="6" cy="12" r="2.6" /><circle cx="18" cy="19" r="2.6" />
+    <line x1="8.3" y1="10.6" x2="15.7" y2="6.6" /><line x1="8.3" y1="13.4" x2="15.7" y2="17.4" /></Svg>
+);
 
 /* =========================================================
-   DESIGNSYSTEM – Logbuch an Bord
+   DESIGNSYSTEM – Küsten-Reisejournal
 
-   Der Einband ist dunkel wie eine Brücke bei Nacht, die Seiten
-   sind hell wie eine Seekarte. Messing ist die einzige Zierde
-   und bleibt Linien, Ziffern und der Windrose vorbehalten.
+   Hell, luftig, editorial: die Seiten sind warmes Ivory, das
+   Meer ist ein zartes Küstenblau, Sand ist die einzige warme
+   Zierde. Dunkles Tintenblau bleibt Schrift, Icons und kleinen
+   Akzenten vorbehalten — nie einer großen Fläche.
 ========================================================= */
 const C = {
-  /* Einband */
-  tiefsee: "#0B2338",
-  nachtblau: "#16405E",
-  messing: "#C8A055",
-  messingHell: "#E4CA95",
-  messingLeise: "rgba(200,160,85,0.42)",
+  /* Flächen */
+  paper: "#F7F7F3",
+  white: "#FFFFFF",
+  sky: "#EEF5F6",
+  skySoft: "#F5FAFA",
+  sand: "#F4EADA",
+  line: "rgba(23,52,71,0.08)",
 
-  /* Seiten */
-  paper: "#E7EDEC",
-  sky: "#DDE7E6",
-  skySoft: "#EFF4F3",
-  white: "#F5F8F7",
-  sand: "#E6DFCD",
-  line: "#C2D1D0",
+  /* Küste & Sand — Akzente */
+  meer: "#BFDCE3",
+  meerKraeftig: "#84B9C5",
+  messing: "#D6B16F",
+  messingHell: "#E8CFA1",
+  messingLeise: "rgba(23,52,71,0.08)",
+  terracotta: "#D98E7D",
 
   /* Schrift */
-  navy: "#0B2338",
-  body: "#33505F",
-  muted: "#4E6A78",
-  blue: "#16405E",
+  tiefsee: "#173447",
+  navy: "#173447",
+  nachtblau: "#173447",
+  body: "#3C5965",
+  muted: "#607986",
+  blue: "#2B6F82",
 
   /* Signale */
   warn: "#A63A2E",
@@ -81,20 +89,20 @@ const C = {
   green: "#2E6E5B",
   greenSoft: "#DDE9E4",
 
-  /* Karte — Blau/Weiß/Creme */
-  wasser: "#BFDCEE",
-  wasserLinie: "#9CC5E3",
-  land: "#FBF7EE",
-  landLinie: "#D9CFB8",
+  /* Karte — helles Küstenblau/Ivory */
+  wasser: "#CCE3E8",
+  wasserLinie: "#AFD3DA",
+  land: "#F8F3E6",
+  landLinie: "rgba(23,52,71,0.10)",
 };
 
-const SERIF = "'Bodoni Moda', 'Playfair Display', Georgia, serif";
-const SANS = "'Questrial', 'Helvetica Neue', Arial, sans-serif";
+const SERIF = "'Cormorant Garamond', 'Playfair Display', Georgia, serif";
+const SANS = "'DM Sans', 'Questrial', 'Helvetica Neue', Arial, sans-serif";
 const MONO = "'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace";
-const DISPLAY = "'Space Grotesk', 'Helvetica Neue', Arial, sans-serif";
+const DISPLAY = "'Manrope', 'DM Sans', 'Helvetica Neue', Arial, sans-serif";
 
-const RUND = 16;
-const RUND_KLEIN = 10;
+const RUND = 24;
+const RUND_KLEIN = 14;
 
 const STORAGE_KEY = "klarschiff-kreuzfahrtplaner";
 
@@ -126,6 +134,8 @@ function alsDatum(s) {
 function minusTage(d, n) { const x = new Date(d); x.setDate(x.getDate() - n); return x; }
 function zwei(n) { return String(n).padStart(2, "0"); }
 function kurz(d) { return `${WD[d.getDay()]}, ${zwei(d.getDate())}.${zwei(d.getMonth() + 1)}.`; }
+const MONATE = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+function langDatum(d) { return `${d.getDate()}. ${MONATE[d.getMonth()]} ${d.getFullYear()}`; }
 function heute() { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); }
 function tageBis(d) { return Math.round((d - heute()) / 86400000); }
 function euro(n) { return Math.round(n).toLocaleString("de-DE") + " €"; }
@@ -517,9 +527,9 @@ const INTERESSEN_ZU_TYP = {
 function Kicker({ children, color, hell }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
-      <span aria-hidden="true" style={{ width: 20, height: 1, background: C.messing, flexShrink: 0 }} />
+      <span aria-hidden="true" style={{ width: 18, height: 1, background: C.messing, flexShrink: 0 }} />
       <span style={{
-        fontFamily: MONO, fontSize: 11.5, letterSpacing: 2.4, fontWeight: 500,
+        fontFamily: MONO, fontSize: 11.5, letterSpacing: 1.4, fontWeight: 500,
         textTransform: "uppercase", color: color || (hell ? C.messingHell : C.muted),
       }}>{children}</span>
     </div>
@@ -558,8 +568,8 @@ function Card({ children, tone, style }) {
     : tone === "green" ? C.greenSoft : tone === "sand" ? C.sand : C.sky;
   return (
     <section style={{
-      background: bg, borderRadius: RUND, padding: "22px 20px", marginBottom: 14,
-      boxShadow: "0 1px 2px rgba(11,35,56,0.05)", ...style,
+      background: bg, borderRadius: RUND, padding: "26px 24px", marginBottom: 18,
+      boxShadow: "0 14px 32px rgba(23,52,71,0.055)", ...style,
     }}>{children}</section>
   );
 }
@@ -580,8 +590,7 @@ function Lead({ children }) {
 function Btn({ children, onClick, variant = "solid", small, full, style, title, disabled }) {
   const solide = variant === "solid";
   const skin = solide
-    ? { background: C.tiefsee, color: C.white, borderColor: C.tiefsee,
-        boxShadow: `inset 0 0 0 1px ${C.messingLeise}` }
+    ? { background: C.tiefsee, color: C.white, borderColor: C.tiefsee }
     : variant === "quiet"
       ? { background: "transparent", color: C.body, borderColor: "transparent" }
       : { background: C.white, color: C.navy, borderColor: C.line };
@@ -812,67 +821,72 @@ function Warnung({ children }) {
 }
 
 /* ---------------------------------------------------------
-   UrlaubsCountdown – ruhiges, glasiges Kärtchen mit ein oder zwei
-   nebeneinanderstehenden Kennzahlen (z. B. Tage | Stunden),
-   für Start-Titelbild (dunkel) und Teilen-Postkarte (hell)
+   CountdownHero – das emotionale Herzstück des Start-Bildschirms:
+   eine große, helle Reisekarte mit der Countdown-Zahl als
+   Hauptmotiv, viel Weißraum und einem sehr zurückhaltenden
+   Fortschrittsbogen im Hintergrund. Dieselbe Karte trägt auch
+   die Teilen-Postkarte, damit der Countdown für sich allein als
+   Story-taugliches Bild funktioniert.
 --------------------------------------------------------- */
-function UrlaubsCountdown({ titel, werte, hell = false }) {
-  const kartenBg = hell ? "rgba(255,255,255,0.72)" : "rgba(255,255,255,0.08)";
-  const kartenRand = hell ? "rgba(11,35,56,0.10)" : "rgba(228,202,149,0.22)";
-  const titelFarbe = hell ? C.muted : "#A9C0CE";
-  const zahlFarbe = hell ? C.navy : C.white;
-  const labelFarbe = hell ? C.muted : C.messingHell;
-  const trennerFarbe = hell ? "rgba(11,35,56,0.14)" : "rgba(228,202,149,0.28)";
+function CountdownHero({ cdWerte, prozent = 0, schiffName, datumStr, zitat, onTeilen }) {
+  const haupt = cdWerte ? cdWerte[0] : { zahl: `${Math.round(prozent)}%`, label: "Vorbereitet" };
+  const neben = cdWerte && cdWerte[1] ? cdWerte[1] : null;
+  const ring = Math.max(0, Math.min(100, prozent));
+  const size = 280, stroke = 2, r = (size - stroke) / 2, umfang = 2 * Math.PI * r;
+  const dash = (ring / 100) * umfang;
 
   return (
     <div style={{
-      background: kartenBg, backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)",
-      border: `1px solid ${kartenRand}`, borderRadius: RUND, padding: "22px 20px",
-      maxWidth: 320, margin: "0 auto",
+      position: "relative", background: C.white, borderRadius: RUND + 8,
+      padding: "36px 26px 32px", textAlign: "center", overflow: "hidden",
+      boxShadow: "0 24px 56px rgba(23,52,71,0.08)",
     }}>
-      {titel && (
-        <div style={{
-          fontFamily: SANS, fontSize: 15, color: titelFarbe, textAlign: "center", marginBottom: 16,
-        }}>{titel}</div>
+      {onTeilen && (
+        <button type="button" onClick={onTeilen} aria-label="Countdown teilen" title="Countdown teilen" style={{
+          position: "absolute", top: 18, right: 18, width: 38, height: 38, borderRadius: "50%",
+          background: C.sky, border: "none", display: "grid", placeItems: "center", cursor: "pointer", zIndex: 1,
+        }}><Share size={16} color={C.blue} /></button>
       )}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-        {werte.map((w, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center" }}>
-            {i > 0 && (
-              <span aria-hidden="true" style={{ width: 1, height: 50, background: trennerFarbe, margin: "0 22px" }} />
-            )}
-            <div style={{ textAlign: "center" }}>
-              <div style={{
-                fontFamily: DISPLAY, fontWeight: 700, fontSize: 44, lineHeight: 1,
-                color: zahlFarbe, letterSpacing: "-0.02em",
-              }}>{w.zahl}</div>
-              <div style={{
-                fontFamily: MONO, fontSize: 12, letterSpacing: 2, textTransform: "uppercase",
-                color: labelFarbe, marginTop: 7,
-              }}>{w.label}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
-/* Ring-Fortschrittsanzeige fürs Start-Bildschirm-Hero: der Goldbogen zeigt
-   den echten Vorbereitungsstand (dieselbe Zahl wie auf den Kicker-Balken
-   der Module), die Zahl daneben bleibt der Tage-Countdown. */
-function CountdownRing({ prozent }) {
-  const size = 92, stroke = 7, r = (size - stroke) / 2, umfang = 2 * Math.PI * r;
-  const dash = Math.max(0, Math.min(100, prozent)) / 100 * umfang;
-  return (
-    <div style={{ position: "relative", width: size, height: size, flexShrink: 0 }} aria-hidden="true">
-      <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(228,202,149,0.2)" strokeWidth={stroke} />
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={C.messing} strokeWidth={stroke}
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true" style={{
+        position: "absolute", top: "46%", left: "50%", transform: "translate(-50%, -50%) rotate(-90deg)",
+      }}>
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={C.sky} strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={C.meerKraeftig} strokeWidth={stroke}
           strokeDasharray={`${dash} ${umfang - dash}`} strokeLinecap="round" />
       </svg>
-      <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center" }}>
-        <Anchor size={26} color={C.messingHell} />
+
+      <div style={{ position: "relative" }}>
+        <div style={{
+          fontFamily: MONO, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", color: C.muted,
+        }}>Noch</div>
+        <div style={{
+          fontFamily: SERIF, fontStyle: "italic", fontWeight: 600, fontSize: "clamp(78px, 26vw, 120px)",
+          lineHeight: 0.9, color: C.navy, letterSpacing: "-0.02em",
+        }}>{haupt.zahl}</div>
+        <div style={{
+          fontFamily: MONO, fontSize: 13, letterSpacing: 3, textTransform: "uppercase", color: C.muted, marginTop: 2,
+        }}>{haupt.label}</div>
+
+        {schiffName && (
+          <div style={{ fontFamily: SANS, fontSize: 15.5, color: C.body, marginTop: 20 }}>bis {schiffName}</div>
+        )}
+        {datumStr && (
+          <div style={{ fontFamily: SANS, fontSize: 14, color: C.muted, marginTop: 4 }}>{datumStr}</div>
+        )}
+        {neben && (
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: 7, marginTop: 12,
+            fontFamily: SANS, fontSize: 14, color: C.blue,
+          }}><Anchor size={14} color={C.messing} /> + {neben.zahl} {neben.label}</div>
+        )}
+
+        {zitat && (
+          <>
+            <div aria-hidden="true" style={{ height: 1, background: C.line, margin: "24px auto 16px", maxWidth: 170 }} />
+            <div style={{ fontFamily: SERIF, fontStyle: "italic", fontSize: 17, color: C.body }}>{zitat}</div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -3420,7 +3434,8 @@ function regionWaehlen(punkte, route) {
   return zuordnung[route] || "mittel";
 }
 
-function Karte({ haefen, route, linie = true, nummern = true, maxHoehe = 1300 }) {
+function Karte({ haefen, route, linie = true, nummern = true, maxHoehe = 1300, portListe = true }) {
+  const [aktiv, setAktiv] = useState(null);
   const punkte = haefen.filter((h) => typeof h.lon === "number" && typeof h.lat === "number");
   const regKey = regionWaehlen(punkte, route);
   const reg = REGIONEN[regKey];
@@ -3506,11 +3521,27 @@ function Karte({ haefen, route, linie = true, nummern = true, maxHoehe = 1300 })
     return pos;
   })();
 
+  /* Namen bleiben nie alle gleichzeitig stehen — bei vielen Häfen (z. B.
+     dicht gestaffelte Karibik-Inseln) kollidieren sie sonst unlesbar.
+     Stattdessen bekommen nur Start, Ziel und ein paar gleichmäßig
+     verteilte Zwischenstationen ein dauerhaftes Label; alle anderen
+     zeigen nur ihre Nummer. Der Rest steht in der Liste unter der Karte,
+     ein Tipp dort (oder auf den Pin) blendet den Namen zusätzlich ein. */
+  const maxLabels = 5;
+  const labelSet = new Set();
+  if (punkte.length <= maxLabels) {
+    punkte.forEach((_, i) => labelSet.add(i));
+  } else {
+    for (let i = 0; i < maxLabels; i++) {
+      labelSet.add(Math.round((i * (punkte.length - 1)) / (maxLabels - 1)));
+    }
+  }
+
   return (
     <div style={{ marginBottom: 22 }}>
       <div style={{
         background: C.white, borderRadius: RUND + 4, padding: 14,
-        boxShadow: "0 10px 28px rgba(11,35,56,0.08)",
+        boxShadow: "0 18px 44px rgba(23,52,71,0.07)",
       }}>
         <div style={{ borderRadius: RUND, overflow: "hidden" }}>
           <svg viewBox={`0 0 ${breite} ${hoehe}`} width="100%" style={{ display: "block" }}
@@ -3518,43 +3549,46 @@ function Karte({ haefen, route, linie = true, nummern = true, maxHoehe = 1300 })
             <rect x="0" y="0" width={breite} height={hoehe} fill={C.wasser} />
 
             {reg.land.map((ring, i) => (
-              <path key={"l" + i} d={pfad(ring)} fill={C.land} stroke={C.landLinie} strokeWidth="1.4"
+              <path key={"l" + i} d={pfad(ring)} fill={C.land} stroke={C.landLinie} strokeWidth="1"
                 strokeLinejoin="round" />
             ))}
             {(reg.wasser || []).map((ring, i) => (
-              <path key={"w" + i} d={pfad(ring)} fill={C.wasser} stroke={C.landLinie} strokeWidth="1.4"
+              <path key={"w" + i} d={pfad(ring)} fill={C.wasser} stroke={C.landLinie} strokeWidth="1"
                 strokeLinejoin="round" />
             ))}
             {reg.inseln.map((s, i) => {
               const [x, y] = px({ lon: s[0], lat: s[1] });
               return <circle key={"i" + i} cx={x} cy={y} r={s[2]} fill={C.land} stroke={C.landLinie}
-                strokeWidth="1.2" />;
+                strokeWidth="1" />;
             })}
 
             {linie && punkte.length > 1 && (
               <path d={pinPositionen.map((p, i) =>
                 (i ? "L" : "M") + p.x.toFixed(1) + " " + p.y.toFixed(1)
               ).join(" ")}
-                fill="none" stroke={C.messing} strokeWidth="2.5"
+                fill="none" stroke={C.messing} strokeWidth="2.2"
                 strokeLinecap="round" strokeLinejoin="round" />
             )}
 
             {punkte.map((p, i) => {
               const { x, y } = pinPositionen[i];
               const rechts = x < breite * 0.62;
-              const r = 8;
+              const istAktiv = aktiv === i;
+              const zeigeLabel = labelSet.has(i) || istAktiv;
+              const r = istAktiv ? 10 : 7;
               return (
-                <g key={"p" + i}>
+                <g key={"p" + i} onClick={() => setAktiv(istAktiv ? null : i)} style={{ cursor: "pointer" }}>
                   <circle cx={x} cy={y} r={r + 3} fill={C.white} />
-                  <circle cx={x} cy={y} r={r} fill={C.tiefsee} />
+                  <circle cx={x} cy={y} r={r} fill={istAktiv ? C.messing : C.navy} />
                   {nummern && (
-                    <text x={x} y={y + 4} textAnchor="middle" fontSize="10.5" fill={C.messingHell}
+                    <text x={x} y={y + (istAktiv ? 4.2 : 3.8)} textAnchor="middle"
+                      fontSize={istAktiv ? "11.5" : "10"} fill={C.white}
                       fontFamily={MONO}>{i + 1}</text>
                   )}
-                  {punkte.length <= 12 && (
+                  {zeigeLabel && (
                     <text x={rechts ? x + r + 9 : x - r - 9} y={y + 6} textAnchor={rechts ? "start" : "end"}
-                      fontSize="21" fontStyle="italic" fill={C.navy} fontFamily={SERIF} stroke={C.wasser}
-                      strokeWidth="6" paintOrder="stroke">{p.name || "Hafen"}</text>
+                      fontSize="19" fontStyle="italic" fill={C.navy} fontFamily={SERIF} stroke={C.wasser}
+                      strokeWidth="5" paintOrder="stroke">{p.name || "Hafen"}</text>
                   )}
                 </g>
               );
@@ -3565,7 +3599,7 @@ function Karte({ haefen, route, linie = true, nummern = true, maxHoehe = 1300 })
 
       <div style={{
         display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap",
-        fontFamily: MONO, fontSize: 11.5, letterSpacing: 1.3, textTransform: "uppercase",
+        fontFamily: MONO, fontSize: 11, letterSpacing: 1, textTransform: "uppercase",
         color: C.muted, marginTop: 10,
       }}>
         <span>{reg.name}{punkte.length < 2 ? " · noch keine Route" : ""}</span>
@@ -3573,6 +3607,33 @@ function Karte({ haefen, route, linie = true, nummern = true, maxHoehe = 1300 })
           <span>{gesamt.toLocaleString("de-DE")} sm · rund {Math.round(gesamt / 18)} Std. Fahrt</span>
         )}
       </div>
+
+      {portListe && punkte.length > 0 && (
+        <div style={{
+          display: "flex", gap: 8, overflowX: "auto", padding: "14px 2px 4px",
+          WebkitOverflowScrolling: "touch",
+        }}>
+          {punkte.map((p, i) => {
+            const istAktiv = aktiv === i;
+            return (
+              <button key={i} type="button" onClick={() => setAktiv(istAktiv ? null : i)} style={{
+                flexShrink: 0, display: "flex", alignItems: "center", gap: 7,
+                padding: "9px 14px", borderRadius: 999, cursor: "pointer",
+                border: `1px solid ${istAktiv ? C.tiefsee : C.line}`,
+                background: istAktiv ? C.tiefsee : C.white,
+              }}>
+                <span style={{
+                  fontFamily: MONO, fontSize: 10.5, color: istAktiv ? C.messingHell : C.muted,
+                }}>{zwei(i + 1)}</span>
+                <span style={{
+                  fontFamily: SANS, fontSize: 13, whiteSpace: "nowrap",
+                  color: istAktiv ? C.white : C.navy,
+                }}>{p.name || "Hafen"}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
@@ -4071,6 +4132,39 @@ function Aufklappbar({ titel, children }) {
   );
 }
 
+function RouteCard({ haefen, route, naechte }) {
+  const punkte = haefen.filter((x) => typeof x.lon === "number");
+  const hafenZahl = punkte.length;
+  const seetagZahl = haefen.filter((x) => x.typ === "see").length;
+  const sm = punkte.reduce((a, p, i) => (i ? a + seemeilen(punkte[i - 1], p) : 0), 0);
+  const stats = [
+    sm > 0 ? `${sm.toLocaleString("de-DE")} sm` : null,
+    hafenZahl > 0 ? `${hafenZahl} ${hafenZahl === 1 ? "Hafen" : "Häfen"}` : null,
+    naechte ? `${naechte} Nächte` : null,
+  ].filter(Boolean);
+  return (
+    <div style={{
+      background: C.white, borderRadius: RUND + 4, padding: "26px 22px 22px",
+      marginBottom: 22, boxShadow: "0 14px 32px rgba(23,52,71,0.055)",
+    }}>
+      <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 22, color: C.navy }}>Eure Route</div>
+      <div style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, marginTop: 4, marginBottom: 18 }}>
+        {hafenZahl} {hafenZahl === 1 ? "Hafen" : "Häfen"}
+        {seetagZahl > 0 ? ` · ${seetagZahl} ${seetagZahl === 1 ? "Seetag" : "Seetage"}` : ""}
+      </div>
+      <Karte haefen={haefen} route={route} />
+      {stats.length > 0 && (
+        <div style={{
+          display: "flex", gap: 16, flexWrap: "wrap", marginTop: -8,
+          fontFamily: MONO, fontSize: 11.5, letterSpacing: 0.8, textTransform: "uppercase", color: C.muted,
+        }}>
+          {stats.map((t, i) => <span key={i}>{t}</span>)}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ModulLandgang({ daten, setze, onZeigeHafen }) {
   const h = daten.haefen;
   const notizen = useMemo(() => notizArchiv(daten.archiv || []), [daten.archiv]);
@@ -4111,7 +4205,7 @@ function ModulLandgang({ daten, setze, onZeigeHafen }) {
         Hafen-Lexikon.
       </P>
 
-      <Karte haefen={h} route={daten.setup.route} />
+      <RouteCard haefen={h} route={daten.setup.route} naechte={daten.setup.naechte} />
 
       <EinreiseHinweisKarte laender={laenderMitEinreiseHinweis(h)} />
 
@@ -4709,7 +4803,7 @@ function ModulFahrtenbuch({ daten, setze }) {
           {haefen.length > 0 && (
             <div>
               <Kicker>Alles, was ihr schon gesehen habt</Kicker>
-              <Karte haefen={haefen} route={daten.setup.route} linie={false} nummern={false} />
+              <Karte haefen={haefen} route={daten.setup.route} linie={false} nummern={false} portListe={false} />
             </div>
           )}
 
@@ -5034,13 +5128,13 @@ function GeplantKarte({ eintrag, onAktivieren, onLoeschen }) {
 function StatChip({ Icon, wert, label }) {
   return (
     <div style={{ flex: 1, textAlign: "center", minWidth: 0 }}>
-      <Icon size={16} color={C.messingHell} style={{ display: "block", margin: "0 auto 6px" }} />
+      <Icon size={16} color={C.messing} style={{ display: "block", margin: "0 auto 6px" }} />
       <div style={{
-        fontFamily: DISPLAY, fontWeight: 700, fontSize: 15, color: C.white,
+        fontFamily: DISPLAY, fontWeight: 700, fontSize: 15, color: C.navy,
         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
       }}>{wert}</div>
       <div style={{
-        fontFamily: MONO, fontSize: 8.5, letterSpacing: 1, textTransform: "uppercase", color: "#8FA9B8", marginTop: 2,
+        fontFamily: MONO, fontSize: 8.5, letterSpacing: 1, textTransform: "uppercase", color: C.muted, marginTop: 2,
       }}>{label}</div>
     </div>
   );
@@ -5050,15 +5144,13 @@ function KachelLink({ Icon, titel, unter, onClick }) {
   return (
     <button type="button" onClick={onClick} style={{
       flex: 1, minWidth: 0, textAlign: "left", cursor: "pointer",
-      background: C.white, border: "none", borderRadius: RUND, padding: "20px 16px",
-      boxShadow: "0 1px 2px rgba(11,35,56,0.05)",
+      background: C.white, border: "none", borderRadius: RUND, padding: "20px 18px",
+      boxShadow: "0 10px 26px rgba(23,52,71,0.06)",
       display: "flex", flexDirection: "column", gap: 12,
     }}>
       <span style={{
-        width: 42, height: 42, borderRadius: "50%",
-        background: "linear-gradient(135deg, #F3E7C9 0%, #E2C68F 100%)",
+        width: 42, height: 42, borderRadius: "50%", background: C.sky,
         display: "grid", placeItems: "center", flexShrink: 0,
-        boxShadow: "inset 0 0 0 1px rgba(200,160,85,0.35)",
       }}>
         <Icon size={19} color={C.tiefsee} />
       </span>
@@ -5086,8 +5178,6 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
   const prozent = gesamt ? (wert / gesamt) * 100 : 0;
 
   const cdWerte = countdownWerte(s);
-  const countdownTitel = cdWerte ? "Euer Urlaubs-Countdown" : "Euer Vorbereitungsstand";
-  const countdownAnzeige = cdWerte || [{ zahl: `${Math.round(prozent)}%`, label: "Vorbereitet" }];
 
   const schiffszeile = [s.reederei, s.schiff].filter(Boolean).join(" · ");
   const routePunkte = daten.haefen.filter((x) => typeof x.lon === "number");
@@ -5097,197 +5187,113 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
 
   return (
     <div>
-      <div style={{
-        position: "relative", margin: "-22px -20px 24px", padding: "34px 20px 30px",
-        background: C.tiefsee, overflow: "hidden",
-      }}>
-        <div style={{ position: "relative", textAlign: "center" }}>
-          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 6 }}>
-            <button type="button" onClick={() => gehe(8)} aria-label="Fahrtenbuch" title="Fahrtenbuch" style={{
-              width: 38, height: 38, borderRadius: "50%", background: "rgba(11,35,56,0.5)",
-              border: `1px solid ${C.messingLeise}`, display: "grid", placeItems: "center", cursor: "pointer",
-            }}><Anchor size={16} color={C.messingHell} /></button>
-          </div>
-
-          {daten.nutzerName && (
-            <div style={{
-              fontFamily: MONO, fontSize: 12, letterSpacing: 1.6, textTransform: "uppercase",
-              color: C.messingHell, marginBottom: 10,
-            }}>Hallo, {daten.nutzerName} 👋</div>
-          )}
-          <h1 style={{
-            fontFamily: DISPLAY, fontWeight: 700, fontSize: "clamp(38px, 11vw, 54px)",
-            lineHeight: 0.96, letterSpacing: "-0.03em", color: C.white, margin: "0 0 8px",
-          }}>Klarschiff</h1>
-
-          <p style={{
-            fontFamily: SANS, fontSize: 14.5, lineHeight: 1.55, color: "#A9C0CE",
-            margin: "0 auto 22px", maxWidth: 300,
-          }}>
-            Landausflüge, Route und Countdown für eure nächste Kreuzfahrt
-          </p>
-
-          {/* Eigenständiges Foto-Band statt Foto über die ganze Hero-Höhe:
-              so bleibt das Schiff im sichtbaren Bereich, statt hinter der
-              Countdown-Karte zu verschwinden, und der Text darüber sitzt
-              auf reinem Marineblau statt auf einem Verlauf — immer lesbar,
-              egal welches Foto gerade gewählt ist. */}
-          <div style={{
-            position: "relative", height: 220, margin: "0 -20px 24px", overflow: "hidden",
-          }}>
-            <img src={heroFoto} alt="" aria-hidden="true" style={{
-              position: "absolute", inset: 0, width: "100%", height: "100%",
-              objectFit: "cover", objectPosition: "50% 65%",
-            }} />
-            <div aria-hidden="true" style={{
-              position: "absolute", inset: 0,
-              background: `linear-gradient(180deg, ${C.tiefsee} 0%, rgba(9,22,36,0) 22%, rgba(9,22,36,0) 78%, ${C.tiefsee} 100%)`,
-            }} />
-          </div>
-
-          <div aria-hidden="true" style={{ position: "relative", margin: "0 0 22px" }}>
-            <div style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(228,202,149,0.5), transparent)" }} />
-            <div style={{
-              position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)",
-              width: 38, height: 38, borderRadius: "50%", background: C.tiefsee,
-              border: `1px solid ${C.messingLeise}`, display: "grid", placeItems: "center",
-            }}>
-              <Compass size={17} color={C.messingHell} />
-            </div>
-          </div>
-
-          <div style={{
-            display: "flex", alignItems: "center", gap: 18, textAlign: "left",
-            background: "rgba(9,22,36,0.68)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
-            border: `1px solid ${C.messingLeise}`,
-            borderRadius: RUND, padding: "20px 22px", maxWidth: 320, margin: "0 auto",
-          }}>
-            <CountdownRing prozent={cdWerte ? prozent : (prozent || 0)} />
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontFamily: SANS, fontSize: 13, color: "#A9C0CE" }}>{countdownTitel}</div>
-              <div style={{
-                fontFamily: DISPLAY, fontWeight: 700, fontSize: 40, lineHeight: 1,
-                color: C.white, letterSpacing: "-0.02em", marginTop: 5,
-              }}>{countdownAnzeige[0].zahl}</div>
-              <div style={{
-                fontFamily: MONO, fontSize: 11.5, letterSpacing: 2, textTransform: "uppercase",
-                color: C.messingHell, marginTop: 4,
-              }}>{countdownAnzeige[0].label}</div>
-              {countdownAnzeige[1] && (
-                <div style={{ fontFamily: SANS, fontSize: 12.5, color: "#8FA9B8", marginTop: 3 }}>
-                  + {countdownAnzeige[1].zahl} {countdownAnzeige[1].label}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {(schiffszeile || ab) && (
-            <div style={{
-              background: "rgba(9,22,36,0.68)", backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
-              border: `1px solid ${C.messingLeise}`,
-              borderRadius: RUND, padding: "18px 18px 16px", marginTop: 14, textAlign: "left",
-            }}>
-              {schiffszeile && (
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: ab ? 14 : 0 }}>
-                  <span style={{
-                    width: 34, height: 34, borderRadius: "50%", background: "rgba(228,202,149,0.14)",
-                    display: "grid", placeItems: "center", flexShrink: 0,
-                  }}><Ship size={16} color={C.messingHell} /></span>
-                  <div style={{ minWidth: 0 }}>
-                    {s.reederei && (
-                      <div style={{
-                        fontFamily: MONO, fontSize: 10, letterSpacing: 1.4, textTransform: "uppercase", color: "#8FA9B8",
-                      }}>{reedereiKurz(s.reederei)}</div>
-                    )}
-                    <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 17, color: C.white, marginTop: 2 }}>
-                      {s.schiff || "Euer Schiff"}
-                    </div>
-                  </div>
-                </div>
-              )}
-              {ab && (
-                <div style={{
-                  display: "flex", gap: 20, paddingTop: schiffszeile ? 14 : 0,
-                  borderTop: schiffszeile ? `1px solid rgba(228,202,149,0.15)` : "none",
-                }}>
-                  <div>
-                    <div style={{
-                      fontFamily: MONO, fontSize: 9.5, letterSpacing: 1.2, textTransform: "uppercase",
-                      color: "#8FA9B8", marginBottom: 3,
-                    }}>Auslaufen</div>
-                    <div style={{ fontFamily: SANS, fontSize: 15, color: C.white }}>{kurz(ab)}</div>
-                  </div>
-                  <div>
-                    <div style={{
-                      fontFamily: MONO, fontSize: 9.5, letterSpacing: 1.2, textTransform: "uppercase",
-                      color: "#8FA9B8", marginBottom: 3,
-                    }}>Nächte</div>
-                    <div style={{ fontFamily: SANS, fontSize: 15, color: C.white }}>{s.naechte}</div>
-                  </div>
-                </div>
-              )}
-              {(hafenZahl > 0 || seetagZahl > 0 || routeSm > 0) && (
-                <div style={{
-                  display: "flex", gap: 8, marginTop: 14, padding: "12px 10px",
-                  background: "rgba(0,0,0,0.16)", borderRadius: RUND_KLEIN,
-                }}>
-                  {hafenZahl > 0 && <StatChip Icon={MapPin} wert={hafenZahl} label={hafenZahl === 1 ? "Hafen" : "Häfen"} />}
-                  {seetagZahl > 0 && <StatChip Icon={Waves} wert={seetagZahl} label={seetagZahl === 1 ? "Seetag" : "Seetage"} />}
-                  {routeSm > 0 && <StatChip Icon={Compass} wert={routeSm.toLocaleString("de-DE")} label="Seemeilen" />}
-                </div>
-              )}
-            </div>
-          )}
-
-          {bilanz.reisen > 0 && (
-            <div style={{
-              marginTop: 16, paddingTop: 14, borderTop: `1px solid rgba(200,160,85,0.22)`,
-              fontFamily: MONO, fontSize: 11.5, letterSpacing: 1.6, textTransform: "uppercase",
-              color: C.messingHell, lineHeight: 1.9,
-            }}>
-              {bilanz.reisen} {bilanz.reisen === 1 ? "Reise" : "Reisen"} bisher · {bilanz.naechte} Nächte · {bilanz.einzigartig} Häfen
-              {bilanz.sm > 0 && <div style={{ color: "#8FA9B8" }}>{bilanz.sm.toLocaleString("de-DE")} Seemeilen im Kielwasser</div>}
-            </div>
-          )}
-
-          <button type="button" onClick={() => gehe("setup")} style={{
-            marginTop: 22, background: "transparent", border: `1px solid ${C.messingLeise}`,
-            borderRadius: 999, color: C.messingHell, fontFamily: MONO, fontSize: 11.5,
-            letterSpacing: 1.6, textTransform: "uppercase", padding: "13px 22px",
-            minHeight: 46, cursor: "pointer",
-          }}>
-            {schiffszeile || ab ? "Reise bearbeiten" : "Reise eintragen"}
-          </button>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+        <div style={{ fontFamily: SANS, fontSize: 15, color: C.muted }}>
+          {daten.nutzerName ? `Hallo, ${daten.nutzerName} 👋` : "Willkommen zurück 👋"}
         </div>
+        <button type="button" onClick={() => gehe(8)} aria-label="Fahrtenbuch" title="Fahrtenbuch" style={{
+          width: 38, height: 38, borderRadius: "50%", background: C.sky,
+          border: "none", display: "grid", placeItems: "center", cursor: "pointer", flexShrink: 0,
+        }}><Anchor size={16} color={C.blue} /></button>
       </div>
+
+      <h1 style={{
+        fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(30px, 8vw, 40px)",
+        lineHeight: 1.1, letterSpacing: "-0.02em", color: C.navy, margin: "0 0 22px",
+      }}>{schiffszeile || ab ? "Eure nächste Reise." : "Bald heißt es: Leinen los."}</h1>
+
+      {(schiffszeile || ab) && (
+        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 26 }}>
+          <img src={heroFoto} alt="" aria-hidden="true" style={{
+            width: 60, height: 60, borderRadius: 18, objectFit: "cover", flexShrink: 0,
+          }} />
+          <div style={{ minWidth: 0 }}>
+            {s.reederei && (
+              <div style={{
+                fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.4, textTransform: "uppercase", color: C.muted,
+              }}>{reedereiKurz(s.reederei)}</div>
+            )}
+            <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 20, color: C.navy, marginTop: 2 }}>
+              {s.schiff || "Euer Schiff"}
+            </div>
+            {ab && (
+              <div style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, marginTop: 4 }}>
+                {langDatum(ab)} · {s.naechte} {s.naechte === "1" ? "Nacht" : "Nächte"}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div style={{ marginBottom: 22 }}>
+        <CountdownHero cdWerte={cdWerte} prozent={prozent} schiffName={s.schiff}
+          datumStr={ab ? langDatum(ab) : null}
+          zitat={cdWerte ? `Noch ${cdWerte[0].zahl}x schlafen.` : null}
+          onTeilen={onTeilen} />
+      </div>
+
+      {(hafenZahl > 0 || seetagZahl > 0 || routeSm > 0) && (
+        <div style={{
+          display: "flex", gap: 8, padding: "16px 12px", background: C.sky,
+          borderRadius: RUND, marginBottom: 22,
+        }}>
+          {hafenZahl > 0 && <StatChip Icon={MapPin} wert={hafenZahl} label={hafenZahl === 1 ? "Hafen" : "Häfen"} />}
+          {seetagZahl > 0 && <StatChip Icon={Waves} wert={seetagZahl} label={seetagZahl === 1 ? "Seetag" : "Seetage"} />}
+          {routeSm > 0 && <StatChip Icon={Compass} wert={routeSm.toLocaleString("de-DE")} label="Seemeilen" />}
+        </div>
+      )}
+
+      {bilanz.reisen > 0 && (
+        <div style={{
+          fontFamily: SANS, fontSize: 13, color: C.muted, textAlign: "center", marginBottom: 22,
+        }}>
+          {bilanz.reisen} {bilanz.reisen === 1 ? "Reise" : "Reisen"} bisher · {bilanz.naechte} Nächte · {bilanz.einzigartig} Häfen
+          {bilanz.sm > 0 ? ` · ${bilanz.sm.toLocaleString("de-DE")} sm im Kielwasser` : ""}
+        </div>
+      )}
+
+      <button type="button" onClick={() => gehe("setup")} style={{
+        display: "block", margin: "0 auto 26px", background: "transparent",
+        border: `1px solid ${C.line}`, borderRadius: 999, color: C.muted, fontFamily: MONO, fontSize: 11.5,
+        letterSpacing: 1.2, textTransform: "uppercase", padding: "11px 20px",
+        minHeight: 44, cursor: "pointer",
+      }}>
+        {schiffszeile || ab ? "Reise bearbeiten" : "Reise eintragen"}
+      </button>
 
       <button type="button" onClick={() => gehe("haefen")} style={{
         width: "100%", textAlign: "left", cursor: "pointer", marginBottom: 14,
-        background: C.tiefsee, border: "none", borderRadius: RUND, padding: "26px 22px",
-        boxShadow: `inset 0 0 0 1px ${C.messingLeise}`,
+        background: C.white, border: "none", borderRadius: RUND, padding: "24px 22px",
+        boxShadow: "0 12px 30px rgba(23,52,71,0.06)",
         display: "flex", alignItems: "center", gap: 16,
       }}>
-        <Search size={30} color={C.messingHell} style={{ flexShrink: 0 }} />
+        <span style={{
+          width: 48, height: 48, borderRadius: "50%", background: C.sky,
+          display: "grid", placeItems: "center", flexShrink: 0,
+        }}><Search size={20} color={C.tiefsee} /></span>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: SERIF, fontSize: 25, color: C.white, lineHeight: 1.15 }}>Landausflüge & Häfen</div>
-          <div style={{ fontFamily: SANS, fontSize: 13.5, color: "#A9C0CE", marginTop: 4 }}>
-            {HAFENLISTE.length} Häfen weltweit durchsuchen — Währung, Landgänge, Ausflugsideen
+          <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 17, color: C.navy, lineHeight: 1.2 }}>Landausflüge & Häfen</div>
+          <div style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, marginTop: 3 }}>
+            {HAFENLISTE.length} Häfen weltweit durchsuchen
           </div>
         </div>
-        <ChevronRight size={20} color={C.messing} style={{ flexShrink: 0 }} />
+        <ChevronRight size={18} color={C.messing} style={{ flexShrink: 0 }} />
       </button>
 
       <button type="button" onClick={onTeilen} style={{
         width: "100%", textAlign: "left", cursor: "pointer", marginBottom: 14,
-        background: C.sand, border: "none", borderRadius: RUND, padding: "16px 18px",
+        background: C.sand, border: "none", borderRadius: RUND, padding: "18px 20px",
         display: "flex", alignItems: "center", gap: 14,
       }}>
-        <span style={{ fontSize: 24, lineHeight: 1, flexShrink: 0 }} aria-hidden="true">📸</span>
+        <span style={{
+          width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.6)",
+          display: "grid", placeItems: "center", flexShrink: 0,
+        }}><Share size={17} color={C.navy} /></span>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: SERIF, fontSize: 17, color: C.navy }}>Route als Postkarte teilen</div>
-          <div style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, marginTop: 2 }}>Perfekt für Insta Stories</div>
+          <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 16, color: C.navy }}>Route als Postkarte teilen</div>
+          <div style={{ fontFamily: SANS, fontSize: 13, color: C.body, marginTop: 2 }}>Perfekt für Insta Stories</div>
         </div>
-        <ChevronRight size={16} color={C.messing} style={{ flexShrink: 0 }} />
+        <ChevronRight size={16} color={C.navy} style={{ flexShrink: 0 }} />
       </button>
 
       <div style={{ display: "flex", gap: 12, marginBottom: 26 }}>
@@ -5375,11 +5381,11 @@ function TeilenPostkarte({ daten, onClose }) {
       }}><X size={15} /></button>
 
       <div style={{ maxWidth: 480, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", margin: "16px 0 14px" }}>
+        <div style={{ textAlign: "center", margin: "16px 0 18px" }}>
           <div style={{
             fontFamily: MONO, fontSize: 10, letterSpacing: 3.2, color: C.messing,
             textTransform: "uppercase", marginBottom: 10,
-          }}>Logbuch · @wolken.wanderer</div>
+          }}>Klarschiff · @wolken.wanderer</div>
           {kickerReederei && (
             <div style={{
               fontFamily: MONO, fontSize: 11, letterSpacing: 1.6, color: C.blue,
@@ -5387,28 +5393,24 @@ function TeilenPostkarte({ daten, onClose }) {
             }}>{kickerReederei}</div>
           )}
           <h2 style={{
-            fontFamily: DISPLAY, fontWeight: 700, fontSize: "clamp(28px, 8vw, 38px)",
-            lineHeight: 1.05, letterSpacing: "-0.02em", color: C.navy, margin: "0 0 8px",
+            fontFamily: DISPLAY, fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)",
+            lineHeight: 1.08, letterSpacing: "-0.02em", color: C.navy, margin: 0,
           }}>{grossTitel}</h2>
-          {ab && (
-            <div style={{
-              fontFamily: MONO, fontSize: 11.5, letterSpacing: 1.4, color: C.blue,
-              textTransform: "uppercase",
-            }}>Auslaufen {kurz(ab)} · {s.naechte} Nächte</div>
-          )}
         </div>
 
         {cdWerte && (
-          <div style={{ margin: "0 0 18px" }}>
-            <UrlaubsCountdown titel="Euer Urlaubs-Countdown" werte={cdWerte} hell />
+          <div style={{ marginBottom: 20 }}>
+            <CountdownHero cdWerte={cdWerte} schiffName={null}
+              datumStr={ab ? `${langDatum(ab)} · ${s.naechte} Nächte` : null}
+              zitat={`Noch ${cdWerte[0].zahl}x schlafen.`} />
           </div>
         )}
 
-        <Karte haefen={h} route={s.route} maxHoehe={1000} />
+        <Karte haefen={h} route={s.route} maxHoehe={1000} portListe={false} />
 
         <div style={{ display: "flex", justifyContent: "center", gap: 34, marginTop: 2, flexWrap: "wrap" }}>
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontFamily: SERIF, fontSize: 28, color: C.navy }}>{mitOrt.length}</div>
+            <div style={{ fontFamily: SERIF, fontStyle: "italic", fontSize: 26, color: C.navy }}>{mitOrt.length}</div>
             <div style={{
               fontFamily: MONO, fontSize: 10, letterSpacing: 1.4, color: C.messing,
               textTransform: "uppercase", marginTop: 4,
@@ -5416,7 +5418,7 @@ function TeilenPostkarte({ daten, onClose }) {
           </div>
           {sm > 0 && (
             <div style={{ textAlign: "center" }}>
-              <div style={{ fontFamily: SERIF, fontSize: 28, color: C.navy }}>{sm.toLocaleString("de-DE")}</div>
+              <div style={{ fontFamily: SERIF, fontStyle: "italic", fontSize: 26, color: C.navy }}>{sm.toLocaleString("de-DE")}</div>
               <div style={{
                 fontFamily: MONO, fontSize: 10, letterSpacing: 1.4, color: C.messing,
                 textTransform: "uppercase", marginTop: 4,
@@ -5450,30 +5452,35 @@ function gehoertZuTab(screen, tabId) {
 function TabBar({ screen, gehe }) {
   return (
     <nav className="no-print" style={{
-      position: "fixed", left: 0, right: 0, bottom: 0, background: C.tiefsee, zIndex: 40,
-      borderTop: `1px solid ${C.messingLeise}`,
+      position: "fixed", left: 0, right: 0, bottom: 0, background: "rgba(255,255,255,0.92)",
+      backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", zIndex: 40,
+      borderTop: `1px solid ${C.line}`, boxShadow: "0 -8px 24px rgba(23,52,71,0.04)",
       padding: "6px 10px calc(6px + env(safe-area-inset-bottom))",
     }}>
       <div style={{ maxWidth: 640, margin: "0 auto", display: "flex" }}>
         {TABS.map((t) => {
           const aktiv = gehoertZuTab(screen, t.id);
-          const farbe = aktiv ? C.messingHell : "#7C93A2";
+          const farbe = aktiv ? C.tiefsee : "#9AAEB7";
           return (
             <button key={t.id} type="button" onClick={() => gehe(t.id)} aria-current={aktiv ? "page" : undefined}
               style={{
-                flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3,
+                flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
                 background: "transparent", border: "none", cursor: "pointer", padding: "7px 4px",
                 minHeight: 54,
               }}>
               <span style={{
                 width: 34, height: 30, borderRadius: 10, display: "grid", placeItems: "center",
-                background: aktiv ? "linear-gradient(135deg, rgba(228,202,149,0.30), rgba(200,160,85,0.12))" : "transparent",
+                background: aktiv ? C.sky : "transparent",
               }}>
                 <t.Icon size={19} color={farbe} />
               </span>
               <span style={{
-                fontFamily: MONO, fontSize: 9.5, letterSpacing: 1, textTransform: "uppercase", color: farbe,
+                fontFamily: MONO, fontSize: 9.5, letterSpacing: 0.6, textTransform: "uppercase", color: farbe,
               }}>{t.label}</span>
+              <span aria-hidden="true" style={{
+                width: aktiv ? 14 : 0, height: 2, borderRadius: 1, background: C.messing,
+                transition: "width .2s ease", marginTop: -1,
+              }} />
             </button>
           );
         })}
