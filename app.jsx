@@ -166,6 +166,16 @@ function countdownWerte(s) {
   return [{ zahl: String(tageKalendarisch), label: tageKalendarisch === 1 ? "Tag" : "Tage" }];
 }
 
+/* Emotionale Zeile unter dem Countdown — verändert sich mit der
+   verbleibenden Zeit, statt immer dieselbe (kindlich wirkende)
+   Formulierung zu zeigen. */
+function countdownZeile(tage) {
+  const n = parseInt(tage, 10) || 0;
+  if (n <= 0) return "Heute heißt es: Leinen los.";
+  if (n === 1) return "Morgen geht's an Bord.";
+  return `In ${n} Tagen geht's an Bord.`;
+}
+
 /* =========================================================
    MODUL 1 – COUNTDOWN
 ========================================================= */
@@ -838,14 +848,15 @@ function CountdownHero({ cdWerte, prozent = 0, schiffName, datumStr, zitat, onTe
   return (
     <div style={{
       position: "relative", background: C.white, borderRadius: RUND + 8,
-      padding: "36px 26px 32px", textAlign: "center", overflow: "hidden",
-      boxShadow: "0 24px 56px rgba(23,52,71,0.08)",
+      padding: "40px 26px 34px", textAlign: "center", overflow: "hidden",
+      border: `1px solid ${C.line}`, boxShadow: "0 20px 60px rgba(23,52,71,0.05)",
     }}>
       {onTeilen && (
         <button type="button" onClick={onTeilen} aria-label="Countdown teilen" title="Countdown teilen" style={{
-          position: "absolute", top: 18, right: 18, width: 38, height: 38, borderRadius: "50%",
-          background: C.sky, border: "none", display: "grid", placeItems: "center", cursor: "pointer", zIndex: 1,
-        }}><Share size={16} color={C.blue} /></button>
+          position: "absolute", top: 16, right: 16, width: 32, height: 32, borderRadius: "50%",
+          background: "transparent", border: `1px solid ${C.line}`,
+          display: "grid", placeItems: "center", cursor: "pointer", zIndex: 1,
+        }}><Share size={13} color={C.muted} /></button>
       )}
 
       <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true" style={{
@@ -858,18 +869,19 @@ function CountdownHero({ cdWerte, prozent = 0, schiffName, datumStr, zitat, onTe
 
       <div style={{ position: "relative" }}>
         <div style={{
-          fontFamily: MONO, fontSize: 12, letterSpacing: 3, textTransform: "uppercase", color: C.muted,
+          fontFamily: MONO, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", color: C.muted,
+          marginBottom: 14,
         }}>Noch</div>
         <div style={{
-          fontFamily: SERIF, fontStyle: "italic", fontWeight: 600, fontSize: "clamp(78px, 26vw, 120px)",
-          lineHeight: 0.9, color: C.navy, letterSpacing: "-0.02em",
+          fontFamily: SERIF, fontStyle: "italic", fontWeight: 600, fontSize: "clamp(76px, 25vw, 116px)",
+          lineHeight: 1, color: C.navy, letterSpacing: "-0.02em",
         }}>{haupt.zahl}</div>
         <div style={{
-          fontFamily: MONO, fontSize: 13, letterSpacing: 3, textTransform: "uppercase", color: C.muted, marginTop: 2,
+          fontFamily: MONO, fontSize: 13, letterSpacing: 4, textTransform: "uppercase", color: C.muted, marginTop: 14,
         }}>{haupt.label}</div>
 
         {schiffName && (
-          <div style={{ fontFamily: SANS, fontSize: 15.5, color: C.body, marginTop: 20 }}>bis {schiffName}</div>
+          <div style={{ fontFamily: SANS, fontSize: 15.5, color: C.body, marginTop: 22 }}>bis {schiffName}</div>
         )}
         {datumStr && (
           <div style={{ fontFamily: SANS, fontSize: 14, color: C.muted, marginTop: 4 }}>{datumStr}</div>
@@ -883,7 +895,7 @@ function CountdownHero({ cdWerte, prozent = 0, schiffName, datumStr, zitat, onTe
 
         {zitat && (
           <>
-            <div aria-hidden="true" style={{ height: 1, background: C.line, margin: "24px auto 16px", maxWidth: 170 }} />
+            <div aria-hidden="true" style={{ height: 1, background: C.line, margin: "26px auto 18px", maxWidth: 150 }} />
             <div style={{ fontFamily: SERIF, fontStyle: "italic", fontSize: 17, color: C.body }}>{zitat}</div>
           </>
         )}
@@ -3523,19 +3535,59 @@ function Karte({ haefen, route, linie = true, nummern = true, maxHoehe = 1300, p
 
   /* Namen bleiben nie alle gleichzeitig stehen — bei vielen Häfen (z. B.
      dicht gestaffelte Karibik-Inseln) kollidieren sie sonst unlesbar.
-     Stattdessen bekommen nur Start, Ziel und ein paar gleichmäßig
-     verteilte Zwischenstationen ein dauerhaftes Label; alle anderen
-     zeigen nur ihre Nummer. Der Rest steht in der Liste unter der Karte,
-     ein Tipp dort (oder auf den Pin) blendet den Namen zusätzlich ein. */
+     Erst eine grobe Vorauswahl (Start, Ziel, ein paar gleichmäßig
+     verteilte Zwischenstationen), danach ein zweiter Check anhand der
+     tatsächlichen Pin-Position: liegen zwei ausgewählte Labels vertikal
+     zu nah beieinander, fällt eines wieder raus — Start und Ziel bleiben
+     dabei in jedem Fall stehen. Alle anderen zeigen nur ihre Nummer und
+     stehen zusätzlich in der Liste unter der Karte. */
   const maxLabels = 5;
-  const labelSet = new Set();
+  const labelKandidaten = new Set();
   if (punkte.length <= maxLabels) {
-    punkte.forEach((_, i) => labelSet.add(i));
+    punkte.forEach((_, i) => labelKandidaten.add(i));
   } else {
     for (let i = 0; i < maxLabels; i++) {
-      labelSet.add(Math.round((i * (punkte.length - 1)) / (maxLabels - 1)));
+      labelKandidaten.add(Math.round((i * (punkte.length - 1)) / (maxLabels - 1)));
     }
   }
+  const letzterIndex = punkte.length - 1;
+  const labelSet = (() => {
+    const sortiert = [...labelKandidaten].sort((a, b) => pinPositionen[a].y - pinPositionen[b].y);
+    const MIN_ABSTAND_Y = 30;
+    const behalten = new Set();
+    let letzteY = null;
+    sortiert.forEach((i) => {
+      const istRand = i === 0 || i === letzterIndex;
+      if (istRand || letzteY === null || Math.abs(pinPositionen[i].y - letzteY) >= MIN_ABSTAND_Y) {
+        behalten.add(i);
+        letzteY = pinPositionen[i].y;
+      }
+    });
+    behalten.add(0);
+    if (letzterIndex >= 0) behalten.add(letzterIndex);
+    return behalten;
+  })();
+
+  /* Sanft geschwungene statt streng geometrischer Linie: quadratische
+     Kurven durch die Mittelpunkte je zweier Nachbarpunkte — eine
+     klassische, leichte Technik für eine ruhige, organische
+     Routenführung, ohne die Projektion selbst anzufassen. */
+  const routenPfad = (() => {
+    if (pinPositionen.length < 2) return "";
+    if (pinPositionen.length === 2) {
+      return `M ${pinPositionen[0].x.toFixed(1)} ${pinPositionen[0].y.toFixed(1)} `
+        + `L ${pinPositionen[1].x.toFixed(1)} ${pinPositionen[1].y.toFixed(1)}`;
+    }
+    let d = `M ${pinPositionen[0].x.toFixed(1)} ${pinPositionen[0].y.toFixed(1)} `;
+    for (let i = 1; i < pinPositionen.length - 1; i++) {
+      const mx = (pinPositionen[i].x + pinPositionen[i + 1].x) / 2;
+      const my = (pinPositionen[i].y + pinPositionen[i + 1].y) / 2;
+      d += `Q ${pinPositionen[i].x.toFixed(1)} ${pinPositionen[i].y.toFixed(1)} ${mx.toFixed(1)} ${my.toFixed(1)} `;
+    }
+    const letzter = pinPositionen[pinPositionen.length - 1];
+    d += `L ${letzter.x.toFixed(1)} ${letzter.y.toFixed(1)}`;
+    return d;
+  })();
 
   return (
     <div style={{ marginBottom: 22 }}>
@@ -3563,21 +3615,26 @@ function Karte({ haefen, route, linie = true, nummern = true, maxHoehe = 1300, p
             })}
 
             {linie && punkte.length > 1 && (
-              <path d={pinPositionen.map((p, i) =>
-                (i ? "L" : "M") + p.x.toFixed(1) + " " + p.y.toFixed(1)
-              ).join(" ")}
-                fill="none" stroke={C.messing} strokeWidth="2.2"
-                strokeLinecap="round" strokeLinejoin="round" />
+              <>
+                <path d={routenPfad} fill="none" stroke={C.messing} strokeWidth="7" strokeOpacity="0.16"
+                  strokeLinecap="round" strokeLinejoin="round" />
+                <path d={routenPfad} fill="none" stroke={C.messing} strokeWidth="2.6"
+                  strokeLinecap="round" strokeLinejoin="round" />
+              </>
             )}
 
             {punkte.map((p, i) => {
               const { x, y } = pinPositionen[i];
               const rechts = x < breite * 0.62;
               const istAktiv = aktiv === i;
+              const istRand = i === 0 || i === letzterIndex;
               const zeigeLabel = labelSet.has(i) || istAktiv;
-              const r = istAktiv ? 10 : 7;
+              const r = istAktiv ? 10 : (istRand ? 8.5 : 7);
               return (
                 <g key={"p" + i} onClick={() => setAktiv(istAktiv ? null : i)} style={{ cursor: "pointer" }}>
+                  {istRand && !istAktiv && (
+                    <circle cx={x} cy={y} r={r + 5} fill="none" stroke={C.messing} strokeWidth="1.4" opacity="0.55" />
+                  )}
                   <circle cx={x} cy={y} r={r + 3} fill={C.white} />
                   <circle cx={x} cy={y} r={r} fill={istAktiv ? C.messing : C.navy} />
                   {nummern && (
@@ -5030,6 +5087,17 @@ function Setup({ daten, setze, gehe }) {
 
   return (
     <div>
+      {(s.schiff || s.reederei) && (
+        <div style={{ position: "relative", height: 150, borderRadius: RUND, overflow: "hidden", marginBottom: 20 }}>
+          <img src={heroBild(s.schiff || s.reederei)} alt="" aria-hidden="true" style={{
+            width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 40%", opacity: 0.5,
+          }} />
+          <div aria-hidden="true" style={{
+            position: "absolute", inset: 0,
+            background: `linear-gradient(180deg, ${C.paper}00 0%, ${C.paper}CC 80%, ${C.paper} 100%)`,
+          }} />
+        </div>
+      )}
       <Kicker>Reise-Setup</Kicker>
       <H2>Eure Reise</H2>
       <P style={{ marginTop: 14 }}>
@@ -5128,13 +5196,13 @@ function GeplantKarte({ eintrag, onAktivieren, onLoeschen }) {
 function StatChip({ Icon, wert, label }) {
   return (
     <div style={{ flex: 1, textAlign: "center", minWidth: 0 }}>
-      <Icon size={16} color={C.messing} style={{ display: "block", margin: "0 auto 6px" }} />
+      <Icon size={13} color={C.messing} style={{ display: "block", margin: "0 auto 10px" }} />
       <div style={{
-        fontFamily: DISPLAY, fontWeight: 700, fontSize: 15, color: C.navy,
+        fontFamily: SERIF, fontStyle: "italic", fontWeight: 600, fontSize: 26, color: C.navy, lineHeight: 1,
         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
       }}>{wert}</div>
       <div style={{
-        fontFamily: MONO, fontSize: 8.5, letterSpacing: 1, textTransform: "uppercase", color: C.muted, marginTop: 2,
+        fontFamily: MONO, fontSize: 9, letterSpacing: 1.6, textTransform: "uppercase", color: C.muted, marginTop: 8,
       }}>{label}</div>
     </div>
   );
@@ -5185,61 +5253,81 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
 
   const heroFoto = heroBild(s.schiff || s.reederei || daten.nutzerName);
 
+  const heroHoehe = "clamp(230px, 34vh, 320px)";
+
   return (
     <div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-        <div style={{ fontFamily: SANS, fontSize: 15, color: C.muted }}>
-          {daten.nutzerName ? `Hallo, ${daten.nutzerName} 👋` : "Willkommen zurück 👋"}
+      <div style={{
+        position: "relative", margin: "-22px -20px 0", overflow: "hidden", minHeight: heroHoehe,
+      }}>
+        <div aria-hidden="true" style={{ position: "absolute", inset: 0, height: heroHoehe }}>
+          <img src={heroFoto} alt="" style={{
+            width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 38%", opacity: 0.3,
+          }} />
+          <div style={{
+            position: "absolute", inset: 0,
+            background: `linear-gradient(180deg, ${C.paper}00 0%, ${C.paper}B8 58%, ${C.paper} 100%)`,
+          }} />
         </div>
-        <button type="button" onClick={() => gehe(8)} aria-label="Fahrtenbuch" title="Fahrtenbuch" style={{
-          width: 38, height: 38, borderRadius: "50%", background: C.sky,
-          border: "none", display: "grid", placeItems: "center", cursor: "pointer", flexShrink: 0,
-        }}><Anchor size={16} color={C.blue} /></button>
+
+        <div style={{ position: "relative", padding: "22px 20px 8px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+            <div style={{ fontFamily: SANS, fontSize: 15, color: C.body }}>
+              {daten.nutzerName ? `Hallo, ${daten.nutzerName} 👋` : "Willkommen zurück 👋"}
+            </div>
+            <button type="button" onClick={() => gehe(8)} aria-label="Fahrtenbuch" title="Fahrtenbuch" style={{
+              width: 38, height: 38, borderRadius: "50%", background: "rgba(255,255,255,0.7)",
+              border: "none", display: "grid", placeItems: "center", cursor: "pointer", flexShrink: 0,
+            }}><Anchor size={16} color={C.blue} /></button>
+          </div>
+
+          <h1 style={{
+            fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(30px, 8vw, 40px)",
+            lineHeight: 1.1, letterSpacing: "-0.02em", color: C.navy, margin: "0 0 22px",
+          }}>{schiffszeile || ab ? "Eure nächste Reise." : "Bald heißt es: Leinen los."}</h1>
+
+          {(schiffszeile || ab) && (
+            <div style={{ marginBottom: 8 }}>
+              {s.reederei && (
+                <div style={{
+                  fontFamily: MONO, fontSize: 11, letterSpacing: 1.8, textTransform: "uppercase", color: C.muted,
+                }}>{reedereiKurz(s.reederei)}</div>
+              )}
+              <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 26, color: C.navy, marginTop: 3 }}>
+                {s.schiff || "Euer Schiff"}
+              </div>
+              {ab && (
+                <div style={{ fontFamily: SANS, fontSize: 14, color: C.body, marginTop: 6 }}>
+                  {langDatum(ab)} · {s.naechte} {s.naechte === "1" ? "Nacht" : "Nächte"}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
-      <h1 style={{
-        fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(30px, 8vw, 40px)",
-        lineHeight: 1.1, letterSpacing: "-0.02em", color: C.navy, margin: "0 0 22px",
-      }}>{schiffszeile || ab ? "Eure nächste Reise." : "Bald heißt es: Leinen los."}</h1>
-
-      {(schiffszeile || ab) && (
-        <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 26 }}>
-          <img src={heroFoto} alt="" aria-hidden="true" style={{
-            width: 60, height: 60, borderRadius: 18, objectFit: "cover", flexShrink: 0,
-          }} />
-          <div style={{ minWidth: 0 }}>
-            {s.reederei && (
-              <div style={{
-                fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.4, textTransform: "uppercase", color: C.muted,
-              }}>{reedereiKurz(s.reederei)}</div>
-            )}
-            <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 20, color: C.navy, marginTop: 2 }}>
-              {s.schiff || "Euer Schiff"}
-            </div>
-            {ab && (
-              <div style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, marginTop: 4 }}>
-                {langDatum(ab)} · {s.naechte} {s.naechte === "1" ? "Nacht" : "Nächte"}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      <div style={{ marginBottom: 22 }}>
+      <div style={{ margin: "18px 0 22px" }}>
         <CountdownHero cdWerte={cdWerte} prozent={prozent} schiffName={s.schiff}
           datumStr={ab ? langDatum(ab) : null}
-          zitat={cdWerte ? `Noch ${cdWerte[0].zahl}x schlafen.` : null}
+          zitat={cdWerte ? countdownZeile(cdWerte[0].zahl) : null}
           onTeilen={onTeilen} />
       </div>
 
       {(hafenZahl > 0 || seetagZahl > 0 || routeSm > 0) && (
-        <div style={{
-          display: "flex", gap: 8, padding: "16px 12px", background: C.sky,
-          borderRadius: RUND, marginBottom: 22,
-        }}>
+        <div style={{ display: "flex", alignItems: "stretch", padding: "22px 4px", marginBottom: 22 }}>
           {hafenZahl > 0 && <StatChip Icon={MapPin} wert={hafenZahl} label={hafenZahl === 1 ? "Hafen" : "Häfen"} />}
-          {seetagZahl > 0 && <StatChip Icon={Waves} wert={seetagZahl} label={seetagZahl === 1 ? "Seetag" : "Seetage"} />}
-          {routeSm > 0 && <StatChip Icon={Compass} wert={routeSm.toLocaleString("de-DE")} label="Seemeilen" />}
+          {seetagZahl > 0 && (
+            <>
+              <span aria-hidden="true" style={{ width: 1, background: C.line, margin: "4px 0" }} />
+              <StatChip Icon={Waves} wert={seetagZahl} label={seetagZahl === 1 ? "Seetag" : "Seetage"} />
+            </>
+          )}
+          {routeSm > 0 && (
+            <>
+              <span aria-hidden="true" style={{ width: 1, background: C.line, margin: "4px 0" }} />
+              <StatChip Icon={Compass} wert={routeSm.toLocaleString("de-DE")} label="Seemeilen" />
+            </>
+          )}
         </div>
       )}
 
@@ -5402,7 +5490,7 @@ function TeilenPostkarte({ daten, onClose }) {
           <div style={{ marginBottom: 20 }}>
             <CountdownHero cdWerte={cdWerte} schiffName={null}
               datumStr={ab ? `${langDatum(ab)} · ${s.naechte} Nächte` : null}
-              zitat={`Noch ${cdWerte[0].zahl}x schlafen.`} />
+              zitat={countdownZeile(cdWerte[0].zahl)} />
           </div>
         )}
 
