@@ -7,9 +7,9 @@ const { useState, useEffect, useMemo, useRef } = React;
 /* =========================================================
    SYMBOLE
 ========================================================= */
-const Svg = ({ size = 18, color = "currentColor", style, children }) => (
+const Svg = ({ size = 18, color = "currentColor", strokeWidth = 2, style, children }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color}
-    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+    strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"
     style={style} aria-hidden="true" focusable="false">{children}</svg>
 );
 const Check = (p) => <Svg {...p}><polyline points="20 6 9 17 4 12" /></Svg>;
@@ -101,8 +101,8 @@ const SANS = "'DM Sans', 'Questrial', 'Helvetica Neue', Arial, sans-serif";
 const MONO = "'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace";
 const DISPLAY = "'Manrope', 'DM Sans', 'Helvetica Neue', Arial, sans-serif";
 
-const RUND = 24;
-const RUND_KLEIN = 14;
+const RUND = 18;
+const RUND_KLEIN = 12;
 
 const STORAGE_KEY = "klarschiff-kreuzfahrtplaner";
 
@@ -132,13 +132,59 @@ function alsDatum(s) {
   return new Date(t[0], t[1] - 1, t[2]);
 }
 function minusTage(d, n) { const x = new Date(d); x.setDate(x.getDate() - n); return x; }
+function plusTage(d, n) { const x = new Date(d); x.setDate(x.getDate() + n); return x; }
 function zwei(n) { return String(n).padStart(2, "0"); }
 function kurz(d) { return `${WD[d.getDay()]}, ${zwei(d.getDate())}.${zwei(d.getMonth() + 1)}.`; }
 const MONATE = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+const MONATE_KURZ = ["Jan.", "Feb.", "März", "Apr.", "Mai", "Jun.", "Jul.", "Aug.", "Sep.", "Okt.", "Nov.", "Dez."];
 function langDatum(d) { return `${d.getDate()}. ${MONATE[d.getMonth()]} ${d.getFullYear()}`; }
+function tagMonat(d) { return `${d.getDate()}. ${MONATE[d.getMonth()]}`; }
+function kurzDatum(d) { return `${d.getDate()}. ${MONATE_KURZ[d.getMonth()]}`; }
 function heute() { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), n.getDate()); }
 function tageBis(d) { return Math.round((d - heute()) / 86400000); }
 function euro(n) { return Math.round(n).toLocaleString("de-DE") + " €"; }
+
+/* Relative Tagesangabe fürs Nächster-Stopp-Modul: "Heute" / "Morgen" /
+   "In n Tagen", weiter in der Zukunft lieber ein festes Datum. */
+function relativTag(d) {
+  const diff = tageBis(d);
+  if (diff === 0) return "Heute";
+  if (diff === 1) return "Morgen";
+  if (diff > 1 && diff <= 9) return `In ${diff} Tagen`;
+  return tagMonat(d);
+}
+
+/* Kurze Reisebezeichnung für Hero-Bildschirm und Postkarte, z. B.
+   "Karibik ab New York" — Fahrtgebiet plus, falls schon ein erster
+   Hafen mit Koordinaten eingetragen ist, dessen Name. */
+const FAHRTGEBIET_LABEL = {
+  karibik: "Karibik", mittel: "Mittelmeer", nord: "Nordland & Ostsee",
+  trans: "Transatlantik", andere: "Kreuzfahrt",
+};
+function reiseBezeichnung(s, haefen) {
+  const gebiet = FAHRTGEBIET_LABEL[s.route] || "Kreuzfahrt";
+  const erster = (haefen || []).find((h) => typeof h.lon === "number");
+  return erster && erster.name ? `${gebiet} ab ${erster.name}` : gebiet;
+}
+
+/* Nächster (bzw. vor Abfahrt erster) Hafen der Reise, mit errechnetem
+   Kalendertag — jeder Eintrag in haefen[] (Hafen oder Seetag) steht
+   für einen Reisetag in Folge, Tag 0 ist der Einschiffungstag. Der
+   Heimathafen an Tag 0 zählt dabei nicht selbst als "Stopp": Vor der
+   Abfahrt ist der erste echte Zwischenhalt gemeint. */
+function naechsterHafen(setup, haefen) {
+  const ab = alsDatum(setup.abfahrt);
+  if (!ab) return null;
+  const punkte = (haefen || [])
+    .map((h, i) => ({ ...h, index: i, datum: plusTage(ab, i) }))
+    .filter((h) => h.typ !== "see" && typeof h.lon === "number");
+  if (!punkte.length) return null;
+  const jetzt = heute();
+  const kommende = punkte.filter((h) => h.datum >= jetzt);
+  if (!kommende.length) return null;
+  if (jetzt < ab && kommende.length > 1 && kommende[0].index === 0) return kommende[1];
+  return kommende[0];
+}
 
 /* Werte fürs Countdown-Kärtchen — mit Abfahrtszeit auf Tage+Stunden
    genau, ohne Abfahrtszeit auf ganze Kalendertage (wie überall sonst
@@ -155,12 +201,15 @@ function countdownWerte(s) {
     const ziel = new Date(ab.getFullYear(), ab.getMonth(), ab.getDate(), hh || 0, mm || 0).getTime();
     const diffMs = ziel - Date.now();
     if (diffMs <= 0) return null;
-    const stundenGesamt = Math.floor(diffMs / 3600000);
+    const minutenGesamt = Math.floor(diffMs / 60000);
+    const stundenGesamt = Math.floor(minutenGesamt / 60);
     const tage = Math.floor(stundenGesamt / 24);
     const stunden = stundenGesamt % 24;
+    const minuten = minutenGesamt % 60;
     return [
       { zahl: String(tage), label: tage === 1 ? "Tag" : "Tage" },
       { zahl: String(stunden), label: stunden === 1 ? "Stunde" : "Stunden" },
+      { zahl: String(minuten), label: minuten === 1 ? "Minute" : "Minuten" },
     ];
   }
   return [{ zahl: String(tageKalendarisch), label: tageKalendarisch === 1 ? "Tag" : "Tage" }];
@@ -578,8 +627,8 @@ function Card({ children, tone, style }) {
     : tone === "green" ? C.greenSoft : tone === "sand" ? C.sand : C.sky;
   return (
     <section style={{
-      background: bg, borderRadius: RUND, padding: "26px 24px", marginBottom: 18,
-      boxShadow: "0 14px 32px rgba(23,52,71,0.055)", ...style,
+      background: bg, borderRadius: RUND, padding: "20px 20px", marginBottom: 14,
+      boxShadow: "0 1px 2px rgba(23,52,71,0.04)", ...style,
     }}>{children}</section>
   );
 }
@@ -838,69 +887,93 @@ function Warnung({ children }) {
    die Teilen-Postkarte, damit der Countdown für sich allein als
    Story-taugliches Bild funktioniert.
 --------------------------------------------------------- */
-function CountdownHero({ cdWerte, prozent = 0, schiffName, datumStr, zitat, onTeilen }) {
-  const haupt = cdWerte ? cdWerte[0] : { zahl: `${Math.round(prozent)}%`, label: "Vorbereitet" };
-  const neben = cdWerte && cdWerte[1] ? cdWerte[1] : null;
-  const ring = Math.max(0, Math.min(100, prozent));
-  const size = 280, stroke = 2, r = (size - stroke) / 2, umfang = 2 * Math.PI * r;
-  const dash = (ring / 100) * umfang;
+/* ---------------------------------------------------------
+   CountdownHero – bewusst kein Kreis, keine Karte, keine
+   Wiederholung dessen, was im Hero darüber schon steht: nur die
+   Zahl als ruhiges typografisches Moment im Übergang zwischen
+   Hero-Foto und Seiteninhalt. Trägt ihre eigene Beschreibung als
+   aria-label, damit Screenreader trotzdem den vollen Satz hören.
+--------------------------------------------------------- */
+function CountdownHero({ cdWerte, prozent = 0, onTeilen }) {
+  const haupt = cdWerte ? cdWerte[0] : { zahl: `${Math.round(prozent)}%`, label: "vorbereitet" };
+  const stunden = cdWerte && cdWerte[1] ? cdWerte[1] : null;
+  const minuten = cdWerte && cdWerte[2] ? cdWerte[2] : null;
+  const beschreibung = cdWerte
+    ? `Noch ${haupt.zahl} ${haupt.label} bis zum Ablegen`
+    : `${haupt.zahl} ${haupt.label}`;
 
   return (
-    <div style={{
-      position: "relative", background: C.white, borderRadius: RUND + 8,
-      padding: "40px 26px 34px", textAlign: "center", overflow: "hidden",
-      border: `1px solid ${C.line}`, boxShadow: "0 20px 60px rgba(23,52,71,0.05)",
-    }}>
-      {onTeilen && (
-        <button type="button" onClick={onTeilen} aria-label="Countdown teilen" title="Countdown teilen" style={{
-          position: "absolute", top: 16, right: 16, width: 32, height: 32, borderRadius: "50%",
-          background: "transparent", border: `1px solid ${C.line}`,
-          display: "grid", placeItems: "center", cursor: "pointer", zIndex: 1,
-        }}><Share size={13} color={C.muted} /></button>
-      )}
-
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} aria-hidden="true" style={{
-        position: "absolute", top: "46%", left: "50%", transform: "translate(-50%, -50%) rotate(-90deg)",
-      }}>
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={C.sky} strokeWidth={stroke} />
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={C.meerKraeftig} strokeWidth={stroke}
-          strokeDasharray={`${dash} ${umfang - dash}`} strokeLinecap="round" />
-      </svg>
-
-      <div style={{ position: "relative" }}>
+    <div style={{ display: "flex", alignItems: "flex-end", gap: 14 }} aria-label={beschreibung}>
+      <div style={{ minWidth: 0 }}>
         <div style={{
-          fontFamily: MONO, fontSize: 12, letterSpacing: 4, textTransform: "uppercase", color: C.muted,
-          marginBottom: 14,
-        }}>Noch</div>
-        <div style={{
-          fontFamily: SERIF, fontStyle: "italic", fontWeight: 600, fontSize: "clamp(76px, 25vw, 116px)",
-          lineHeight: 1, color: C.navy, letterSpacing: "-0.02em",
-        }}>{haupt.zahl}</div>
-        <div style={{
-          fontFamily: MONO, fontSize: 13, letterSpacing: 4, textTransform: "uppercase", color: C.muted, marginTop: 14,
-        }}>{haupt.label}</div>
-
-        {schiffName && (
-          <div style={{ fontFamily: SANS, fontSize: 15.5, color: C.body, marginTop: 22 }}>bis {schiffName}</div>
-        )}
-        {datumStr && (
-          <div style={{ fontFamily: SANS, fontSize: 14, color: C.muted, marginTop: 4 }}>{datumStr}</div>
-        )}
-        {neben && (
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: 7, marginTop: 12,
-            fontFamily: SANS, fontSize: 14, color: C.blue,
-          }}><Anchor size={14} color={C.messing} /> + {neben.zahl} {neben.label}</div>
-        )}
-
-        {zitat && (
-          <>
-            <div aria-hidden="true" style={{ height: 1, background: C.line, margin: "26px auto 18px", maxWidth: 150 }} />
-            <div style={{ fontFamily: SERIF, fontStyle: "italic", fontSize: 17, color: C.body }}>{zitat}</div>
-          </>
+          fontFamily: MONO, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", color: C.muted,
+        }}>{cdWerte ? "Noch" : "Vorbereitung"}</div>
+        <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginTop: 2 }}>
+          <span style={{
+            fontFamily: SERIF, fontWeight: 600, fontSize: "clamp(54px, 17vw, 74px)",
+            lineHeight: 0.95, color: C.navy, letterSpacing: "-0.01em",
+          }}>{haupt.zahl}</span>
+          <span style={{
+            fontFamily: MONO, fontSize: 13, letterSpacing: 1.6, textTransform: "uppercase", color: C.muted,
+          }}>{haupt.label}</span>
+        </div>
+        {(stunden || minuten) && (
+          <div style={{ fontFamily: SANS, fontSize: 14, color: C.muted, marginTop: 5 }}>
+            {stunden ? `${stunden.zahl} Std` : ""}{stunden && minuten ? " · " : ""}{minuten ? `${minuten.zahl} Min` : ""}
+          </div>
         )}
       </div>
+      {onTeilen && (
+        <button type="button" onClick={onTeilen} aria-label="Countdown teilen" title="Countdown teilen" style={{
+          marginLeft: "auto", marginBottom: 6, width: 34, height: 34, borderRadius: "50%",
+          background: C.sky, border: "none", display: "grid", placeItems: "center", cursor: "pointer", flexShrink: 0,
+        }}><Share size={14} color={C.blue} /></button>
+      )}
     </div>
+  );
+}
+
+/* ---------------------------------------------------------
+   NaechsterStoppCard – macht die Route lebendig: vor Abfahrt der
+   erste echte Zwischenhalt, unterwegs der nächste Hafen mit
+   Reisetag und Ankunftszeit. Großes Zielfoto statt weißer Card,
+   damit auch dieser Bereich für sich als Story-Bild funktioniert.
+--------------------------------------------------------- */
+function NaechsterStoppCard({ setup, haefen, onClick }) {
+  const eintrag = naechsterHafen(setup, haefen);
+  if (!eintrag) return null;
+  const ab = alsDatum(setup.abfahrt);
+  const vorReise = ab && heute() < ab;
+  const kicker = vorReise ? "Als Erstes geht's nach" : "Nächster Stopp";
+  const zeile = vorReise
+    ? tagMonat(eintrag.datum)
+    : `${relativTag(eintrag.datum)}${eintrag.an ? " · " + eintrag.an : ""}`;
+  const foto = hafenBild(eintrag.typ, eintrag.name, kontinentFuer(eintrag.land));
+
+  return (
+    <button type="button" onClick={onClick} style={{
+      position: "relative", display: "block", width: "100%", textAlign: "left",
+      background: "none", border: "none", cursor: "pointer", borderRadius: RUND, overflow: "hidden",
+      height: 148, marginBottom: 22,
+    }}>
+      <img src={foto} alt="" aria-hidden="true" style={{
+        position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover",
+      }} />
+      <div aria-hidden="true" style={{
+        position: "absolute", inset: 0,
+        background: "linear-gradient(180deg, rgba(23,52,71,0.04) 0%, rgba(23,52,71,0.6) 100%)",
+      }} />
+      <div style={{ position: "absolute", left: 20, right: 20, bottom: 16 }}>
+        <div style={{
+          fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.6, textTransform: "uppercase",
+          color: "rgba(255,255,255,0.78)",
+        }}>{kicker}</div>
+        <div style={{
+          fontFamily: DISPLAY, fontWeight: 800, fontSize: 25, color: C.white, marginTop: 3, letterSpacing: "-0.01em",
+        }}>{(eintrag.name || "").toUpperCase()}</div>
+        <div style={{ fontFamily: SANS, fontSize: 13.5, color: "rgba(255,255,255,0.88)", marginTop: 3 }}>{zeile}</div>
+      </div>
+    </button>
   );
 }
 
@@ -3591,67 +3664,65 @@ function Karte({ haefen, route, linie = true, nummern = true, maxHoehe = 1300, p
 
   return (
     <div style={{ marginBottom: 22 }}>
-      <div style={{
-        background: C.white, borderRadius: RUND + 4, padding: 14,
-        boxShadow: "0 18px 44px rgba(23,52,71,0.07)",
-      }}>
-        <div style={{ borderRadius: RUND, overflow: "hidden" }}>
-          <svg viewBox={`0 0 ${breite} ${hoehe}`} width="100%" style={{ display: "block" }}
-            role="img" aria-label={`Seekarte ${reg.name} mit euren Häfen`}>
-            <rect x="0" y="0" width={breite} height={hoehe} fill={C.wasser} />
+      <div style={{ borderRadius: RUND, overflow: "hidden", border: `1px solid ${C.line}` }}>
+        <svg viewBox={`0 0 ${breite} ${hoehe}`} width="100%" style={{ display: "block" }}
+          role="img" aria-label={`Seekarte ${reg.name} mit euren Häfen`}>
+          <rect x="0" y="0" width={breite} height={hoehe} fill={C.wasser} />
 
-            {reg.land.map((ring, i) => (
-              <path key={"l" + i} d={pfad(ring)} fill={C.land} stroke={C.landLinie} strokeWidth="1"
-                strokeLinejoin="round" />
-            ))}
-            {(reg.wasser || []).map((ring, i) => (
-              <path key={"w" + i} d={pfad(ring)} fill={C.wasser} stroke={C.landLinie} strokeWidth="1"
-                strokeLinejoin="round" />
-            ))}
-            {reg.inseln.map((s, i) => {
-              const [x, y] = px({ lon: s[0], lat: s[1] });
-              return <circle key={"i" + i} cx={x} cy={y} r={s[2]} fill={C.land} stroke={C.landLinie}
-                strokeWidth="1" />;
-            })}
+          {reg.land.map((ring, i) => (
+            <path key={"l" + i} d={pfad(ring)} fill={C.land} stroke={C.landLinie} strokeWidth="1"
+              strokeLinejoin="round" />
+          ))}
+          {(reg.wasser || []).map((ring, i) => (
+            <path key={"w" + i} d={pfad(ring)} fill={C.wasser} stroke={C.landLinie} strokeWidth="1"
+              strokeLinejoin="round" />
+          ))}
+          {reg.inseln.map((s, i) => {
+            const [x, y] = px({ lon: s[0], lat: s[1] });
+            return <circle key={"i" + i} cx={x} cy={y} r={s[2]} fill={C.land} stroke={C.landLinie}
+              strokeWidth="1" />;
+          })}
 
-            {linie && punkte.length > 1 && (
-              <>
-                <path d={routenPfad} fill="none" stroke={C.messing} strokeWidth="7" strokeOpacity="0.16"
-                  strokeLinecap="round" strokeLinejoin="round" />
-                <path d={routenPfad} fill="none" stroke={C.messing} strokeWidth="2.6"
-                  strokeLinecap="round" strokeLinejoin="round" />
-              </>
-            )}
+          {linie && punkte.length > 1 && (
+            <>
+              <path d={routenPfad} fill="none" stroke={C.messing} strokeWidth="8" strokeOpacity="0.14"
+                strokeLinecap="round" strokeLinejoin="round" />
+              <path d={routenPfad} fill="none" stroke={C.messing} strokeWidth="2.8"
+                strokeLinecap="round" strokeLinejoin="round"
+                style={{ animation: "routeZeichnen 1.1s ease both" }} />
+            </>
+          )}
 
-            {punkte.map((p, i) => {
-              const { x, y } = pinPositionen[i];
-              const rechts = x < breite * 0.62;
-              const istAktiv = aktiv === i;
-              const istRand = i === 0 || i === letzterIndex;
-              const zeigeLabel = labelSet.has(i) || istAktiv;
-              const r = istAktiv ? 10 : (istRand ? 8.5 : 7);
-              return (
-                <g key={"p" + i} onClick={() => setAktiv(istAktiv ? null : i)} style={{ cursor: "pointer" }}>
-                  {istRand && !istAktiv && (
-                    <circle cx={x} cy={y} r={r + 5} fill="none" stroke={C.messing} strokeWidth="1.4" opacity="0.55" />
-                  )}
-                  <circle cx={x} cy={y} r={r + 3} fill={C.white} />
-                  <circle cx={x} cy={y} r={r} fill={istAktiv ? C.messing : C.navy} />
-                  {nummern && (
-                    <text x={x} y={y + (istAktiv ? 4.2 : 3.8)} textAnchor="middle"
-                      fontSize={istAktiv ? "11.5" : "10"} fill={C.white}
-                      fontFamily={MONO}>{i + 1}</text>
-                  )}
-                  {zeigeLabel && (
-                    <text x={rechts ? x + r + 9 : x - r - 9} y={y + 6} textAnchor={rechts ? "start" : "end"}
-                      fontSize="19" fontStyle="italic" fill={C.navy} fontFamily={SERIF} stroke={C.wasser}
-                      strokeWidth="5" paintOrder="stroke">{p.name || "Hafen"}</text>
-                  )}
-                </g>
-              );
-            })}
-          </svg>
-        </div>
+          {punkte.map((p, i) => {
+            const { x, y } = pinPositionen[i];
+            const rechts = x < breite * 0.62;
+            const istAktiv = aktiv === i;
+            const istRand = i === 0 || i === letzterIndex;
+            const zeigeLabel = labelSet.has(i) || istAktiv;
+            const r = istAktiv ? 12 : (istRand ? 10.5 : 8.5);
+            return (
+              <g key={"p" + i} onClick={() => setAktiv(istAktiv ? null : i)} style={{
+                cursor: "pointer", animation: `pinAuftauchen .4s ease both`, animationDelay: `${Math.min(i * 45, 500)}ms`,
+              }}>
+                {istRand && !istAktiv && (
+                  <circle cx={x} cy={y} r={r + 5} fill="none" stroke={C.messing} strokeWidth="1.4" opacity="0.55" />
+                )}
+                <circle cx={x} cy={y} r={r + 3.5} fill={C.white} />
+                <circle cx={x} cy={y} r={r} fill={istAktiv ? C.messing : C.navy} />
+                {nummern && (
+                  <text x={x} y={y + (istAktiv ? 4.6 : 4)} textAnchor="middle"
+                    fontSize={istAktiv ? "12.5" : "10.5"} fill={C.white}
+                    fontFamily={MONO}>{i + 1}</text>
+                )}
+                {zeigeLabel && (
+                  <text x={rechts ? x + r + 10 : x - r - 10} y={y + 6} textAnchor={rechts ? "start" : "end"}
+                    fontSize="20" fill={C.navy} fontFamily={SERIF} fontWeight="600" stroke={C.wasser}
+                    strokeWidth="5" paintOrder="stroke">{p.name || "Hafen"}</text>
+                )}
+              </g>
+            );
+          })}
+        </svg>
       </div>
 
       <div style={{
@@ -3667,26 +3738,28 @@ function Karte({ haefen, route, linie = true, nummern = true, maxHoehe = 1300, p
 
       {portListe && punkte.length > 0 && (
         <div style={{
-          display: "flex", gap: 8, overflowX: "auto", padding: "14px 2px 4px",
+          display: "flex", alignItems: "center", gap: 9, overflowX: "auto", padding: "14px 2px 4px",
           WebkitOverflowScrolling: "touch",
         }}>
           {punkte.map((p, i) => {
             const istAktiv = aktiv === i;
             return (
-              <button key={i} type="button" onClick={() => setAktiv(istAktiv ? null : i)} style={{
-                flexShrink: 0, display: "flex", alignItems: "center", gap: 7,
-                padding: "9px 14px", borderRadius: 999, cursor: "pointer",
-                border: `1px solid ${istAktiv ? C.tiefsee : C.line}`,
-                background: istAktiv ? C.tiefsee : C.white,
-              }}>
-                <span style={{
-                  fontFamily: MONO, fontSize: 10.5, color: istAktiv ? C.messingHell : C.muted,
-                }}>{zwei(i + 1)}</span>
-                <span style={{
-                  fontFamily: SANS, fontSize: 13, whiteSpace: "nowrap",
-                  color: istAktiv ? C.white : C.navy,
-                }}>{p.name || "Hafen"}</span>
-              </button>
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 9, flexShrink: 0 }}>
+                {i > 0 && <span aria-hidden="true" style={{ color: C.messing, fontSize: 13 }}>→</span>}
+                <button type="button" onClick={() => setAktiv(istAktiv ? null : i)} style={{
+                  flexShrink: 0, display: "flex", alignItems: "baseline", gap: 5, cursor: "pointer",
+                  background: "none", border: "none", padding: "4px 0",
+                  borderBottom: istAktiv ? `1.5px solid ${C.messing}` : "1.5px solid transparent",
+                }}>
+                  <span style={{
+                    fontFamily: MONO, fontSize: 9.5, color: istAktiv ? C.messing : C.muted,
+                  }}>{zwei(i + 1)}</span>
+                  <span style={{
+                    fontFamily: SANS, fontWeight: istAktiv ? 700 : 500, fontSize: 14.5, whiteSpace: "nowrap",
+                    color: C.navy,
+                  }}>{p.name || "Hafen"}</span>
+                </button>
+              </div>
             );
           })}
         </div>
@@ -4200,19 +4273,16 @@ function RouteCard({ haefen, route, naechte }) {
     naechte ? `${naechte} Nächte` : null,
   ].filter(Boolean);
   return (
-    <div style={{
-      background: C.white, borderRadius: RUND + 4, padding: "26px 22px 22px",
-      marginBottom: 22, boxShadow: "0 14px 32px rgba(23,52,71,0.055)",
-    }}>
-      <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 22, color: C.navy }}>Eure Route</div>
-      <div style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, marginTop: 4, marginBottom: 18 }}>
+    <div style={{ marginBottom: 26 }}>
+      <div style={{ fontFamily: SERIF, fontWeight: 600, fontSize: 24, color: C.navy }}>Eure Route</div>
+      <div style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, marginTop: 4, marginBottom: 16 }}>
         {hafenZahl} {hafenZahl === 1 ? "Hafen" : "Häfen"}
         {seetagZahl > 0 ? ` · ${seetagZahl} ${seetagZahl === 1 ? "Seetag" : "Seetage"}` : ""}
       </div>
       <Karte haefen={haefen} route={route} />
       {stats.length > 0 && (
         <div style={{
-          display: "flex", gap: 16, flexWrap: "wrap", marginTop: -8,
+          display: "flex", gap: 16, flexWrap: "wrap", marginTop: 2,
           fontFamily: MONO, fontSize: 11.5, letterSpacing: 0.8, textTransform: "uppercase", color: C.muted,
         }}>
           {stats.map((t, i) => <span key={i}>{t}</span>)}
@@ -5208,188 +5278,196 @@ function StatChip({ Icon, wert, label }) {
   );
 }
 
-function KachelLink({ Icon, titel, unter, onClick }) {
+/* Schlanke Listenzeile statt eigener weißer Kachel pro Funktion —
+   mehrere davon hintereinander mit dünnen Trennlinien wirken wie
+   eine native iOS-Einstellungen-/Funktionsliste statt gestapelter
+   Cards. */
+function FunktionsZeile({ Icon, titel, unter, onClick, letzte }) {
   return (
     <button type="button" onClick={onClick} style={{
-      flex: 1, minWidth: 0, textAlign: "left", cursor: "pointer",
-      background: C.white, border: "none", borderRadius: RUND, padding: "20px 18px",
-      boxShadow: "0 10px 26px rgba(23,52,71,0.06)",
-      display: "flex", flexDirection: "column", gap: 12,
+      width: "100%", display: "flex", alignItems: "center", gap: 14, textAlign: "left",
+      background: "none", border: "none", cursor: "pointer", padding: "14px 2px", minHeight: 44,
+      borderBottom: letzte ? "none" : `1px solid ${C.line}`,
     }}>
       <span style={{
-        width: 42, height: 42, borderRadius: "50%", background: C.sky,
+        width: 34, height: 34, borderRadius: "50%", background: C.sky,
         display: "grid", placeItems: "center", flexShrink: 0,
-      }}>
-        <Icon size={19} color={C.tiefsee} />
-      </span>
-      <div>
-        <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 17, color: C.navy }}>{titel}</div>
-        <div style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, marginTop: 3 }}>{unter}</div>
+      }}><Icon size={16} color={C.tiefsee} /></span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontFamily: SANS, fontWeight: 600, fontSize: 15, color: C.navy }}>{titel}</div>
+        {unter && <div style={{ fontFamily: SANS, fontSize: 12.5, color: C.muted, marginTop: 1 }}>{unter}</div>}
       </div>
+      <ChevronRight size={16} color={C.messing} style={{ flexShrink: 0 }} />
     </button>
   );
 }
 
-function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, onNeu, onAktivieren, onGeplantLoeschen }) {
+function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, onNeu, onAktivieren, onGeplantLoeschen, onZeigeHafen }) {
   const s = daten.setup;
   const bilanz = archivStatistik(daten.archiv || []);
   const ab = alsDatum(s.abfahrt);
   const hafenZahl = daten.haefen.filter((x) => x.typ !== "see").length;
   const seetagZahl = daten.haefen.filter((x) => x.typ === "see").length;
-  const routeZeile = [
-    hafenZahl > 0 ? `${hafenZahl} ${hafenZahl === 1 ? "Hafen" : "Häfen"}` : null,
-    seetagZahl > 0 ? `${seetagZahl} ${seetagZahl === 1 ? "Seetag" : "Seetage"}` : null,
-  ].filter(Boolean).join(" · ") + (hafenZahl > 0 || seetagZahl > 0 ? " geplant" : "");
 
   let wert = 0, gesamt = 0;
   Object.keys(fortschritt).forEach((k) => { wert += fortschritt[k].wert; gesamt += fortschritt[k].gesamt; });
   const prozent = gesamt ? (wert / gesamt) * 100 : 0;
 
   const cdWerte = countdownWerte(s);
+  const hatReise = !!(s.reederei || s.schiff || ab);
 
-  const schiffszeile = [s.reederei, s.schiff].filter(Boolean).join(" · ");
   const routePunkte = daten.haefen.filter((x) => typeof x.lon === "number");
   const routeSm = routePunkte.reduce((a, p, i) => (i ? a + seemeilen(routePunkte[i - 1], p) : 0), 0);
+  const naechte = parseInt(s.naechte, 10) || 0;
+  const ende = ab && naechte ? plusTage(ab, naechte) : null;
 
   const heroFoto = heroBild(s.schiff || s.reederei || daten.nutzerName);
-
-  const heroHoehe = "clamp(230px, 34vh, 320px)";
+  const heroHoehe = "clamp(300px, 40vh, 420px)";
 
   return (
     <div>
+      {/* HERO — kräftiges, edge-to-edge Schiffsfoto statt blasser
+          Andeutung: der Text sitzt in einem dunkler werdenden
+          Verlauf über dem Foto, der ganz am unteren Rand nahtlos in
+          den Seitenhintergrund übergeht. */}
       <div style={{
-        position: "relative", margin: "-22px -20px 0", overflow: "hidden", minHeight: heroHoehe,
+        position: "relative", margin: "-22px -20px 0", overflow: "hidden", height: heroHoehe,
       }}>
-        <div aria-hidden="true" style={{ position: "absolute", inset: 0, height: heroHoehe }}>
-          <img src={heroFoto} alt="" style={{
-            width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 38%", opacity: 0.3,
-          }} />
+        <img src={heroFoto} alt="" aria-hidden="true" style={{
+          position: "absolute", inset: 0, width: "100%", height: "100%",
+          objectFit: "cover", objectPosition: "50% 38%",
+        }} />
+        <div aria-hidden="true" style={{
+          position: "absolute", inset: 0,
+          background: `linear-gradient(180deg, rgba(23,52,71,0.06) 0%, rgba(23,52,71,0.16) 38%, rgba(23,52,71,0.74) 74%, ${C.paper} 100%)`,
+        }} />
+
+        <button type="button" onClick={() => gehe(8)} aria-label="Fahrtenbuch" title="Fahrtenbuch" style={{
+          position: "absolute", top: 22, right: 20, width: 36, height: 36, borderRadius: "50%",
+          background: "rgba(255,255,255,0.28)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)",
+          border: "none", display: "grid", placeItems: "center", cursor: "pointer",
+        }}><Anchor size={15} color={C.white} /></button>
+
+        <div style={{ position: "absolute", left: 20, right: 20, bottom: 30 }}>
           <div style={{
-            position: "absolute", inset: 0,
-            background: `linear-gradient(180deg, ${C.paper}00 0%, ${C.paper}B8 58%, ${C.paper} 100%)`,
-          }} />
-        </div>
+            fontFamily: MONO, fontSize: 11, letterSpacing: 2.6, textTransform: "uppercase",
+            color: "rgba(255,255,255,0.72)",
+          }}>{hatReise ? "Eure nächste Reise" : "Klarschiff"}</div>
 
-        <div style={{ position: "relative", padding: "22px 20px 8px" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
-            <div style={{ fontFamily: SANS, fontSize: 15, color: C.body }}>
-              {daten.nutzerName ? `Hallo, ${daten.nutzerName} 👋` : "Willkommen zurück 👋"}
+          {s.reederei && (
+            <div style={{
+              fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.4, textTransform: "uppercase",
+              color: "rgba(255,255,255,0.55)", marginTop: 6,
+            }}>{reedereiKurz(s.reederei)}</div>
+          )}
+
+          <div style={{
+            fontFamily: SERIF, fontWeight: 600, fontSize: "clamp(32px, 9.5vw, 44px)",
+            lineHeight: 1.05, color: C.white, marginTop: s.reederei ? 3 : 8,
+          }}>{hatReise ? (s.schiff || "Euer Schiff") : "Bald heißt es: Leinen los."}</div>
+
+          {hatReise && (
+            <div style={{ fontFamily: SANS, fontSize: 15.5, color: "rgba(255,255,255,0.92)", marginTop: 6 }}>
+              {reiseBezeichnung(s, daten.haefen)}
             </div>
-            <button type="button" onClick={() => gehe(8)} aria-label="Fahrtenbuch" title="Fahrtenbuch" style={{
-              width: 38, height: 38, borderRadius: "50%", background: "rgba(255,255,255,0.7)",
-              border: "none", display: "grid", placeItems: "center", cursor: "pointer", flexShrink: 0,
-            }}><Anchor size={16} color={C.blue} /></button>
+          )}
+          {ab && (
+            <div style={{ fontFamily: SANS, fontSize: 13, color: "rgba(255,255,255,0.72)", marginTop: 8 }}>
+              {kurzDatum(ab)}{ende ? ` – ${kurzDatum(ende)} ${ende.getFullYear()}` : ` ${ab.getFullYear()}`}
+              {naechte > 0 ? ` · ${naechte} ${naechte === 1 ? "Nacht" : "Nächte"}` : ""}
+            </div>
+          )}
+          {!hatReise && (
+            <div style={{ fontFamily: SANS, fontSize: 14.5, color: "rgba(255,255,255,0.85)", marginTop: 8, maxWidth: 260 }}>
+              Tragt eure Reise ein, dann rechnet euch Klarschiff alles aus.
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div style={{ padding: "24px 20px 0" }}>
+        {ab && (
+          <div style={{ marginBottom: 30, animation: "auftauchen .4s ease both" }}>
+            <CountdownHero cdWerte={cdWerte} prozent={prozent} onTeilen={onTeilen} />
           </div>
+        )}
+        {!ab && (
+          <button type="button" onClick={() => gehe("setup")} style={{
+            width: "100%", display: "block", background: C.tiefsee, border: "none", borderRadius: 999,
+            color: C.white, fontFamily: SANS, fontWeight: 600, fontSize: 15, padding: "15px 22px",
+            minHeight: 48, cursor: "pointer", marginBottom: 30,
+          }}>Reise eintragen</button>
+        )}
 
-          <h1 style={{
-            fontFamily: DISPLAY, fontWeight: 800, fontSize: "clamp(30px, 8vw, 40px)",
-            lineHeight: 1.1, letterSpacing: "-0.02em", color: C.navy, margin: "0 0 22px",
-          }}>{schiffszeile || ab ? "Eure nächste Reise." : "Bald heißt es: Leinen los."}</h1>
+        <NaechsterStoppCard setup={s} haefen={daten.haefen} onClick={() => onZeigeHafen(naechsterHafen(s, daten.haefen)?.name)} />
 
-          {(schiffszeile || ab) && (
-            <div style={{ marginBottom: 8 }}>
-              {s.reederei && (
-                <div style={{
-                  fontFamily: MONO, fontSize: 11, letterSpacing: 1.8, textTransform: "uppercase", color: C.muted,
-                }}>{reedereiKurz(s.reederei)}</div>
-              )}
-              <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 26, color: C.navy, marginTop: 3 }}>
-                {s.schiff || "Euer Schiff"}
-              </div>
-              {ab && (
-                <div style={{ fontFamily: SANS, fontSize: 14, color: C.body, marginTop: 6 }}>
-                  {langDatum(ab)} · {s.naechte} {s.naechte === "1" ? "Nacht" : "Nächte"}
+        {routePunkte.length > 0 && (
+          <div style={{ marginBottom: 30 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+              <span style={{
+                fontFamily: MONO, fontSize: 11, letterSpacing: 1.8, textTransform: "uppercase", color: C.muted,
+              }}>Route</span>
+              <button type="button" onClick={() => gehe("route")} style={{
+                background: "none", border: "none", cursor: "pointer", padding: 0,
+                fontFamily: SANS, fontSize: 13, color: C.blue,
+              }}>Ganze Route ansehen ›</button>
+            </div>
+            <div style={{
+              display: "flex", alignItems: "center", gap: 9, overflowX: "auto",
+              WebkitOverflowScrolling: "touch", paddingBottom: 4,
+            }}>
+              {routePunkte.map((p, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 9, flexShrink: 0 }}>
+                  {i > 0 && <span aria-hidden="true" style={{ color: C.messing, fontSize: 13 }}>→</span>}
+                  <span style={{
+                    fontFamily: SANS, fontSize: 14.5, color: C.navy, whiteSpace: "nowrap",
+                  }}>{p.name}</span>
                 </div>
-              )}
+              ))}
             </div>
-          )}
-        </div>
-      </div>
-
-      <div style={{ margin: "18px 0 22px" }}>
-        <CountdownHero cdWerte={cdWerte} prozent={prozent} schiffName={s.schiff}
-          datumStr={ab ? langDatum(ab) : null}
-          zitat={cdWerte ? countdownZeile(cdWerte[0].zahl) : null}
-          onTeilen={onTeilen} />
-      </div>
-
-      {(hafenZahl > 0 || seetagZahl > 0 || routeSm > 0) && (
-        <div style={{ display: "flex", alignItems: "stretch", padding: "22px 4px", marginBottom: 22 }}>
-          {hafenZahl > 0 && <StatChip Icon={MapPin} wert={hafenZahl} label={hafenZahl === 1 ? "Hafen" : "Häfen"} />}
-          {seetagZahl > 0 && (
-            <>
-              <span aria-hidden="true" style={{ width: 1, background: C.line, margin: "4px 0" }} />
-              <StatChip Icon={Waves} wert={seetagZahl} label={seetagZahl === 1 ? "Seetag" : "Seetage"} />
-            </>
-          )}
-          {routeSm > 0 && (
-            <>
-              <span aria-hidden="true" style={{ width: 1, background: C.line, margin: "4px 0" }} />
-              <StatChip Icon={Compass} wert={routeSm.toLocaleString("de-DE")} label="Seemeilen" />
-            </>
-          )}
-        </div>
-      )}
-
-      {bilanz.reisen > 0 && (
-        <div style={{
-          fontFamily: SANS, fontSize: 13, color: C.muted, textAlign: "center", marginBottom: 22,
-        }}>
-          {bilanz.reisen} {bilanz.reisen === 1 ? "Reise" : "Reisen"} bisher · {bilanz.naechte} Nächte · {bilanz.einzigartig} Häfen
-          {bilanz.sm > 0 ? ` · ${bilanz.sm.toLocaleString("de-DE")} sm im Kielwasser` : ""}
-        </div>
-      )}
-
-      <button type="button" onClick={() => gehe("setup")} style={{
-        display: "block", margin: "0 auto 26px", background: "transparent",
-        border: `1px solid ${C.line}`, borderRadius: 999, color: C.muted, fontFamily: MONO, fontSize: 11.5,
-        letterSpacing: 1.2, textTransform: "uppercase", padding: "11px 20px",
-        minHeight: 44, cursor: "pointer",
-      }}>
-        {schiffszeile || ab ? "Reise bearbeiten" : "Reise eintragen"}
-      </button>
-
-      <button type="button" onClick={() => gehe("haefen")} style={{
-        width: "100%", textAlign: "left", cursor: "pointer", marginBottom: 14,
-        background: C.white, border: "none", borderRadius: RUND, padding: "24px 22px",
-        boxShadow: "0 12px 30px rgba(23,52,71,0.06)",
-        display: "flex", alignItems: "center", gap: 16,
-      }}>
-        <span style={{
-          width: 48, height: 48, borderRadius: "50%", background: C.sky,
-          display: "grid", placeItems: "center", flexShrink: 0,
-        }}><Search size={20} color={C.tiefsee} /></span>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 17, color: C.navy, lineHeight: 1.2 }}>Landausflüge & Häfen</div>
-          <div style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, marginTop: 3 }}>
-            {HAFENLISTE.length} Häfen weltweit durchsuchen
           </div>
-        </div>
-        <ChevronRight size={18} color={C.messing} style={{ flexShrink: 0 }} />
-      </button>
+        )}
 
-      <button type="button" onClick={onTeilen} style={{
-        width: "100%", textAlign: "left", cursor: "pointer", marginBottom: 14,
-        background: C.sand, border: "none", borderRadius: RUND, padding: "18px 20px",
-        display: "flex", alignItems: "center", gap: 14,
-      }}>
-        <span style={{
-          width: 40, height: 40, borderRadius: "50%", background: "rgba(255,255,255,0.6)",
-          display: "grid", placeItems: "center", flexShrink: 0,
-        }}><Share size={17} color={C.navy} /></span>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontFamily: DISPLAY, fontWeight: 700, fontSize: 16, color: C.navy }}>Route als Postkarte teilen</div>
-          <div style={{ fontFamily: SANS, fontSize: 13, color: C.body, marginTop: 2 }}>Perfekt für Insta Stories</div>
-        </div>
-        <ChevronRight size={16} color={C.navy} style={{ flexShrink: 0 }} />
-      </button>
+        {(hafenZahl > 0 || seetagZahl > 0 || routeSm > 0) && (
+          <div style={{ display: "flex", alignItems: "stretch", marginBottom: 8 }}>
+            {hafenZahl > 0 && <StatChip Icon={MapPin} wert={hafenZahl} label={hafenZahl === 1 ? "Hafen" : "Häfen"} />}
+            {seetagZahl > 0 && (
+              <>
+                <span aria-hidden="true" style={{ width: 1, background: C.line, margin: "4px 0" }} />
+                <StatChip Icon={Waves} wert={seetagZahl} label={seetagZahl === 1 ? "Seetag" : "Seetage"} />
+              </>
+            )}
+            {routeSm > 0 && (
+              <>
+                <span aria-hidden="true" style={{ width: 1, background: C.line, margin: "4px 0" }} />
+                <StatChip Icon={Compass} wert={routeSm.toLocaleString("de-DE")} label="Seemeilen" />
+              </>
+            )}
+          </div>
+        )}
 
-      <div style={{ display: "flex", gap: 12, marginBottom: 26 }}>
-        <KachelLink Icon={MapPin} titel="Route" onClick={() => gehe("route")}
-          unter={routeZeile || "Eure Route eintragen"} />
-        <KachelLink Icon={Menu} titel="Mehr" onClick={() => gehe("mehr")}
-          unter="Packliste, Kabine, Bordkonto, Logbuch" />
-      </div>
+        {bilanz.reisen > 0 && (
+          <div style={{ fontFamily: SANS, fontSize: 12.5, color: C.muted, textAlign: "center", marginBottom: 8 }}>
+            {bilanz.reisen} {bilanz.reisen === 1 ? "Reise" : "Reisen"} bisher · {bilanz.naechte} Nächte · {bilanz.einzigartig} Häfen
+            {bilanz.sm > 0 ? ` · ${bilanz.sm.toLocaleString("de-DE")} sm im Kielwasser` : ""}
+          </div>
+        )}
+
+        {hatReise && (
+          <button type="button" onClick={() => gehe("setup")} style={{
+            display: "block", margin: "0 auto 30px", background: "none", border: "none",
+            color: C.blue, fontFamily: SANS, fontSize: 13.5, padding: "6px 4px", cursor: "pointer",
+          }}>Reise bearbeiten</button>
+        )}
+
+        <div style={{ marginBottom: 30 }}>
+          <FunktionsZeile Icon={Search} titel="Landausflüge & Häfen"
+            unter={`${HAFENLISTE.length} Häfen weltweit durchsuchen`} onClick={() => gehe("haefen")} />
+          <FunktionsZeile Icon={Share} titel="Route als Postkarte teilen"
+            unter="Perfekt für Insta Stories" onClick={onTeilen} />
+          <FunktionsZeile Icon={Menu} titel="Mehr" letzte
+            unter="Packliste, Kabine, Bordkonto, Logbuch" onClick={() => gehe("mehr")} />
+        </div>
 
       {daten.geplant && daten.geplant.length > 0 && (
         <div>
@@ -5432,6 +5510,7 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
         Alle Eingaben bleiben auf eurem Gerät. Klarschiff läuft offline — legt es euch auf den
         Startbildschirm, dann habt ihr es an Bord auch ohne WLAN dabei.
       </div>
+      </div>
     </div>
   );
 }
@@ -5469,7 +5548,7 @@ function TeilenPostkarte({ daten, onClose }) {
       }}><X size={15} /></button>
 
       <div style={{ maxWidth: 480, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", margin: "16px 0 18px" }}>
+        <div style={{ textAlign: "center", margin: "16px 0 22px" }}>
           <div style={{
             fontFamily: MONO, fontSize: 10, letterSpacing: 3.2, color: C.messing,
             textTransform: "uppercase", marginBottom: 10,
@@ -5481,16 +5560,20 @@ function TeilenPostkarte({ daten, onClose }) {
             }}>{kickerReederei}</div>
           )}
           <h2 style={{
-            fontFamily: DISPLAY, fontWeight: 700, fontSize: "clamp(26px, 7.6vw, 34px)",
-            lineHeight: 1.08, letterSpacing: "-0.02em", color: C.navy, margin: 0,
+            fontFamily: SERIF, fontWeight: 600, fontSize: "clamp(28px, 8vw, 36px)",
+            lineHeight: 1.08, color: C.navy, margin: 0,
           }}>{grossTitel}</h2>
+          <div style={{ fontFamily: SANS, fontSize: 14.5, color: C.body, marginTop: 8 }}>
+            {reiseBezeichnung(s, h)}
+          </div>
+          {ab && (
+            <div style={{ fontFamily: SANS, fontSize: 13, color: C.muted, marginTop: 2 }}>{langDatum(ab)}</div>
+          )}
         </div>
 
         {cdWerte && (
-          <div style={{ marginBottom: 20 }}>
-            <CountdownHero cdWerte={cdWerte} schiffName={null}
-              datumStr={ab ? `${langDatum(ab)} · ${s.naechte} Nächte` : null}
-              zitat={countdownZeile(cdWerte[0].zahl)} />
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
+            <CountdownHero cdWerte={cdWerte} />
           </div>
         )}
 
@@ -5540,35 +5623,26 @@ function gehoertZuTab(screen, tabId) {
 function TabBar({ screen, gehe }) {
   return (
     <nav className="no-print" style={{
-      position: "fixed", left: 0, right: 0, bottom: 0, background: "rgba(255,255,255,0.92)",
-      backdropFilter: "blur(14px)", WebkitBackdropFilter: "blur(14px)", zIndex: 40,
-      borderTop: `1px solid ${C.line}`, boxShadow: "0 -8px 24px rgba(23,52,71,0.04)",
-      padding: "6px 10px calc(6px + env(safe-area-inset-bottom))",
+      position: "fixed", left: 0, right: 0, bottom: 0, background: "rgba(255,255,255,0.88)",
+      backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", zIndex: 40,
+      borderTop: `1px solid ${C.line}`,
+      padding: "4px 10px calc(2px + env(safe-area-inset-bottom))",
     }}>
       <div style={{ maxWidth: 640, margin: "0 auto", display: "flex" }}>
         {TABS.map((t) => {
           const aktiv = gehoertZuTab(screen, t.id);
-          const farbe = aktiv ? C.tiefsee : "#9AAEB7";
+          const farbe = aktiv ? C.tiefsee : "#AEBEC5";
           return (
             <button key={t.id} type="button" onClick={() => gehe(t.id)} aria-current={aktiv ? "page" : undefined}
               style={{
-                flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
-                background: "transparent", border: "none", cursor: "pointer", padding: "7px 4px",
-                minHeight: 54,
+                flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
+                background: "transparent", border: "none", cursor: "pointer", padding: "8px 4px 6px",
+                minHeight: 48,
               }}>
+              <t.Icon size={21} color={farbe} strokeWidth={aktiv ? 2.1 : 1.7} />
               <span style={{
-                width: 34, height: 30, borderRadius: 10, display: "grid", placeItems: "center",
-                background: aktiv ? C.sky : "transparent",
-              }}>
-                <t.Icon size={19} color={farbe} />
-              </span>
-              <span style={{
-                fontFamily: MONO, fontSize: 9.5, letterSpacing: 0.6, textTransform: "uppercase", color: farbe,
+                fontFamily: SANS, fontWeight: aktiv ? 600 : 500, fontSize: 10.5, color: farbe, marginTop: 1,
               }}>{t.label}</span>
-              <span aria-hidden="true" style={{
-                width: aktiv ? 14 : 0, height: 2, borderRadius: 1, background: C.messing,
-                transition: "width .2s ease", marginTop: -1,
-              }} />
             </button>
           );
         })}
@@ -5798,7 +5872,7 @@ function App() {
         <div key={String(screen)} style={{ animation: "auftauchen .32s ease both" }}>
           {screen === "start" && <Start daten={daten} gehe={setScreen} fortschritt={fortschritt}
             onAbschliessen={() => setAbschluss(true)} onTeilen={() => setTeilen(true)}
-            onParken={reiseParken} onNeu={() => setFrage(true)}
+            onParken={reiseParken} onNeu={() => setFrage(true)} onZeigeHafen={zeigeHafen}
             onAktivieren={reiseAktivieren} onGeplantLoeschen={geplantLoeschen} />}
           {screen === "haefen" && <ModulHaefen daten={daten} setze={setze}
             anfangsHafen={haefenAnfang} onAnfangVerbraucht={() => setHaefenAnfang(null)} />}
