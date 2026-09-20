@@ -903,31 +903,31 @@ function CountdownHero({ cdWerte, prozent = 0, onTeilen }) {
     : `${haupt.zahl} ${haupt.label}`;
 
   return (
-    <div style={{ display: "flex", alignItems: "flex-end", gap: 14 }} aria-label={beschreibung}>
-      <div style={{ minWidth: 0 }}>
-        <div style={{
-          fontFamily: MONO, fontSize: 11, letterSpacing: 3, textTransform: "uppercase", color: C.muted,
-        }}>{cdWerte ? "Noch" : "Vorbereitung"}</div>
-        <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginTop: 2 }}>
-          <span style={{
-            fontFamily: SERIF, fontWeight: 600, fontSize: "clamp(54px, 17vw, 74px)",
-            lineHeight: 0.95, color: C.navy, letterSpacing: "-0.01em",
-          }}>{haupt.zahl}</span>
-          <span style={{
-            fontFamily: MONO, fontSize: 13, letterSpacing: 1.6, textTransform: "uppercase", color: C.muted,
-          }}>{haupt.label}</span>
-        </div>
-        {(stunden || minuten) && (
-          <div style={{ fontFamily: SANS, fontSize: 14, color: C.muted, marginTop: 5 }}>
-            {stunden ? `${stunden.zahl} Std` : ""}{stunden && minuten ? " · " : ""}{minuten ? `${minuten.zahl} Min` : ""}
-          </div>
+    <div aria-label={beschreibung}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{
+          fontFamily: MONO, fontSize: 10.5, letterSpacing: 2.6, textTransform: "uppercase", color: C.muted,
+        }}>{cdWerte ? "Noch" : "Vorbereitung"}</span>
+        {onTeilen && (
+          <button type="button" onClick={onTeilen} aria-label="Countdown teilen" title="Countdown teilen" style={{
+            marginLeft: "auto", width: 28, height: 28, borderRadius: "50%",
+            background: C.sky, border: "none", display: "grid", placeItems: "center", cursor: "pointer", flexShrink: 0,
+          }}><Share size={12} color={C.blue} /></button>
         )}
       </div>
-      {onTeilen && (
-        <button type="button" onClick={onTeilen} aria-label="Countdown teilen" title="Countdown teilen" style={{
-          marginLeft: "auto", marginBottom: 6, width: 34, height: 34, borderRadius: "50%",
-          background: C.sky, border: "none", display: "grid", placeItems: "center", cursor: "pointer", flexShrink: 0,
-        }}><Share size={14} color={C.blue} /></button>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 9, marginTop: 1 }}>
+        <span style={{
+          fontFamily: SERIF, fontWeight: 600, fontSize: "clamp(44px, 14vw, 60px)",
+          lineHeight: 0.95, color: C.navy, letterSpacing: "-0.01em",
+        }}>{haupt.zahl}</span>
+        <span style={{
+          fontFamily: MONO, fontSize: 12, letterSpacing: 1.4, textTransform: "uppercase", color: C.muted,
+        }}>{haupt.label}</span>
+      </div>
+      {(stunden || minuten) && (
+        <div style={{ fontFamily: SANS, fontSize: 13, color: C.muted, marginTop: 3 }}>
+          {stunden ? `${stunden.zahl} Std` : ""}{stunden && minuten ? " · " : ""}{minuten ? `${minuten.zahl} Min` : ""}
+        </div>
       )}
     </div>
   );
@@ -952,26 +952,26 @@ function NaechsterStoppCard({ setup, haefen, onClick }) {
 
   return (
     <button type="button" onClick={onClick} style={{
-      position: "relative", display: "block", width: "100%", textAlign: "left",
+      position: "relative", display: "block", width: "calc(100% + 12px)", textAlign: "left",
       background: "none", border: "none", cursor: "pointer", borderRadius: RUND, overflow: "hidden",
-      height: 148, marginBottom: 22,
+      height: 148, margin: "0 -6px 20px",
     }}>
       <img src={foto} alt="" aria-hidden="true" style={{
         position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover",
       }} />
       <div aria-hidden="true" style={{
         position: "absolute", inset: 0,
-        background: "linear-gradient(180deg, rgba(23,52,71,0.04) 0%, rgba(23,52,71,0.6) 100%)",
+        background: "linear-gradient(180deg, rgba(23,52,71,0.02) 0%, rgba(23,52,71,0.06) 34%, rgba(23,52,71,0.24) 58%, rgba(23,52,71,0.58) 100%)",
       }} />
-      <div style={{ position: "absolute", left: 20, right: 20, bottom: 16 }}>
+      <div style={{ position: "absolute", left: 22, right: 22, bottom: 18 }}>
         <div style={{
           fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.6, textTransform: "uppercase",
-          color: "rgba(255,255,255,0.78)",
+          color: "rgba(255,255,255,0.8)",
         }}>{kicker}</div>
         <div style={{
-          fontFamily: DISPLAY, fontWeight: 800, fontSize: 25, color: C.white, marginTop: 3, letterSpacing: "-0.01em",
+          fontFamily: DISPLAY, fontWeight: 800, fontSize: 25, color: C.white, marginTop: 4, letterSpacing: "-0.01em",
         }}>{(eintrag.name || "").toUpperCase()}</div>
-        <div style={{ fontFamily: SANS, fontSize: 13.5, color: "rgba(255,255,255,0.88)", marginTop: 3 }}>{zeile}</div>
+        <div style={{ fontFamily: SANS, fontSize: 13.5, color: "rgba(255,255,255,0.9)", marginTop: 4 }}>{zeile}</div>
       </div>
     </button>
   );
@@ -1911,6 +1911,15 @@ const HAFENLISTE = HAFENLISTE_ROH.map((h) => ({ n: h[0], lon: h[1], lat: h[2], l
    HAFEN_FOTOS unten). Solange für einen Hafen noch kein eigenes Foto
    hinterlegt ist, greift die Kategorie-Auswahl darunter als Übergangslösung. */
 const HAFEN_FOTOS = {
+  /* Port Canaveral fällt sonst unter den typ-Code "GM" (Großstadt) und
+     landet damit im generischen Großstadt-Pool, dessen Fotos allesamt
+     europäische Stadtsilhouetten zeigen (z. B. eine Promenade, die wie
+     Monaco wirkt) — für einen kleinen Cruise-Terminal-Ort an Floridas
+     Space Coast ein deutlicher Bruch. Bis ein echtes, eigens dafür
+     erzeugtes Foto verfügbar ist, zeigt Port Canaveral stattdessen eine
+     moderne, helle Skyline aus demselben Pool statt der unpassend
+     historischen Ansicht. */
+  "Port Canaveral": "fotos/grossstadt-6.jpg",
   "Barcelona": "fotos/haefen/barcelona.jpg",
   "Palma de Mallorca": "fotos/haefen/palma-de-mallorca.jpg",
   "Ibiza": "fotos/haefen/ibiza.jpg",
@@ -5266,9 +5275,9 @@ function GeplantKarte({ eintrag, onAktivieren, onLoeschen }) {
 function StatChip({ Icon, wert, label }) {
   return (
     <div style={{ flex: 1, textAlign: "center", minWidth: 0 }}>
-      <Icon size={13} color={C.messing} style={{ display: "block", margin: "0 auto 10px" }} />
+      <Icon size={12} color={C.muted} style={{ display: "block", margin: "0 auto 10px" }} />
       <div style={{
-        fontFamily: SERIF, fontStyle: "italic", fontWeight: 600, fontSize: 26, color: C.navy, lineHeight: 1,
+        fontFamily: SERIF, fontStyle: "italic", fontWeight: 600, fontSize: 28, color: C.navy, lineHeight: 1,
         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
       }}>{wert}</div>
       <div style={{
@@ -5285,19 +5294,19 @@ function StatChip({ Icon, wert, label }) {
 function FunktionsZeile({ Icon, titel, unter, onClick, letzte }) {
   return (
     <button type="button" onClick={onClick} style={{
-      width: "100%", display: "flex", alignItems: "center", gap: 14, textAlign: "left",
-      background: "none", border: "none", cursor: "pointer", padding: "14px 2px", minHeight: 44,
+      width: "100%", display: "flex", alignItems: "center", gap: 12, textAlign: "left",
+      background: "none", border: "none", cursor: "pointer", padding: "11px 2px", minHeight: 40,
       borderBottom: letzte ? "none" : `1px solid ${C.line}`,
     }}>
       <span style={{
-        width: 34, height: 34, borderRadius: "50%", background: C.sky,
+        width: 28, height: 28, borderRadius: "50%", background: C.sky,
         display: "grid", placeItems: "center", flexShrink: 0,
-      }}><Icon size={16} color={C.tiefsee} /></span>
+      }}><Icon size={13.5} color={C.tiefsee} /></span>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontFamily: SANS, fontWeight: 600, fontSize: 15, color: C.navy }}>{titel}</div>
-        {unter && <div style={{ fontFamily: SANS, fontSize: 12.5, color: C.muted, marginTop: 1 }}>{unter}</div>}
+        <div style={{ fontFamily: SANS, fontWeight: 600, fontSize: 14.5, color: C.navy }}>{titel}</div>
+        {unter && <div style={{ fontFamily: SANS, fontSize: 12, color: C.muted, marginTop: 1 }}>{unter}</div>}
       </div>
-      <ChevronRight size={16} color={C.messing} style={{ flexShrink: 0 }} />
+      <ChevronRight size={14} color={C.muted} style={{ flexShrink: 0, opacity: 0.6 }} />
     </button>
   );
 }
@@ -5339,7 +5348,7 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
         }} />
         <div aria-hidden="true" style={{
           position: "absolute", inset: 0,
-          background: `linear-gradient(180deg, rgba(23,52,71,0.06) 0%, rgba(23,52,71,0.16) 38%, rgba(23,52,71,0.74) 74%, ${C.paper} 100%)`,
+          background: `linear-gradient(180deg, rgba(23,52,71,0.04) 0%, rgba(23,52,71,0.09) 32%, rgba(23,52,71,0.28) 52%, rgba(23,52,71,0.68) 76%, ${C.paper} 100%)`,
         }} />
 
         <button type="button" onClick={() => gehe(8)} aria-label="Fahrtenbuch" title="Fahrtenbuch" style={{
@@ -5357,22 +5366,22 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
           {s.reederei && (
             <div style={{
               fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.4, textTransform: "uppercase",
-              color: "rgba(255,255,255,0.55)", marginTop: 6,
+              color: "rgba(255,255,255,0.55)", marginTop: 5,
             }}>{reedereiKurz(s.reederei)}</div>
           )}
 
           <div style={{
             fontFamily: SERIF, fontWeight: 600, fontSize: "clamp(32px, 9.5vw, 44px)",
-            lineHeight: 1.05, color: C.white, marginTop: s.reederei ? 3 : 8,
+            lineHeight: 1.05, color: C.white, marginTop: s.reederei ? 2 : 7,
           }}>{hatReise ? (s.schiff || "Euer Schiff") : "Bald heißt es: Leinen los."}</div>
 
           {hatReise && (
-            <div style={{ fontFamily: SANS, fontSize: 15.5, color: "rgba(255,255,255,0.92)", marginTop: 6 }}>
+            <div style={{ fontFamily: SANS, fontSize: 15.5, color: "rgba(255,255,255,0.92)", marginTop: 5 }}>
               {reiseBezeichnung(s, daten.haefen)}
             </div>
           )}
           {ab && (
-            <div style={{ fontFamily: SANS, fontSize: 13, color: "rgba(255,255,255,0.72)", marginTop: 8 }}>
+            <div style={{ fontFamily: SANS, fontSize: 13, color: "rgba(255,255,255,0.72)", marginTop: 7 }}>
               {kurzDatum(ab)}{ende ? ` – ${kurzDatum(ende)} ${ende.getFullYear()}` : ` ${ab.getFullYear()}`}
               {naechte > 0 ? ` · ${naechte} ${naechte === 1 ? "Nacht" : "Nächte"}` : ""}
             </div>
@@ -5385,9 +5394,9 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
         </div>
       </div>
 
-      <div style={{ padding: "24px 20px 0" }}>
+      <div style={{ padding: "20px 20px 0" }}>
         {ab && (
-          <div style={{ marginBottom: 30, animation: "auftauchen .4s ease both" }}>
+          <div style={{ marginBottom: 20, animation: "auftauchen .4s ease both" }}>
             <CountdownHero cdWerte={cdWerte} prozent={prozent} onTeilen={onTeilen} />
           </div>
         )}
@@ -5402,7 +5411,7 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
         <NaechsterStoppCard setup={s} haefen={daten.haefen} onClick={() => onZeigeHafen(naechsterHafen(s, daten.haefen)?.name)} />
 
         {routePunkte.length > 0 && (
-          <div style={{ marginBottom: 30 }}>
+          <div style={{ marginBottom: 26 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
               <span style={{
                 fontFamily: MONO, fontSize: 11, letterSpacing: 1.8, textTransform: "uppercase", color: C.muted,
@@ -5413,54 +5422,85 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
               }}>Ganze Route ansehen ›</button>
             </div>
             <div style={{
-              display: "flex", alignItems: "center", gap: 9, overflowX: "auto",
-              WebkitOverflowScrolling: "touch", paddingBottom: 4,
+              display: "flex", alignItems: "flex-start", overflowX: "auto",
+              WebkitOverflowScrolling: "touch", padding: "4px 2px 6px",
             }}>
               {routePunkte.map((p, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 9, flexShrink: 0 }}>
-                  {i > 0 && <span aria-hidden="true" style={{ color: C.messing, fontSize: 13 }}>→</span>}
-                  <span style={{
-                    fontFamily: SANS, fontSize: 14.5, color: C.navy, whiteSpace: "nowrap",
-                  }}>{p.name}</span>
-                </div>
+                <React.Fragment key={i}>
+                  {i > 0 && (
+                    <span aria-hidden="true" style={{
+                      width: 26, height: 1.5, background: C.messing, opacity: 0.4,
+                      marginTop: 5, flexShrink: 0,
+                    }} />
+                  )}
+                  <div style={{
+                    display: "flex", flexDirection: "column", alignItems: "center",
+                    flexShrink: 0, minWidth: 56, maxWidth: 78,
+                  }}>
+                    <span aria-hidden="true" style={{
+                      width: (i === 0 || i === routePunkte.length - 1) ? 9 : 7,
+                      height: (i === 0 || i === routePunkte.length - 1) ? 9 : 7,
+                      borderRadius: "50%",
+                      background: (i === 0 || i === routePunkte.length - 1) ? C.navy : C.messing,
+                    }} />
+                    <span style={{
+                      fontFamily: SANS, fontSize: 12.5, fontWeight: 500, color: C.navy,
+                      marginTop: 8, textAlign: "center", lineHeight: 1.25,
+                    }}>{p.name}</span>
+                  </div>
+                </React.Fragment>
               ))}
             </div>
           </div>
         )}
 
         {(hafenZahl > 0 || seetagZahl > 0 || routeSm > 0) && (
-          <div style={{ display: "flex", alignItems: "stretch", marginBottom: 8 }}>
+          <div style={{
+            display: "flex", alignItems: "stretch",
+            marginBottom: bilanz.reisen > 0 ? 20 : 8,
+            paddingBottom: bilanz.reisen > 0 ? 18 : 0,
+            borderBottom: bilanz.reisen > 0 ? `1px solid ${C.line}` : "none",
+          }}>
             {hafenZahl > 0 && <StatChip Icon={MapPin} wert={hafenZahl} label={hafenZahl === 1 ? "Hafen" : "Häfen"} />}
             {seetagZahl > 0 && (
               <>
-                <span aria-hidden="true" style={{ width: 1, background: C.line, margin: "4px 0" }} />
+                <span aria-hidden="true" style={{ width: 1, background: C.line, margin: "6px 0" }} />
                 <StatChip Icon={Waves} wert={seetagZahl} label={seetagZahl === 1 ? "Seetag" : "Seetage"} />
               </>
             )}
             {routeSm > 0 && (
               <>
-                <span aria-hidden="true" style={{ width: 1, background: C.line, margin: "4px 0" }} />
+                <span aria-hidden="true" style={{ width: 1, background: C.line, margin: "6px 0" }} />
                 <StatChip Icon={Compass} wert={routeSm.toLocaleString("de-DE")} label="Seemeilen" />
               </>
             )}
           </div>
         )}
 
+        {/* Historische Fahrtenbuch-Statistik bewusst getrennt von den
+            Kennzahlen der aktuellen Reise oben — sonst wirken zwei
+            unterschiedliche Hafen-Zahlen wie ein Widerspruch. */}
         {bilanz.reisen > 0 && (
-          <div style={{ fontFamily: SANS, fontSize: 12.5, color: C.muted, textAlign: "center", marginBottom: 8 }}>
-            {bilanz.reisen} {bilanz.reisen === 1 ? "Reise" : "Reisen"} bisher · {bilanz.naechte} Nächte · {bilanz.einzigartig} Häfen
-            {bilanz.sm > 0 ? ` · ${bilanz.sm.toLocaleString("de-DE")} sm im Kielwasser` : ""}
+          <div style={{ marginBottom: 8 }}>
+            <div style={{
+              fontFamily: MONO, fontSize: 10, letterSpacing: 1.8, textTransform: "uppercase",
+              color: C.muted, marginBottom: 4,
+            }}>Dein Logbuch</div>
+            <div style={{ fontFamily: SANS, fontSize: 13, color: C.body }}>
+              {bilanz.reisen} {bilanz.reisen === 1 ? "Reise" : "Reisen"} · {bilanz.naechte} Nächte · {bilanz.einzigartig} Häfen
+              {bilanz.sm > 0 ? ` · ${bilanz.sm.toLocaleString("de-DE")} sm` : ""}
+            </div>
           </div>
         )}
 
         {hatReise && (
           <button type="button" onClick={() => gehe("setup")} style={{
-            display: "block", margin: "0 auto 30px", background: "none", border: "none",
+            display: "block", margin: "0 auto 22px", background: "none", border: "none",
             color: C.blue, fontFamily: SANS, fontSize: 13.5, padding: "6px 4px", cursor: "pointer",
           }}>Reise bearbeiten</button>
         )}
 
-        <div style={{ marginBottom: 30 }}>
+        <div style={{ marginBottom: 24 }}>
           <FunktionsZeile Icon={Search} titel="Landausflüge & Häfen"
             unter={`${HAFENLISTE.length} Häfen weltweit durchsuchen`} onClick={() => gehe("haefen")} />
           <FunktionsZeile Icon={Share} titel="Route als Postkarte teilen"
@@ -5486,11 +5526,16 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
       )}
 
       {(daten.haefen.length > 0 || s.schiff || s.reederei) && (
-        <div style={{ textAlign: "center", padding: "8px 0 4px" }}>
-          <Btn small variant="outline" onClick={onAbschliessen} full>
-            Reise ins Fahrtenbuch legen
-          </Btn>
-          <div style={{ fontFamily: SANS, fontSize: 13.5, color: C.muted, marginTop: 10, lineHeight: 1.6 }}>
+        <div style={{ textAlign: "center", padding: "4px 0 2px" }}>
+          <button type="button" onClick={onAbschliessen} style={{
+            display: "inline-flex", alignItems: "center", gap: 7, cursor: "pointer",
+            background: "none", border: `1px solid ${C.line}`, borderRadius: 999,
+            padding: "9px 16px", fontFamily: SANS, fontSize: 12.5, color: C.muted,
+          }}><Anchor size={13} color={C.muted} /> Reise ins Fahrtenbuch legen</button>
+          <div style={{
+            fontFamily: SANS, fontSize: 12, color: C.muted, marginTop: 9, lineHeight: 1.6,
+            maxWidth: 280, marginLeft: "auto", marginRight: "auto",
+          }}>
             Häfen, Notizen und Seemeilen wandern ins Fahrtenbuch, der Planer wird für die nächste Reise leer.
           </div>
         </div>
@@ -5623,25 +5668,25 @@ function gehoertZuTab(screen, tabId) {
 function TabBar({ screen, gehe }) {
   return (
     <nav className="no-print" style={{
-      position: "fixed", left: 0, right: 0, bottom: 0, background: "rgba(255,255,255,0.88)",
+      position: "fixed", left: 0, right: 0, bottom: 0, background: "rgba(255,255,255,0.8)",
       backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)", zIndex: 40,
       borderTop: `1px solid ${C.line}`,
-      padding: "4px 10px calc(2px + env(safe-area-inset-bottom))",
+      padding: "3px 10px calc(2px + env(safe-area-inset-bottom))",
     }}>
       <div style={{ maxWidth: 640, margin: "0 auto", display: "flex" }}>
         {TABS.map((t) => {
           const aktiv = gehoertZuTab(screen, t.id);
-          const farbe = aktiv ? C.tiefsee : "#AEBEC5";
+          const farbe = aktiv ? C.tiefsee : "#93A7B0";
           return (
             <button key={t.id} type="button" onClick={() => gehe(t.id)} aria-current={aktiv ? "page" : undefined}
               style={{
                 flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
-                background: "transparent", border: "none", cursor: "pointer", padding: "8px 4px 6px",
-                minHeight: 48,
+                background: "transparent", border: "none", cursor: "pointer", padding: "6px 4px 5px",
+                minHeight: 44,
               }}>
-              <t.Icon size={21} color={farbe} strokeWidth={aktiv ? 2.1 : 1.7} />
+              <t.Icon size={19} color={farbe} strokeWidth={aktiv ? 2.1 : 1.7} />
               <span style={{
-                fontFamily: SANS, fontWeight: aktiv ? 600 : 500, fontSize: 10.5, color: farbe, marginTop: 1,
+                fontFamily: SANS, fontWeight: aktiv ? 600 : 500, fontSize: 10, color: farbe, marginTop: 1,
               }}>{t.label}</span>
             </button>
           );
