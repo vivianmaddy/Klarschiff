@@ -6,7 +6,7 @@
   gespeicherte Fassung dauerhaft ausgeliefert – auch nach einer Aktualisierung.
   Nur fremde Dateien (Schriften, React) kommen zuerst aus dem Speicher.
 */
-const CACHE = "klarschiff-v30";
+const CACHE = "klarschiff-v31";
 
 self.addEventListener("install", (e) => {
   self.skipWaiting();

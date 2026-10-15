@@ -60,27 +60,30 @@ const Share = (p) => (
 ========================================================= */
 const C = {
   /* Flächen */
-  paper: "#F7F7F3",
+  paper: "#FAFAF7",
   white: "#FFFFFF",
-  sky: "#EEF5F6",
-  skySoft: "#F5FAFA",
-  sand: "#F4EADA",
-  line: "rgba(23,52,71,0.08)",
+  sky: "#DCEEF2",
+  skySoft: "#EEF8FA",
+  sand: "#F2EDE5",
+  line: "rgba(24,59,77,0.08)",
 
-  /* Küste & Sand — Akzente */
-  meer: "#BFDCE3",
-  meerKraeftig: "#84B9C5",
-  messing: "#D6B16F",
-  messingHell: "#E8CFA1",
-  messingLeise: "rgba(23,52,71,0.08)",
+  /* Küste — Akzente. Gold ist bewusst fast verschwunden: der Haupt-
+     akzent ist jetzt ein gedämpftes Türkis, Gold taucht nur noch an
+     einzelnen, bewusst gewählten Stellen über C.gold auf. */
+  meer: "#DCEEF2",
+  meerKraeftig: "#8DBDC6",
+  messing: "#8DBDC6",
+  messingHell: "#BFDDE2",
+  messingLeise: "rgba(24,59,77,0.08)",
+  gold: "#C9A869",
   terracotta: "#D98E7D",
 
   /* Schrift */
-  tiefsee: "#173447",
-  navy: "#173447",
-  nachtblau: "#173447",
-  body: "#3C5965",
-  muted: "#607986",
+  tiefsee: "#183B4D",
+  navy: "#183B4D",
+  nachtblau: "#183B4D",
+  body: "#3A5A68",
+  muted: "#5E7A86",
   blue: "#2B6F82",
 
   /* Signale */
@@ -89,19 +92,24 @@ const C = {
   green: "#2E6E5B",
   greenSoft: "#DDE9E4",
 
-  /* Karte — helles Küstenblau/Ivory */
-  wasser: "#CCE3E8",
-  wasserLinie: "#AFD3DA",
-  land: "#F8F3E6",
-  landLinie: "rgba(23,52,71,0.10)",
+  /* Karte — helles Küstenblau/Sandbeige */
+  wasser: "#DCEEF2",
+  wasserLinie: "#BFE0E6",
+  land: "#F2EDE5",
+  landLinie: "rgba(24,59,77,0.10)",
 };
 
-const SERIF = "'Cormorant Garamond', 'Playfair Display', Georgia, serif";
-const SANS = "'DM Sans', 'Questrial', 'Helvetica Neue', Arial, sans-serif";
-const MONO = "'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace";
-const DISPLAY = "'Manrope', 'DM Sans', 'Helvetica Neue', Arial, sans-serif";
+/* Nur zwei Schriftfamilien im ganzen Produkt: Playfair Display ganz
+   bewusst sparsam für ausgewählte emotionale Headlines (Schiffsname,
+   Countdown-Zahl), DM Sans für alles Funktionale. MONO/DISPLAY sind
+   hier aus Kompatibilität zum Rest der Datei noch eigene Konstanten,
+   zeigen aber beide auf DM Sans statt auf eigene Schriftarten. */
+const SERIF = "'Playfair Display', Georgia, serif";
+const SANS = "'DM Sans', 'Helvetica Neue', Arial, sans-serif";
+const MONO = SANS;
+const DISPLAY = SANS;
 
-const RUND = 18;
+const RUND = 20;
 const RUND_KLEIN = 12;
 
 const STORAGE_KEY = "klarschiff-kreuzfahrtplaner";
@@ -588,7 +596,7 @@ function Kicker({ children, color, hell }) {
     <div style={{ display: "flex", alignItems: "center", gap: 9, marginBottom: 12 }}>
       <span aria-hidden="true" style={{ width: 18, height: 1, background: C.messing, flexShrink: 0 }} />
       <span style={{
-        fontFamily: MONO, fontSize: 11.5, letterSpacing: 1.4, fontWeight: 500,
+        fontFamily: SANS, fontSize: 12, letterSpacing: 0.5, fontWeight: 600,
         textTransform: "uppercase", color: color || (hell ? C.messingHell : C.muted),
       }}>{children}</span>
     </div>
@@ -899,14 +907,29 @@ function CountdownHero({ cdWerte, prozent = 0, onTeilen }) {
   const stunden = cdWerte && cdWerte[1] ? cdWerte[1] : null;
   const minuten = cdWerte && cdWerte[2] ? cdWerte[2] : null;
   const beschreibung = cdWerte
-    ? `Noch ${haupt.zahl} ${haupt.label} bis zum Ablegen`
+    ? `Noch ${haupt.zahl} ${haupt.label}${stunden ? `, ${stunden.zahl} ${stunden.label}` : ""} bis zum Ablegen`
     : `${haupt.zahl} ${haupt.label}`;
+  const fortschritt = Math.max(0, Math.min(100, prozent));
+
+  const Segment = ({ zahl, label, gross }) => (
+    <div style={{ textAlign: "left", minWidth: 0 }}>
+      <div style={{
+        fontFamily: SERIF, fontWeight: 600, color: C.navy, lineHeight: 1, letterSpacing: "-0.01em",
+        fontSize: gross ? "clamp(46px, 15vw, 64px)" : "clamp(26px, 8vw, 34px)",
+      }}>{zahl}</div>
+      <div style={{
+        fontFamily: SANS, fontSize: gross ? 12.5 : 11, letterSpacing: 0.6, textTransform: "uppercase",
+        color: C.muted, marginTop: 4, fontWeight: 500,
+      }}>{label}</div>
+    </div>
+  );
 
   return (
     <div aria-label={beschreibung}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
         <span style={{
-          fontFamily: MONO, fontSize: 10.5, letterSpacing: 2.6, textTransform: "uppercase", color: C.muted,
+          fontFamily: SANS, fontSize: 11.5, letterSpacing: 1.2, textTransform: "uppercase",
+          fontWeight: 600, color: C.muted,
         }}>{cdWerte ? "Noch" : "Vorbereitung"}</span>
         {onTeilen && (
           <button type="button" onClick={onTeilen} aria-label="Countdown teilen" title="Countdown teilen" style={{
@@ -915,20 +938,31 @@ function CountdownHero({ cdWerte, prozent = 0, onTeilen }) {
           }}><Share size={12} color={C.blue} /></button>
         )}
       </div>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 9, marginTop: 1 }}>
-        <span style={{
-          fontFamily: SERIF, fontWeight: 600, fontSize: "clamp(44px, 14vw, 60px)",
-          lineHeight: 0.95, color: C.navy, letterSpacing: "-0.01em",
-        }}>{haupt.zahl}</span>
-        <span style={{
-          fontFamily: MONO, fontSize: 12, letterSpacing: 1.4, textTransform: "uppercase", color: C.muted,
-        }}>{haupt.label}</span>
+
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 20 }}>
+        <Segment zahl={haupt.zahl} label={haupt.label} gross />
+        {stunden && (
+          <>
+            <span aria-hidden="true" style={{ width: 1, height: 34, background: C.line, marginBottom: 4 }} />
+            <Segment zahl={stunden.zahl} label={stunden.label} />
+          </>
+        )}
+        {minuten && (
+          <>
+            <span aria-hidden="true" style={{ width: 1, height: 34, background: C.line, marginBottom: 4 }} />
+            <Segment zahl={minuten.zahl} label={minuten.label} />
+          </>
+        )}
       </div>
-      {(stunden || minuten) && (
-        <div style={{ fontFamily: SANS, fontSize: 13, color: C.muted, marginTop: 3 }}>
-          {stunden ? `${stunden.zahl} Std` : ""}{stunden && minuten ? " · " : ""}{minuten ? `${minuten.zahl} Min` : ""}
-        </div>
-      )}
+
+      <div aria-hidden="true" style={{
+        height: 3, borderRadius: 2, background: C.line, marginTop: 16, maxWidth: 160, overflow: "hidden",
+      }}>
+        <div style={{
+          width: `${fortschritt}%`, height: "100%", background: C.meerKraeftig, borderRadius: 2,
+          transition: "width .4s ease",
+        }} />
+      </div>
     </div>
   );
 }
@@ -965,12 +999,12 @@ function NaechsterStoppCard({ setup, haefen, onClick }) {
       }} />
       <div style={{ position: "absolute", left: 22, right: 22, bottom: 18 }}>
         <div style={{
-          fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.6, textTransform: "uppercase",
-          color: "rgba(255,255,255,0.8)",
+          fontFamily: SANS, fontWeight: 600, fontSize: 11, letterSpacing: 0.5, textTransform: "uppercase",
+          color: "rgba(255,255,255,0.82)",
         }}>{kicker}</div>
         <div style={{
-          fontFamily: DISPLAY, fontWeight: 800, fontSize: 25, color: C.white, marginTop: 4, letterSpacing: "-0.01em",
-        }}>{(eintrag.name || "").toUpperCase()}</div>
+          fontFamily: DISPLAY, fontWeight: 700, fontSize: 24, color: C.white, marginTop: 4, letterSpacing: "-0.01em",
+        }}>{eintrag.name || ""}</div>
         <div style={{ fontFamily: SANS, fontSize: 13.5, color: "rgba(255,255,255,0.9)", marginTop: 4 }}>{zeile}</div>
       </div>
     </button>
@@ -3528,8 +3562,14 @@ function regionWaehlen(punkte, route) {
   return zuordnung[route] || "mittel";
 }
 
-function Karte({ haefen, route, linie = true, nummern = true, maxHoehe = 1300, portListe = true }) {
+function Karte({ haefen, route, linie = true, nummern = true, maxHoehe = 1300, portListe = true, zoombar = true }) {
   const [aktiv, setAktiv] = useState(null);
+  const wrapRef = useRef(null);
+  const [t, setT] = useState({ s: 1, x: 0, y: 0 });
+  const [smooth, setSmooth] = useState(false);
+  const zeiger = useRef(new Map());
+  const pinchAbstand = useRef(null);
+  const bewegt = useRef(0);
   const punkte = haefen.filter((h) => typeof h.lon === "number" && typeof h.lat === "number");
   const regKey = regionWaehlen(punkte, route);
   const reg = REGIONEN[regKey];
@@ -3571,6 +3611,102 @@ function Karte({ haefen, route, linie = true, nummern = true, maxHoehe = 1300, p
   if (hoehe > maxHoehe) { skala = maxHoehe / hProj; hoehe = maxHoehe; }
   if (hoehe < 360) hoehe = 360;
   hoehe = Math.round(hoehe);
+
+  /* Zoom/Pan: der eigentliche Kartenausschnitt (Projektion oben) bleibt
+     unverändert — gezoomt/verschoben wird nur über eine zusätzliche
+     Transformation der Zeichnung selbst (Translate + Scale), damit Pins,
+     Routenlinie und Beschriftung exakt in Sync bleiben. */
+  const ZOOM_MIN = 1, ZOOM_MAX = 4.5;
+  const klemmen = (s, x, y) => {
+    const cs = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, s));
+    const cx = Math.min(0, Math.max(breite * (1 - cs), x));
+    const cy = Math.min(0, Math.max(hoehe * (1 - cs), y));
+    return { s: cs, x: cx, y: cy };
+  };
+  const zuKarte = (clientX, clientY) => {
+    const rect = wrapRef.current.getBoundingClientRect();
+    const f = breite / rect.width;
+    return { x: (clientX - rect.left) * f, y: (clientY - rect.top) * f };
+  };
+  const zoomeBei = (clientX, clientY, faktor) => {
+    setT((prev) => {
+      const p = zuKarte(clientX, clientY);
+      const px0 = (p.x - prev.x) / prev.s, py0 = (p.y - prev.y) / prev.s;
+      const s2 = prev.s * faktor;
+      return klemmen(s2, p.x - px0 * s2, p.y - py0 * s2);
+    });
+  };
+  const programmZoom = (faktor) => {
+    if (!wrapRef.current) return;
+    const rect = wrapRef.current.getBoundingClientRect();
+    setSmooth(true);
+    zoomeBei(rect.left + rect.width / 2, rect.top + rect.height / 2, faktor);
+    window.clearTimeout(wrapRef.current._smoothTimer);
+    wrapRef.current._smoothTimer = window.setTimeout(() => setSmooth(false), 320);
+  };
+  const zoomZuruecksetzen = () => {
+    setSmooth(true);
+    setT({ s: 1, x: 0, y: 0 });
+    window.clearTimeout(wrapRef.current && wrapRef.current._smoothTimer);
+    if (wrapRef.current) wrapRef.current._smoothTimer = window.setTimeout(() => setSmooth(false), 320);
+  };
+  /* React hängt onWheel passiv ein, dann schlägt preventDefault()
+     lautlos fehl und die Seite scrollt beim Zoomen mit. Deshalb hier
+     ein echter, nicht-passiver DOM-Listener statt der JSX-Prop. */
+  const onWheelRef = useRef(null);
+  onWheelRef.current = (e) => {
+    if (!zoombar) return;
+    e.preventDefault();
+    setSmooth(false);
+    zoomeBei(e.clientX, e.clientY, Math.exp(-e.deltaY * 0.0015));
+  };
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const handler = (e) => onWheelRef.current && onWheelRef.current(e);
+    el.addEventListener("wheel", handler, { passive: false });
+    return () => el.removeEventListener("wheel", handler);
+  }, []);
+  const onPointerDown = (e) => {
+    if (!zoombar) return;
+    wrapRef.current.setPointerCapture(e.pointerId);
+    zeiger.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    bewegt.current = 0;
+  };
+  const onPointerMove = (e) => {
+    if (!zoombar || !zeiger.current.has(e.pointerId)) return;
+    const vorher = zeiger.current.get(e.pointerId);
+    zeiger.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const alle = [...zeiger.current.values()];
+    if (alle.length === 1) {
+      const dx = e.clientX - vorher.x, dy = e.clientY - vorher.y;
+      bewegt.current += Math.abs(dx) + Math.abs(dy);
+      const rect = wrapRef.current.getBoundingClientRect();
+      const f = breite / rect.width;
+      setT((prev) => klemmen(prev.s, prev.x + dx * f, prev.y + dy * f));
+    } else if (alle.length === 2) {
+      const [a, b] = alle;
+      const abstand = Math.hypot(a.x - b.x, a.y - b.y);
+      const mitte = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      if (pinchAbstand.current) {
+        zoomeBei(mitte.x, mitte.y, abstand / pinchAbstand.current);
+      }
+      pinchAbstand.current = abstand;
+    }
+  };
+  const onPointerUp = (e) => {
+    zeiger.current.delete(e.pointerId);
+    pinchAbstand.current = null;
+  };
+  const onDoubleClick = (e) => {
+    if (!zoombar) return;
+    setSmooth(true);
+    zoomeBei(e.clientX, e.clientY, t.s > 1.4 ? (1 / t.s) : 2.4);
+    window.clearTimeout(wrapRef.current._smoothTimer);
+    wrapRef.current._smoothTimer = window.setTimeout(() => setSmooth(false), 320);
+  };
+  const invS = 1 / t.s;
+
   const offX = (breite - wProj * skala) / 2;
   const offY = (hoehe - hProj * skala) / 2;
   const zx = (lon) => (X(lon) - bxs[0]) * skala + offX;
@@ -3623,7 +3759,7 @@ function Karte({ haefen, route, linie = true, nummern = true, maxHoehe = 1300, p
      zu nah beieinander, fällt eines wieder raus — Start und Ziel bleiben
      dabei in jedem Fall stehen. Alle anderen zeigen nur ihre Nummer und
      stehen zusätzlich in der Liste unter der Karte. */
-  const maxLabels = 5;
+  const maxLabels = t.s > 2.1 ? punkte.length : (t.s > 1.35 ? Math.min(punkte.length, 9) : 5);
   const labelKandidaten = new Set();
   if (punkte.length <= maxLabels) {
     punkte.forEach((_, i) => labelKandidaten.add(i));
@@ -3671,72 +3807,98 @@ function Karte({ haefen, route, linie = true, nummern = true, maxHoehe = 1300, p
     return d;
   })();
 
+  const zoomKnopf = (inhalt, onClick, titel) => (
+    <button type="button" onClick={onClick} aria-label={titel} title={titel} style={{
+      width: 30, height: 30, display: "grid", placeItems: "center", cursor: "pointer",
+      borderRadius: RUND_KLEIN, border: `1px solid ${C.line}`, background: "rgba(255,255,255,0.92)",
+      color: C.navy, fontFamily: SANS, fontWeight: 600, fontSize: 15, boxShadow: "0 2px 8px rgba(24,59,77,0.10)",
+    }}>{inhalt}</button>
+  );
+
   return (
     <div style={{ marginBottom: 22 }}>
-      <div style={{ borderRadius: RUND, overflow: "hidden", border: `1px solid ${C.line}` }}>
+      <div ref={wrapRef} style={{
+        position: "relative", borderRadius: RUND, overflow: "hidden", border: `1px solid ${C.line}`,
+        touchAction: zoombar ? "none" : "auto",
+      }}
+        onPointerDown={onPointerDown} onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp} onPointerCancel={onPointerUp} onDoubleClick={onDoubleClick}>
         <svg viewBox={`0 0 ${breite} ${hoehe}`} width="100%" style={{ display: "block" }}
-          role="img" aria-label={`Seekarte ${reg.name} mit euren Häfen`}>
+          role="img" aria-label={`Seekarte ${reg.name} mit euren Häfen${zoombar ? " – zum Vergrößern ziehen oder scrollen" : ""}`}>
           <rect x="0" y="0" width={breite} height={hoehe} fill={C.wasser} />
+          <g style={{ transition: smooth ? "transform .32s cubic-bezier(.2,.8,.2,1)" : "none" }}
+            transform={`translate(${t.x.toFixed(2)} ${t.y.toFixed(2)}) scale(${t.s.toFixed(4)})`}>
 
-          {reg.land.map((ring, i) => (
-            <path key={"l" + i} d={pfad(ring)} fill={C.land} stroke={C.landLinie} strokeWidth="1"
-              strokeLinejoin="round" />
-          ))}
-          {(reg.wasser || []).map((ring, i) => (
-            <path key={"w" + i} d={pfad(ring)} fill={C.wasser} stroke={C.landLinie} strokeWidth="1"
-              strokeLinejoin="round" />
-          ))}
-          {reg.inseln.map((s, i) => {
-            const [x, y] = px({ lon: s[0], lat: s[1] });
-            return <circle key={"i" + i} cx={x} cy={y} r={s[2]} fill={C.land} stroke={C.landLinie}
-              strokeWidth="1" />;
-          })}
+            {reg.land.map((ring, i) => (
+              <path key={"l" + i} d={pfad(ring)} fill={C.land} stroke={C.landLinie} strokeWidth="1"
+                strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+            ))}
+            {(reg.wasser || []).map((ring, i) => (
+              <path key={"w" + i} d={pfad(ring)} fill={C.wasser} stroke={C.landLinie} strokeWidth="1"
+                strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+            ))}
+            {reg.inseln.map((s, i) => {
+              const [x, y] = px({ lon: s[0], lat: s[1] });
+              return <circle key={"i" + i} cx={x} cy={y} r={s[2]} fill={C.land} stroke={C.landLinie}
+                strokeWidth="1" vectorEffect="non-scaling-stroke" />;
+            })}
 
-          {linie && punkte.length > 1 && (
-            <>
-              <path d={routenPfad} fill="none" stroke={C.messing} strokeWidth="8" strokeOpacity="0.14"
-                strokeLinecap="round" strokeLinejoin="round" />
-              <path d={routenPfad} fill="none" stroke={C.messing} strokeWidth="2.8"
-                strokeLinecap="round" strokeLinejoin="round"
-                style={{ animation: "routeZeichnen 1.1s ease both" }} />
-            </>
-          )}
+            {linie && punkte.length > 1 && (
+              <>
+                <path d={routenPfad} fill="none" stroke={C.messing} strokeWidth="8" strokeOpacity="0.14"
+                  strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+                <path d={routenPfad} fill="none" stroke={C.messing} strokeWidth="2.8"
+                  strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke"
+                  style={{ animation: "routeZeichnen 1.1s ease both" }} />
+              </>
+            )}
 
-          {punkte.map((p, i) => {
-            const { x, y } = pinPositionen[i];
-            const rechts = x < breite * 0.62;
-            const istAktiv = aktiv === i;
-            const istRand = i === 0 || i === letzterIndex;
-            const zeigeLabel = labelSet.has(i) || istAktiv;
-            const r = istAktiv ? 12 : (istRand ? 10.5 : 8.5);
-            return (
-              <g key={"p" + i} onClick={() => setAktiv(istAktiv ? null : i)} style={{
-                cursor: "pointer", animation: `pinAuftauchen .4s ease both`, animationDelay: `${Math.min(i * 45, 500)}ms`,
-              }}>
-                {istRand && !istAktiv && (
-                  <circle cx={x} cy={y} r={r + 5} fill="none" stroke={C.messing} strokeWidth="1.4" opacity="0.55" />
-                )}
-                <circle cx={x} cy={y} r={r + 3.5} fill={C.white} />
-                <circle cx={x} cy={y} r={r} fill={istAktiv ? C.messing : C.navy} />
-                {nummern && (
-                  <text x={x} y={y + (istAktiv ? 4.6 : 4)} textAnchor="middle"
-                    fontSize={istAktiv ? "12.5" : "10.5"} fill={C.white}
-                    fontFamily={MONO}>{i + 1}</text>
-                )}
-                {zeigeLabel && (
-                  <text x={rechts ? x + r + 10 : x - r - 10} y={y + 6} textAnchor={rechts ? "start" : "end"}
-                    fontSize="20" fill={C.navy} fontFamily={SERIF} fontWeight="600" stroke={C.wasser}
-                    strokeWidth="5" paintOrder="stroke">{p.name || "Hafen"}</text>
-                )}
-              </g>
-            );
-          })}
+            {punkte.map((p, i) => {
+              const { x, y } = pinPositionen[i];
+              const rechts = x < breite * 0.62;
+              const istAktiv = aktiv === i;
+              const istRand = i === 0 || i === letzterIndex;
+              const zeigeLabel = labelSet.has(i) || istAktiv;
+              const r = (istAktiv ? 12 : (istRand ? 10.5 : 8.5)) * invS;
+              return (
+                <g key={"p" + i} onClick={() => { if (bewegt.current < 6) setAktiv(istAktiv ? null : i); }} style={{
+                  cursor: "pointer", animation: `pinAuftauchen .4s ease both`, animationDelay: `${Math.min(i * 45, 500)}ms`,
+                }}>
+                  {istRand && !istAktiv && (
+                    <circle cx={x} cy={y} r={r + 5 * invS} fill="none" stroke={C.messing}
+                      strokeWidth={1.4 * invS} opacity="0.55" />
+                  )}
+                  <circle cx={x} cy={y} r={r + 3.5 * invS} fill={C.white} />
+                  <circle cx={x} cy={y} r={r} fill={istAktiv ? C.messing : C.navy} />
+                  {nummern && (
+                    <text x={x} y={y + (istAktiv ? 4.6 : 4) * invS} textAnchor="middle"
+                      fontSize={(istAktiv ? 12.5 : 10.5) * invS} fill={C.white}
+                      fontFamily={SANS} fontWeight="600">{i + 1}</text>
+                  )}
+                  {zeigeLabel && (
+                    <text x={rechts ? x + (r + 10 * invS) : x - (r + 10 * invS)} y={y + 6 * invS}
+                      textAnchor={rechts ? "start" : "end"} fontSize={15 * invS} fill={C.navy}
+                      fontFamily={SANS} fontWeight="700" stroke={C.wasser} strokeWidth={5 * invS}
+                      paintOrder="stroke">{p.name || "Hafen"}</text>
+                  )}
+                </g>
+              );
+            })}
+          </g>
         </svg>
+
+        {zoombar && (
+          <div style={{ position: "absolute", top: 10, right: 10, display: "flex", flexDirection: "column", gap: 6 }}>
+            {zoomKnopf("+", () => programmZoom(1.5), "Karte vergrößern")}
+            {zoomKnopf("–", () => programmZoom(1 / 1.5), "Karte verkleinern")}
+            {t.s > 1.03 && zoomKnopf("⟲", zoomZuruecksetzen, "Ansicht zurücksetzen")}
+          </div>
+        )}
       </div>
 
       <div style={{
         display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap",
-        fontFamily: MONO, fontSize: 11, letterSpacing: 1, textTransform: "uppercase",
+        fontFamily: SANS, fontSize: 12, fontWeight: 500, letterSpacing: 0.3,
         color: C.muted, marginTop: 10,
       }}>
         <span>{reg.name}{punkte.length < 2 ? " · noch keine Route" : ""}</span>
@@ -5281,7 +5443,8 @@ function StatChip({ Icon, wert, label }) {
         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
       }}>{wert}</div>
       <div style={{
-        fontFamily: MONO, fontSize: 9, letterSpacing: 1.6, textTransform: "uppercase", color: C.muted, marginTop: 8,
+        fontFamily: SANS, fontWeight: 600, fontSize: 9.5, letterSpacing: 0.4, textTransform: "uppercase",
+        color: C.muted, marginTop: 8,
       }}>{label}</div>
     </div>
   );
@@ -5295,7 +5458,7 @@ function FunktionsZeile({ Icon, titel, unter, onClick, letzte }) {
   return (
     <button type="button" onClick={onClick} style={{
       width: "100%", display: "flex", alignItems: "center", gap: 12, textAlign: "left",
-      background: "none", border: "none", cursor: "pointer", padding: "11px 2px", minHeight: 40,
+      background: "none", border: "none", cursor: "pointer", padding: "12px 2px", minHeight: 44,
       borderBottom: letzte ? "none" : `1px solid ${C.line}`,
     }}>
       <span style={{
@@ -5325,8 +5488,12 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
   const cdWerte = countdownWerte(s);
   const hatReise = !!(s.reederei || s.schiff || ab);
 
-  const routePunkte = daten.haefen.filter((x) => typeof x.lon === "number");
+  const routePunkte = daten.haefen
+    .map((x, i) => ({ ...x, _tag: i, _datum: ab ? plusTage(ab, i) : null }))
+    .filter((x) => typeof x.lon === "number");
   const routeSm = routePunkte.reduce((a, p, i) => (i ? a + seemeilen(routePunkte[i - 1], p) : 0), 0);
+  const naechsterTag = naechsterHafen(s, daten.haefen)?.index ?? null;
+  const heuteDatum = heute();
   const naechte = parseInt(s.naechte, 10) || 0;
   const ende = ab && naechte ? plusTage(ab, naechte) : null;
 
@@ -5359,14 +5526,14 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
 
         <div style={{ position: "absolute", left: 20, right: 20, bottom: 30 }}>
           <div style={{
-            fontFamily: MONO, fontSize: 11, letterSpacing: 2.6, textTransform: "uppercase",
-            color: "rgba(255,255,255,0.72)",
+            fontFamily: SANS, fontWeight: 600, fontSize: 11.5, letterSpacing: 0.6, textTransform: "uppercase",
+            color: "rgba(255,255,255,0.78)",
           }}>{hatReise ? "Eure nächste Reise" : "Klarschiff"}</div>
 
           {s.reederei && (
             <div style={{
-              fontFamily: MONO, fontSize: 10.5, letterSpacing: 1.4, textTransform: "uppercase",
-              color: "rgba(255,255,255,0.55)", marginTop: 5,
+              fontFamily: SANS, fontWeight: 500, fontSize: 10.5, letterSpacing: 0.4, textTransform: "uppercase",
+              color: "rgba(255,255,255,0.58)", marginTop: 4,
             }}>{reedereiKurz(s.reederei)}</div>
           )}
 
@@ -5414,42 +5581,57 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
           <div style={{ marginBottom: 26 }}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
               <span style={{
-                fontFamily: MONO, fontSize: 11, letterSpacing: 1.8, textTransform: "uppercase", color: C.muted,
+                fontFamily: SANS, fontSize: 12, fontWeight: 600, letterSpacing: 0.4, textTransform: "uppercase",
+                color: C.muted,
               }}>Route</span>
               <button type="button" onClick={() => gehe("route")} style={{
                 background: "none", border: "none", cursor: "pointer", padding: 0,
-                fontFamily: SANS, fontSize: 13, color: C.blue,
+                fontFamily: SANS, fontWeight: 600, fontSize: 13, color: C.blue,
               }}>Ganze Route ansehen ›</button>
             </div>
             <div style={{
               display: "flex", alignItems: "flex-start", overflowX: "auto",
-              WebkitOverflowScrolling: "touch", padding: "4px 2px 6px",
+              WebkitOverflowScrolling: "touch", padding: "6px 4px 10px",
+              scrollSnapType: "x proximity",
             }}>
-              {routePunkte.map((p, i) => (
-                <React.Fragment key={i}>
-                  {i > 0 && (
-                    <span aria-hidden="true" style={{
-                      width: 26, height: 1.5, background: C.messing, opacity: 0.4,
-                      marginTop: 5, flexShrink: 0,
-                    }} />
-                  )}
-                  <div style={{
-                    display: "flex", flexDirection: "column", alignItems: "center",
-                    flexShrink: 0, minWidth: 56, maxWidth: 78,
-                  }}>
-                    <span aria-hidden="true" style={{
-                      width: (i === 0 || i === routePunkte.length - 1) ? 9 : 7,
-                      height: (i === 0 || i === routePunkte.length - 1) ? 9 : 7,
-                      borderRadius: "50%",
-                      background: (i === 0 || i === routePunkte.length - 1) ? C.navy : C.messing,
-                    }} />
-                    <span style={{
-                      fontFamily: SANS, fontSize: 12.5, fontWeight: 500, color: C.navy,
-                      marginTop: 8, textAlign: "center", lineHeight: 1.25,
-                    }}>{p.name}</span>
-                  </div>
-                </React.Fragment>
-              ))}
+              {routePunkte.map((p, i) => {
+                const istRand = i === 0 || i === routePunkte.length - 1;
+                const istAktuell = naechsterTag !== null && p._tag === naechsterTag;
+                const istVergangen = !!(p._datum && p._datum < heuteDatum) && !istAktuell;
+                const punktGroesse = istAktuell ? 13 : (istRand ? 9 : 7);
+                return (
+                  <React.Fragment key={i}>
+                    {i > 0 && (
+                      <span aria-hidden="true" style={{
+                        width: 26, height: 1.5, flexShrink: 0, marginTop: 6,
+                        background: istVergangen ? C.muted : C.messing,
+                        opacity: istVergangen ? 0.35 : 0.45,
+                      }} />
+                    )}
+                    <div style={{
+                      display: "flex", flexDirection: "column", alignItems: "center",
+                      flexShrink: 0, minWidth: 60, maxWidth: 84, scrollSnapAlign: "start",
+                      opacity: istVergangen ? 0.5 : 1, transition: "opacity .2s ease",
+                    }}>
+                      <span aria-hidden="true" style={{
+                        width: punktGroesse, height: punktGroesse, borderRadius: "50%",
+                        background: istAktuell ? C.messing : (istRand ? C.navy : C.messing),
+                        boxShadow: istAktuell ? `0 0 0 4px ${C.skySoft}` : "none",
+                        transition: "all .2s ease",
+                      }} />
+                      <span style={{
+                        fontFamily: SANS, fontSize: 12.5, fontWeight: istAktuell ? 700 : 500,
+                        color: C.navy, marginTop: 8, textAlign: "center", lineHeight: 1.25,
+                      }}>{p.name}</span>
+                      {p._datum && (
+                        <span style={{ fontFamily: SANS, fontSize: 10.5, color: C.muted, marginTop: 2 }}>
+                          {tagMonat(p._datum)}
+                        </span>
+                      )}
+                    </div>
+                  </React.Fragment>
+                );
+              })}
             </div>
           </div>
         )}
@@ -5483,7 +5665,7 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
         {bilanz.reisen > 0 && (
           <div style={{ marginBottom: 8 }}>
             <div style={{
-              fontFamily: MONO, fontSize: 10, letterSpacing: 1.8, textTransform: "uppercase",
+              fontFamily: SANS, fontWeight: 600, fontSize: 10.5, letterSpacing: 0.4, textTransform: "uppercase",
               color: C.muted, marginBottom: 4,
             }}>Dein Logbuch</div>
             <div style={{ fontFamily: SANS, fontSize: 13, color: C.body }}>
@@ -5514,7 +5696,7 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
           <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "28px 0 16px" }}>
             <span aria-hidden="true" style={{ width: 20, height: 1, background: C.messing }} />
             <span style={{
-              fontFamily: MONO, fontSize: 11.5, letterSpacing: 2.4, textTransform: "uppercase", color: C.muted,
+              fontFamily: SANS, fontWeight: 600, fontSize: 11.5, letterSpacing: 0.4, textTransform: "uppercase", color: C.muted,
             }}>Weitere Reisen in Planung</span>
             <span aria-hidden="true" style={{ flex: 1, height: 1, background: C.line }} />
           </div>
@@ -5566,7 +5748,129 @@ function Start({ daten, gehe, fortschritt, onAbschliessen, onTeilen, onParken, o
 /* =========================================================
    TEILEN – Postkarte fürs Screenshot
 ========================================================= */
+function ladeBild(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+/* Zeichnet einen vorsichtig größengeprüften, zentrierten Text — schrumpft
+   die Schrift in 4px-Schritten, bis sie in maxBreite passt, statt den
+   Schiffsnamen abzuschneiden oder über den Bildrand laufen zu lassen. */
+function zentrierterText(ctx, text, cx, y, maxBreite, { familie, gewicht, groesse, minGroesse = 28 }) {
+  let g = groesse;
+  ctx.font = `${gewicht} ${g}px "${familie}"`;
+  while (ctx.measureText(text).width > maxBreite && g > minGroesse) {
+    g -= 4;
+    ctx.font = `${gewicht} ${g}px "${familie}"`;
+  }
+  ctx.fillText(text, cx, y);
+  return g;
+}
+
+/* ---------------------------------------------------------
+   erstelleTeilenBild – rendert die Countdown-Postkarte als echtes
+   1080×1920-PNG (9:16, Instagram-Story-Format) auf einem Offscreen-
+   Canvas: Schiffsfoto, Verlauf, Schiffsname, Reiseziel, Termin und
+   Countdown, ohne jede App-Chrome. Liefert damit ein wirklich
+   exportierbares Bild statt nur einer Bildschirm-Vorschau.
+--------------------------------------------------------- */
+async function erstelleTeilenBild(daten) {
+  const s = daten.setup;
+  const h = daten.haefen || [];
+  const ab = alsDatum(s.abfahrt);
+  const cdWerte = countdownWerte(s);
+  const grossTitel = (s.schiff || s.reederei || "Unsere Reise").toUpperCase();
+  const foto = heroBild(s.schiff || s.reederei || daten.nutzerName);
+
+  const W = 1080, H = 1920;
+  const canvas = document.createElement("canvas");
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d");
+
+  const hintergrund = ctx.createLinearGradient(0, 0, 0, H);
+  hintergrund.addColorStop(0, "#2E5A6E");
+  hintergrund.addColorStop(1, C.tiefsee);
+  ctx.fillStyle = hintergrund;
+  ctx.fillRect(0, 0, W, H);
+
+  try {
+    const img = await ladeBild(foto);
+    const skala = Math.max(W / img.width, H / img.height);
+    const zw = img.width * skala, zh = img.height * skala;
+    ctx.drawImage(img, (W - zw) / 2, (H - zh) / 2, zw, zh);
+  } catch (e) { /* Verlaufs-Hintergrund bleibt als Fallback stehen */ }
+
+  const verlauf = ctx.createLinearGradient(0, 0, 0, H);
+  verlauf.addColorStop(0, "rgba(24,59,77,0.32)");
+  verlauf.addColorStop(0.42, "rgba(24,59,77,0.18)");
+  verlauf.addColorStop(0.64, "rgba(24,59,77,0.58)");
+  verlauf.addColorStop(1, "rgba(24,59,77,0.94)");
+  ctx.fillStyle = verlauf;
+  ctx.fillRect(0, 0, W, H);
+
+  await Promise.all([
+    document.fonts.load('600 28px "DM Sans"'),
+    document.fonts.load('500 36px "DM Sans"'),
+    document.fonts.load('600 86px "Playfair Display"'),
+    document.fonts.load('700 300px "Playfair Display"'),
+  ]).catch(() => {});
+  await (document.fonts.ready || Promise.resolve());
+
+  ctx.textAlign = "center";
+  ctx.textBaseline = "alphabetic";
+
+  ctx.fillStyle = "rgba(255,255,255,0.8)";
+  ctx.font = '600 26px "DM Sans"';
+  ctx.fillText("KLARSCHIFF · @WOLKEN.WANDERER", W / 2, 108);
+
+  ctx.fillStyle = "#FFFFFF";
+  zentrierterText(ctx, grossTitel, W / 2, 580, W - 160, {
+    familie: "Playfair Display", gewicht: 600, groesse: 84, minGroesse: 44,
+  });
+
+  ctx.font = '500 34px "DM Sans"';
+  ctx.fillStyle = "rgba(255,255,255,0.92)";
+  ctx.fillText(reiseBezeichnung(s, h), W / 2, 648);
+
+  if (ab) {
+    ctx.font = '400 28px "DM Sans"';
+    ctx.fillStyle = "rgba(255,255,255,0.72)";
+    ctx.fillText(langDatum(ab), W / 2, 692);
+  }
+
+  if (cdWerte) {
+    ctx.font = '600 26px "DM Sans"';
+    ctx.fillStyle = "rgba(255,255,255,0.72)";
+    ctx.fillText("NOCH", W / 2, 1160);
+
+    ctx.font = '700 300px "Playfair Display"';
+    ctx.fillStyle = "#FFFFFF";
+    ctx.fillText(cdWerte[0].zahl, W / 2, 1480);
+
+    ctx.font = '600 36px "DM Sans"';
+    ctx.fillStyle = "rgba(255,255,255,0.85)";
+    ctx.fillText(cdWerte[0].label.toUpperCase(), W / 2, 1536);
+
+    if (cdWerte[1]) {
+      const teile = [
+        `${cdWerte[1].zahl} ${cdWerte[1].label}`,
+        cdWerte[2] ? `${cdWerte[2].zahl} ${cdWerte[2].label}` : null,
+      ].filter(Boolean).join(" · ");
+      ctx.font = '500 30px "DM Sans"';
+      ctx.fillStyle = "rgba(255,255,255,0.78)";
+      ctx.fillText(teile, W / 2, 1600);
+    }
+  }
+
+  return new Promise((resolve) => canvas.toBlob(resolve, "image/png", 0.95));
+}
+
 function TeilenPostkarte({ daten, onClose }) {
+  const [exportiere, setExportiere] = useState(false);
   const s = daten.setup;
   const h = daten.haefen || [];
   const ab = alsDatum(s.abfahrt);
@@ -5578,6 +5882,26 @@ function TeilenPostkarte({ daten, onClose }) {
      doppelt in einer einzigen, kaum lesbaren Zeile. */
   const grossTitel = s.schiff || s.reederei || "Unsere Reise";
   const kickerReederei = s.schiff && s.reederei ? reedereiKurz(s.reederei) : null;
+
+  async function bildTeilen() {
+    if (exportiere) return;
+    setExportiere(true);
+    try {
+      const blob = await erstelleTeilenBild(daten);
+      if (!blob) return;
+      const datei = new File([blob], "klarschiff-countdown.png", { type: "image/png" });
+      if (navigator.canShare && navigator.canShare({ files: [datei] })) {
+        await navigator.share({ files: [datei], title: "Klarschiff" }).catch(() => {});
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = "klarschiff-countdown.png";
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      }
+    } catch (e) { /* still fine to try again — nichts stürzt ab */ }
+    finally { setExportiere(false); }
+  }
 
   return (
     <div role="dialog" aria-modal="true" className="no-print" style={{
@@ -5595,12 +5919,12 @@ function TeilenPostkarte({ daten, onClose }) {
       <div style={{ maxWidth: 480, margin: "0 auto" }}>
         <div style={{ textAlign: "center", margin: "16px 0 22px" }}>
           <div style={{
-            fontFamily: MONO, fontSize: 10, letterSpacing: 3.2, color: C.messing,
+            fontFamily: SANS, fontWeight: 600, fontSize: 11, letterSpacing: 1.2, color: C.messing,
             textTransform: "uppercase", marginBottom: 10,
           }}>Klarschiff · @wolken.wanderer</div>
           {kickerReederei && (
             <div style={{
-              fontFamily: MONO, fontSize: 11, letterSpacing: 1.6, color: C.blue,
+              fontFamily: SANS, fontWeight: 600, fontSize: 11.5, letterSpacing: 0.8, color: C.blue,
               textTransform: "uppercase", marginBottom: 4,
             }}>{kickerReederei}</div>
           )}
@@ -5616,19 +5940,30 @@ function TeilenPostkarte({ daten, onClose }) {
           )}
         </div>
 
+        <button type="button" onClick={bildTeilen} disabled={exportiere} style={{
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 9,
+          width: "100%", background: C.tiefsee, border: "none", borderRadius: 999,
+          color: C.white, fontFamily: SANS, fontWeight: 600, fontSize: 15,
+          padding: "15px 22px", minHeight: 48, cursor: exportiere ? "default" : "pointer",
+          opacity: exportiere ? 0.7 : 1, marginBottom: 22,
+        }}>
+          <Share size={16} color={C.white} />
+          {exportiere ? "Wird erstellt …" : "Als Bild speichern"}
+        </button>
+
         {cdWerte && (
           <div style={{ display: "flex", justifyContent: "center", marginBottom: 24 }}>
             <CountdownHero cdWerte={cdWerte} />
           </div>
         )}
 
-        <Karte haefen={h} route={s.route} maxHoehe={1000} portListe={false} />
+        <Karte haefen={h} route={s.route} maxHoehe={1000} portListe={false} zoombar={false} />
 
         <div style={{ display: "flex", justifyContent: "center", gap: 34, marginTop: 2, flexWrap: "wrap" }}>
           <div style={{ textAlign: "center" }}>
             <div style={{ fontFamily: SERIF, fontStyle: "italic", fontSize: 26, color: C.navy }}>{mitOrt.length}</div>
             <div style={{
-              fontFamily: MONO, fontSize: 10, letterSpacing: 1.4, color: C.messing,
+              fontFamily: SANS, fontWeight: 600, fontSize: 10.5, letterSpacing: 0.8, color: C.messing,
               textTransform: "uppercase", marginTop: 4,
             }}>{mitOrt.length === 1 ? "Hafen" : "Häfen"}</div>
           </div>
@@ -5636,7 +5971,7 @@ function TeilenPostkarte({ daten, onClose }) {
             <div style={{ textAlign: "center" }}>
               <div style={{ fontFamily: SERIF, fontStyle: "italic", fontSize: 26, color: C.navy }}>{sm.toLocaleString("de-DE")}</div>
               <div style={{
-                fontFamily: MONO, fontSize: 10, letterSpacing: 1.4, color: C.messing,
+                fontFamily: SANS, fontWeight: 600, fontSize: 10.5, letterSpacing: 0.8, color: C.messing,
                 textTransform: "uppercase", marginTop: 4,
               }}>Seemeilen</div>
             </div>
@@ -5646,7 +5981,7 @@ function TeilenPostkarte({ daten, onClose }) {
         <div style={{
           textAlign: "center", marginTop: 18, fontFamily: SANS, fontSize: 13.5,
           lineHeight: 1.7, color: C.muted,
-        }}>Macht einen Screenshot und teilt ihn — dieses Fenster ist extra für genau das gemacht.</div>
+        }}>Das Bild enthält Schiff, Route und Countdown — bereit fürs Teilen, ganz ohne App drumherum.</div>
       </div>
     </div>
   );
@@ -5676,17 +6011,25 @@ function TabBar({ screen, gehe }) {
       <div style={{ maxWidth: 640, margin: "0 auto", display: "flex" }}>
         {TABS.map((t) => {
           const aktiv = gehoertZuTab(screen, t.id);
-          const farbe = aktiv ? C.tiefsee : "#93A7B0";
+          const farbe = aktiv ? C.tiefsee : C.muted;
           return (
             <button key={t.id} type="button" onClick={() => gehe(t.id)} aria-current={aktiv ? "page" : undefined}
               style={{
-                flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2,
-                background: "transparent", border: "none", cursor: "pointer", padding: "6px 4px 5px",
+                flex: 1, position: "relative", display: "flex", flexDirection: "column", alignItems: "center",
+                gap: 2, background: "transparent", border: "none", cursor: "pointer", padding: "6px 4px 5px",
                 minHeight: 44,
               }}>
-              <t.Icon size={19} color={farbe} strokeWidth={aktiv ? 2.1 : 1.7} />
+              <span aria-hidden="true" style={{
+                position: "absolute", top: 0, left: "50%", width: 40, height: 26, borderRadius: 14,
+                background: C.sky, opacity: aktiv ? 0.9 : 0,
+                transform: `translateX(-50%) scale(${aktiv ? 1 : 0.85})`,
+                transition: "opacity .22s ease, transform .22s ease",
+              }} />
+              <t.Icon size={19} color={farbe} strokeWidth={aktiv ? 2.1 : 1.7}
+                style={{ position: "relative", transition: "color .2s ease" }} />
               <span style={{
-                fontFamily: SANS, fontWeight: aktiv ? 600 : 500, fontSize: 10, color: farbe, marginTop: 1,
+                position: "relative", fontFamily: SANS, fontWeight: aktiv ? 600 : 500, fontSize: 10.5,
+                color: farbe, marginTop: 1, transition: "color .2s ease",
               }}>{t.label}</span>
             </button>
           );
